@@ -1,0 +1,30 @@
+<h2>{{ "Dashboard" | transloco }}</h2>
+<div class="content-block">
+  <div class="dx-card responsive-paddings">
+    <div>
+      <b>{{ "welcome" | transloco }}</b>
+    </div>
+
+    <div class="dashboard" ngIf="!loading">
+      <dx-pie-chart
+        id="pie"
+        title="Entity Counts"
+        palette="Bright"
+        [dataSource]="chartData"
+        (onPointClick)="pointClickHandler($event)"
+        (onLegendClick)="legendClickHandler($event)"
+      >
+        <dxi-pie-chart-series argumentField="count" valueField="area">
+          <dxo-pie-chart-label [visible]="true">
+            <dxo-pie-chart-connector
+              [visible]="true"
+              [width]="1"
+            ></dxo-pie-chart-connector>
+          </dxo-pie-chart-label>
+        </dxi-pie-chart-series>
+        <dxo-pie-chart-size [width]="500"></dxo-pie-chart-size>
+        <dxo-pie-chart-export [enabled]="true"></dxo-pie-chart-export>
+      </dx-pie-chart>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+<h2>Companies</h2>
+
+<dx-data-grid
+  class="dx-card content-block"
+  [dataSource]="dataSource"
+  [showBorders]="false"
+  [focusedRowEnabled]="true"
+  [focusedRowIndex]="0"
+  [columnAutoWidth]="true"
+  [columnHidingEnabled]="true"
+  (onExporting)="exportGrid($event)"
+>
+  <dxo-editing
+    mode="popup"
+    [allowUpdating]="true"
+    [allowAdding]="true"
+    [allowDeleting]="true"
+  >
+    <dxo-popup title="Company" [showTitle]="true" [width]="700" [height]="500">
+    </dxo-popup>
+
+    <dxo-form>
+      <dxi-item dataField="companyName"></dxi-item>
+      <dxi-item dataField="taxNumber"></dxi-item>
+      <dxi-item dataField="isActive"></dxi-item>
+    </dxo-form>
+  </dxo-editing>
+
+  <dxo-toolbar>
+    <dxi-item name="addRowButton"></dxi-item>
+
+    <dxi-item name="searchPanel"></dxi-item>
+
+    <dxi-item name="exportButton"></dxi-item>
+  </dxo-toolbar>
+
+  <dxo-data-grid-paging [pageSize]="10"></dxo-data-grid-paging>
+  <dxo-data-grid-pager
+    [showPageSizeSelector]="true"
+    [showInfo]="true"
+  ></dxo-data-grid-pager>
+  <dxo-data-grid-filter-row [visible]="true"></dxo-data-grid-filter-row>
+
+  <dxo-selection
+    mode="multiple"
+    selectAllMode="page"
+    showCheckBoxesMode="always"
+  >
+  </dxo-selection>
+  <dxo-search-panel [visible]="true" [width]="300" placeholder="Ara...">
+  </dxo-search-panel>
+  <dxo-filter-row [visible]="true"> </dxo-filter-row>
+  <dxo-header-filter [visible]="true"> </dxo-header-filter>
+
+  <dxi-data-grid-column dataField="id" [width]="90" [hidingPriority]="1">
+  </dxi-data-grid-column>
+  <dxi-data-grid-column
+    dataField="companyName"
+    [width]="190"
+    caption="Company"
+    [hidingPriority]="6"
+  >
+  </dxi-data-grid-column>
+  <dxi-data-grid-column
+    dataField="taxNumber"
+    caption="Tax Number"
+    [hidingPriority]="4"
+  >
+  </dxi-data-grid-column>
+  <dxi-data-grid-column
+    dataField="isActive"
+    caption="Is Active"
+    [allowSorting]="false"
+    [hidingPriority]="5"
+  >
+  </dxi-data-grid-column>
+  <dxi-data-grid-column
+    dataField="createdAt"
+    caption="Create Date"
+    dataType="date"
+    [hidingPriority]="2"
+  >
+  </dxi-data-grid-column>
+  <dxi-data-grid-column
+    dataField="updatedAt"
+    caption="Update Date"
+    dataType="date"
+    [hidingPriority]="3"
+  >
+  </dxi-data-grid-column>
+  <dxo-export [enabled]="true" [allowExportSelectedData]="true"> </dxo-export>
+</dx-data-grid>

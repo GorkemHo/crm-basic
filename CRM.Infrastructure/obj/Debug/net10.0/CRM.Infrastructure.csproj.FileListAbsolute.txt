@@ -1,0 +1,17 @@
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\bin\Debug\net10.0\CRM.Infrastructure.deps.json
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\bin\Debug\net10.0\CRM.Infrastructure.runtimeconfig.json
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\bin\Debug\net10.0\CRM.Infrastructure.dll
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\bin\Debug\net10.0\CRM.Infrastructure.pdb
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\bin\Debug\net10.0\CRM.Core.dll
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\bin\Debug\net10.0\CRM.Core.pdb
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.AssemblyInfo.cs
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infr.2D6F64BC.Up2Date
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.dll
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\refint\CRM.Infrastructure.dll
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.pdb
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\CRM.Infrastructure.genruntimeconfig.cache
+C:\Users\gorke\Desktop\CRM\CRM.Infrastructure\obj\Debug\net10.0\ref\CRM.Infrastructure.dll
