@@ -1,6 +1,10 @@
 using CRM.BuildingBlocks.Application;
+using CRM.BuildingBlocks.Persistence;
+using CRM.BuildingBlocks.Security;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace CRM.BuildingBlocks.Modules;
@@ -11,6 +15,10 @@ public static class ModuleHostExtensions
     public static WebApplicationBuilder AddModules(this WebApplicationBuilder builder, params IModule[] modules)
     {
         builder.Services.AddDispatcher();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
+        builder.Services.TryAddSingleton(TimeProvider.System);
+        builder.Services.AddScoped<IInterceptor, AuditingInterceptor>();
 
         foreach(var module in modules)
         {

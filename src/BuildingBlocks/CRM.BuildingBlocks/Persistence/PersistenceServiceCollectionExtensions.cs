@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +27,7 @@ public static class PersistenceServiceCollectionExtensions
                 .UseNpgsql(connectionString, npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", schema))
                 .UseSnakeCaseNamingConvention();
 
-            options.AddInterceptors(serviceProvider.GetServices<Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor>());
+            options.AddInterceptors(serviceProvider.GetServices<IInterceptor>());
         });
 
         return services;
