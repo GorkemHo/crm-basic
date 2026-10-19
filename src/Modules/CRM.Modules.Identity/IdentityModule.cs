@@ -63,14 +63,16 @@ public sealed class IdentityModule : IModule
                 };
             });
 
-        // Brute-force protection for anonymous auth endpoints: per client IP.
+        // Brute-force protection for anonymous auth endpoints: per client IP, per minute.
+        var authPermitLimit = configuration.GetValue("RateLimiting:AuthPermitsPerMinute", 10);
+
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = 429;
             options.AddPolicy(IdentityEndpoints.AuthRateLimitPolicy, httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                    _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+                    _ => new FixedWindowRateLimiterOptions { PermitLimit = authPermitLimit, Window = TimeSpan.FromMinutes(1) }));
         });
     }
 

@@ -6,6 +6,8 @@
     <Project Path="src/Modules/CRM.Modules.Identity/CRM.Modules.Identity.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/CRM.ArchitectureTests/CRM.ArchitectureTests.csproj" />
+    <Project Path="tests/CRM.IntegrationTests/CRM.IntegrationTests.csproj" />
     <Project Path="tests/CRM.UnitTests/CRM.UnitTests.csproj" />
   </Folder>
 </Solution>

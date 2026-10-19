@@ -1,5 +1,5 @@
 @host = http://localhost:5084
-@email = admin@example.com
+@email = admin@crm.local
 @password = changeme
 
 ### Login (copy accessToken / refreshToken from the response)
@@ -24,11 +24,11 @@ Content-Type: application/json
 { "refreshToken": "{{refreshToken}}" }
 
 ### Companies (filtered, paged, sorted)
-GET {{host}}/api/companies/filtered?search=&pageNumber=1&pageSize=10&sortBy=companyName&sortDirection=asc
+GET {{host}}/api/companies?search=&pageNumber=1&pageSize=10&sortBy=companyName&sortDirection=asc
 Authorization: Bearer {{accessToken}}
 
 ### Customers of a company
-GET {{host}}/api/customers/filtered?companyId=1
+GET {{host}}/api/customers?companyId=1
 Authorization: Bearer {{accessToken}}
 
 ### Logout (revokes the refresh token)

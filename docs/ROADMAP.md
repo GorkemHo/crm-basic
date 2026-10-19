@@ -18,7 +18,7 @@ Decisions (2026-10-19):
 | 5 | Permission-based authorization, modules declare their permissions | ✅ |
 | 6 | Outbox + cross-module integration events (RabbitMQ when enabled) | ✅ |
 | 7 | Serilog, OpenTelemetry, health checks, rate limiting, Dockerfile + docker-compose | ✅ |
-| 8 | Unit, architecture (module boundaries) and integration tests; GitHub Actions CI | ⬜ |
+| 8 | Unit, architecture (module boundaries) and integration tests; GitHub Actions CI | ✅ |
 
 ## Phase 2 – UI rewrite (Angular + PrimeNG)
 
