@@ -3,11 +3,15 @@ import { Injectable, computed, signal } from '@angular/core';
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 
-// The API issues .NET ClaimTypes URIs; short JWT names are accepted too.
-const ROLE_CLAIMS = ['role', 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-const NAME_CLAIMS = ['unique_name', 'name', 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-const EMAIL_CLAIMS = ['email', 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'];
-const ID_CLAIMS = ['sub', 'nameid', 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+// Claim names issued by the API (CRM.Core.Security.CrmClaimTypes).
+const CLAIMS = {
+  userId: 'sub',
+  email: 'email',
+  name: 'name',
+  givenName: 'given_name',
+  familyName: 'family_name',
+  role: 'role',
+} as const;
 
 // Treat the token as expired slightly early so requests don't race the server clock.
 const EXPIRY_SKEW_MS = 30_000;
@@ -17,6 +21,8 @@ type JwtPayload = Record<string, unknown> & { exp?: number };
 export interface TokenUser {
   id: number | null;
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
@@ -46,10 +52,9 @@ function decodeJwt(token: string | null): JwtPayload | null {
   }
 }
 
-function firstClaim(payload: JwtPayload | null, keys: string[]): unknown {
-  if (!payload) return undefined;
-  const key = keys.find((k) => payload[k] !== undefined);
-  return key ? payload[key] : undefined;
+function claimString(payload: JwtPayload, key: string): string {
+  const value = payload[key];
+  return typeof value === 'string' ? value : '';
 }
 
 @Injectable({
@@ -64,7 +69,8 @@ export class AuthStore {
 
   /** Roles come from the access token, so they survive page reloads. */
   readonly roles = computed<string[]>(() => {
-    const value = firstClaim(this.claims(), ROLE_CLAIMS);
+    // A single role is serialized as a string, several as an array.
+    const value = this.claims()?.[CLAIMS.role];
     if (Array.isArray(value)) return value.map(String);
     return typeof value === 'string' ? [value] : [];
   });
@@ -73,12 +79,14 @@ export class AuthStore {
     const claims = this.claims();
     if (!claims) return null;
 
-    const id = Number(firstClaim(claims, ID_CLAIMS));
+    const id = Number(claims[CLAIMS.userId]);
 
     return {
       id: Number.isFinite(id) ? id : null,
-      name: String(firstClaim(claims, NAME_CLAIMS) ?? ''),
-      email: String(firstClaim(claims, EMAIL_CLAIMS) ?? ''),
+      name: claimString(claims, CLAIMS.name),
+      firstName: claimString(claims, CLAIMS.givenName),
+      lastName: claimString(claims, CLAIMS.familyName),
+      email: claimString(claims, CLAIMS.email),
     };
   });
 
