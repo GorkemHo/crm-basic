@@ -9,7 +9,7 @@ namespace CRM.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Admin,User")]
     public class CompaniesController : ControllerBase
     {
         private readonly ICompanyService _companyService;

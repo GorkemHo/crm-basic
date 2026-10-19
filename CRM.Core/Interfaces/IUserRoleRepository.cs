@@ -6,8 +6,9 @@ namespace CRM.Core.Interfaces
     {
         Task<IEnumerable<UserRole>> GetByUserIdAsync(int userId);
 
-        Task RemoveByUserIdAsync(int userId);
-
-        Task AddRangeAsync(IEnumerable<UserRole> userRoles);
+        /// <summary>
+        /// Replaces all roles of the user with the given role ids in a single transaction.
+        /// </summary>
+        Task ReplaceUserRolesAsync(int userId, IEnumerable<int> roleIds);
     }
 }

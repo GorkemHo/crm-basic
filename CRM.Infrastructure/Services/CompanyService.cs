@@ -32,14 +32,7 @@ namespace CRM.Core.Services
 
         public async Task<Company> CreateAsync(Company company)
         {
-            var existingCompany =
-            await _companyRepository.GetByTaxNumberAsync(company.TaxNumber!);
-
-            if (existingCompany is not null)
-            {
-                throw new InvalidOperationException(
-                "A company with the same tax number already exists.");
-            }
+            await EnsureTaxNumberIsUniqueAsync(company.TaxNumber, excludeId: null);
 
             return await _companyRepository.AddAsync(company);
         }
@@ -53,9 +46,11 @@ namespace CRM.Core.Services
                 return null;
             }
 
-            dto.MapToEntity(company!);
+            await EnsureTaxNumberIsUniqueAsync(dto.TaxNumber, excludeId: id);
 
-            await _companyRepository.UpdateAsync(company!);
+            dto.MapToEntity(company);
+
+            await _companyRepository.UpdateAsync(company);
 
             return company;
         }
@@ -86,8 +81,8 @@ namespace CRM.Core.Services
         }
 
         public async Task<Company?> PatchAsync(
-    int id,
-    UpdateCompanyPatchDto request)
+            int id,
+            UpdateCompanyPatchDto request)
         {
             var company = await _companyRepository
                 .GetByIdAsync(id);
@@ -95,23 +90,39 @@ namespace CRM.Core.Services
             if (company == null)
                 return null;
 
-
             if (request.CompanyName != null)
                 company.CompanyName = request.CompanyName;
 
-
             if (request.TaxNumber != null)
+            {
+                await EnsureTaxNumberIsUniqueAsync(request.TaxNumber, excludeId: id);
                 company.TaxNumber = request.TaxNumber;
-
+            }
 
             if (request.IsActive.HasValue)
                 company.IsActive = request.IsActive.Value;
 
+            company.UpdatedAt = DateTime.UtcNow;
 
             await _companyRepository.UpdateAsync(company);
 
-
             return company;
+        }
+
+        private async Task EnsureTaxNumberIsUniqueAsync(string? taxNumber, int? excludeId)
+        {
+            if (string.IsNullOrWhiteSpace(taxNumber))
+            {
+                return;
+            }
+
+            var existingCompany = await _companyRepository.GetByTaxNumberAsync(taxNumber);
+
+            if (existingCompany is not null && existingCompany.Id != excludeId)
+            {
+                throw new InvalidOperationException(
+                "A company with the same tax number already exists.");
+            }
         }
     }
 }

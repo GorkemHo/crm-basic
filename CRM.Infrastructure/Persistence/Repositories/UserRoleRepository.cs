@@ -18,28 +18,30 @@ namespace CRM.Infrastructure.Persistence.Repositories
         int userId)
         {
             return await _context.UserRoles
+            .AsNoTracking()
             .Include(x => x.Role)
             .Where(x => x.UserId == userId)
             .ToListAsync();
         }
 
-        public async Task RemoveByUserIdAsync(
-        int userId)
+        public async Task ReplaceUserRolesAsync(
+        int userId,
+        IEnumerable<int> roleIds)
         {
-            var roles = await _context.UserRoles
+            var existing = await _context.UserRoles
             .Where(x => x.UserId == userId)
             .ToListAsync();
 
-            _context.UserRoles.RemoveRange(roles);
+            _context.UserRoles.RemoveRange(existing);
 
-            await _context.SaveChangesAsync();
-        }
+            await _context.UserRoles.AddRangeAsync(
+            roleIds.Select(roleId => new UserRole
+            {
+                UserId = userId,
+                RoleId = roleId
+            }));
 
-        public async Task AddRangeAsync(
-        IEnumerable<UserRole> userRoles)
-        {
-            await _context.UserRoles.AddRangeAsync(userRoles);
-
+            // A single SaveChanges runs the deletes and inserts in one transaction.
             await _context.SaveChangesAsync();
         }
     }

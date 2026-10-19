@@ -1,4 +1,4 @@
-﻿using CRM.Core.DTOs;
+using CRM.Core.DTOs;
 using CRM.Core.DTOs.UserDtos;
 using CRM.Core.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -21,35 +21,20 @@ namespace CRM.API.Controllers
         public async Task<IActionResult> Login(
         [FromBody] LoginRequestDto request)
         {
-            try
-            {
-                var response = await _authService.LoginAsync(request);
+            var response = await _authService.LoginAsync(request);
 
-                return Ok(response);
-            }
-            catch(Exception)
-            {
-                throw new InvalidOperationException("Login Error");
-            }
-
+            return Ok(response);
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto request)
         {
-            try
-            {
-                await _authService.RegisterAsync(request);
+            await _authService.RegisterAsync(request);
 
-                return Ok(new
-                {
-                    Message = "User registered successfully."
-                });
-            }
-            catch(Exception)
+            return Ok(new
             {
-                throw new InvalidOperationException("Register Error");
-            }
+                Message = "User registered successfully."
+            });
         }
 
         [Authorize(Roles = "Admin")]

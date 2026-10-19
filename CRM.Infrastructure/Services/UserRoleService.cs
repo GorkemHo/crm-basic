@@ -1,6 +1,5 @@
 ﻿using CRM.Core.DTOs.RoleDtos;
 using CRM.Core.DTOs.UserDtos;
-using CRM.Core.Entities;
 using CRM.Core.Interfaces;
 using CRM.Core.Services;
 
@@ -9,31 +8,46 @@ namespace CRM.Infrastructure.Services
     public class UserRoleService : IUserRoleService
     {
         private readonly IUserRoleRepository _userRoleRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
 
         public UserRoleService(
-        IUserRoleRepository userRoleRepository)
+        IUserRoleRepository userRoleRepository,
+        IUserRepository userRepository,
+        IRoleRepository roleRepository)
         {
             _userRoleRepository = userRoleRepository;
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task AssignRolesAsync(int userId, AssignRolesDto dto)
         {
-            await _userRoleRepository
-            .RemoveByUserIdAsync(userId);
+            await EnsureUserExistsAsync(userId);
 
-            var userRoles = dto.RoleIds
-            .Select(roleId => new UserRole
+            var roleIds = dto.RoleIds.Distinct().ToList();
+
+            var existingRoles = await _roleRepository
+            .FindAsync(x => roleIds.Contains(x.Id));
+
+            var missingRoleIds = roleIds
+            .Except(existingRoles.Select(x => x.Id))
+            .ToList();
+
+            if(missingRoleIds.Count > 0)
             {
-                UserId = userId,
-                RoleId = roleId
-            });
+                throw new KeyNotFoundException(
+                $"Role(s) not found: {string.Join(", ", missingRoleIds)}.");
+            }
 
             await _userRoleRepository
-            .AddRangeAsync(userRoles);
+            .ReplaceUserRolesAsync(userId, roleIds);
         }
 
         public async Task<IEnumerable<UserRoleDto>> GetUserRolesAsync(int userId)
         {
+            await EnsureUserExistsAsync(userId);
+
             var userRoles =
             await _userRoleRepository
             .GetByUserIdAsync(userId);
@@ -43,6 +57,15 @@ namespace CRM.Infrastructure.Services
                 RoleId = x.RoleId,
                 RoleName = x.Role.Name
             });
+        }
+
+        private async Task EnsureUserExistsAsync(int userId)
+        {
+            if(!await _userRepository.ExistsAsync(x => x.Id == userId))
+            {
+                throw new KeyNotFoundException(
+                "User not found.");
+            }
         }
     }
 }

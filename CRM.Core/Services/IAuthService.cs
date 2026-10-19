@@ -6,6 +6,6 @@ namespace CRM.Core.Services
     public interface IAuthService
     {
         Task RegisterAsync(RegisterUserDto request);
-        Task<LoginResponseDto?> LoginAsync(LoginRequestDto request);
+        Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
     }
 }

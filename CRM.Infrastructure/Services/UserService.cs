@@ -32,14 +32,7 @@ namespace CRM.Infrastructure.Services
 
         public async Task<User> CreateAsync(CreateUserDto dto)
         {
-            var existingCustomer =
-            await _userRepository.GetByEmailAsync(dto.Email);
-
-            if(existingCustomer is not null)
-            {
-                throw new InvalidOperationException(
-                "A user with the same email already exists.");
-            }
+            await EnsureEmailIsUniqueAsync(dto.Email, excludeId: null);
 
             var user = new User
             {
@@ -65,6 +58,8 @@ namespace CRM.Infrastructure.Services
             {
                 return null;
             }
+
+            await EnsureEmailIsUniqueAsync(dto.Email, excludeId: id);
 
             dto.MapToEntity(user);
 
@@ -95,33 +90,27 @@ namespace CRM.Infrastructure.Services
             if(user == null)
                 return null;
 
-
-            if(dto.FirstName != null)
-                user.FirstName = dto.FirstName;
-
-
-            if(dto.LastName != null)
-                user.LastName = dto.LastName;
-
             if(dto.Email != null)
-                user.Email = dto.Email;
+            {
+                await EnsureEmailIsUniqueAsync(dto.Email, excludeId: id);
+            }
 
-
-            if(dto.IsActive.HasValue)
-                user.IsActive = dto.IsActive.Value;
-
-            user.UpdatedAt = DateTime.UtcNow;
-
-            Console.WriteLine($"CreatedAt: {user.CreatedAt}");
-            Console.WriteLine($"CreatedAt Kind: {user.CreatedAt.Kind}");
-
-            Console.WriteLine($"UpdatedAt: {user.UpdatedAt}");
-            Console.WriteLine($"UpdatedAt Kind: {user.UpdatedAt.Kind}");
+            dto.MapPatchToEntity(user);
 
             await _userRepository.UpdateAsync(user);
 
-
             return user;
+        }
+
+        private async Task EnsureEmailIsUniqueAsync(string email, int? excludeId)
+        {
+            var existingUser = await _userRepository.GetByEmailAsync(email);
+
+            if(existingUser is not null && existingUser.Id != excludeId)
+            {
+                throw new InvalidOperationException(
+                "A user with the same email already exists.");
+            }
         }
     }
 }

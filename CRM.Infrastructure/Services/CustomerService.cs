@@ -10,10 +10,14 @@ namespace CRM.Infrastructure.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly ICompanyRepository _companyRepository;
 
-        public CustomerService(ICustomerRepository customerRepository)
+        public CustomerService(
+            ICustomerRepository customerRepository,
+            ICompanyRepository companyRepository)
         {
             _customerRepository = customerRepository;
+            _companyRepository = companyRepository;
         }
 
         public async Task<IEnumerable<Customer>> GetAllAsync()
@@ -33,14 +37,8 @@ namespace CRM.Infrastructure.Services
 
         public async Task<Customer> CreateAsync(Customer customer)
         {
-            var existingCustomer =
-            await _customerRepository.GetByEmailAsync(customer.Email);
-
-            if(existingCustomer is not null)
-            {
-                throw new InvalidOperationException(
-                "A customer with the same email already exists.");
-            }
+            await EnsureEmailIsUniqueAsync(customer.Email, excludeId: null);
+            await EnsureCompanyExistsAsync(customer.CompanyId);
 
             return await _customerRepository.AddAsync(customer);
         }
@@ -55,6 +53,9 @@ namespace CRM.Infrastructure.Services
             {
                 return null;
             }
+
+            await EnsureEmailIsUniqueAsync(dto.Email, excludeId: id);
+            await EnsureCompanyExistsAsync(dto.CompanyId);
 
             dto.MapToEntity(customer);
 
@@ -89,8 +90,8 @@ namespace CRM.Infrastructure.Services
         }
 
         public async Task<Customer?> PatchAsync(
-    int id,
-    UpdateCustomerPatchDto request)
+            int id,
+            UpdateCustomerPatchDto request)
         {
             var customer = await _customerRepository
                 .GetByIdAsync(id);
@@ -100,47 +101,63 @@ namespace CRM.Infrastructure.Services
                 return null;
             }
 
-
             if(request.FirstName != null)
             {
                 customer.FirstName = request.FirstName;
             }
-
 
             if(request.LastName != null)
             {
                 customer.LastName = request.LastName;
             }
 
-
             if(request.Email != null)
             {
+                await EnsureEmailIsUniqueAsync(request.Email, excludeId: id);
                 customer.Email = request.Email;
             }
-
 
             if(request.PhoneNumber != null)
             {
                 customer.PhoneNumber = request.PhoneNumber;
             }
 
-
             if(request.CompanyId.HasValue)
             {
+                await EnsureCompanyExistsAsync(request.CompanyId.Value);
                 customer.CompanyId = request.CompanyId.Value;
             }
-
 
             if(request.IsActive.HasValue)
             {
                 customer.IsActive = request.IsActive.Value;
             }
 
+            customer.UpdatedAt = DateTime.UtcNow;
 
             await _customerRepository.UpdateAsync(customer);
 
-
             return customer;
+        }
+
+        private async Task EnsureEmailIsUniqueAsync(string email, int? excludeId)
+        {
+            var existingCustomer = await _customerRepository.GetByEmailAsync(email);
+
+            if(existingCustomer is not null && existingCustomer.Id != excludeId)
+            {
+                throw new InvalidOperationException(
+                "A customer with the same email already exists.");
+            }
+        }
+
+        private async Task EnsureCompanyExistsAsync(int companyId)
+        {
+            if(!await _companyRepository.ExistsAsync(x => x.Id == companyId))
+            {
+                throw new KeyNotFoundException(
+                "Company not found.");
+            }
         }
     }
 }

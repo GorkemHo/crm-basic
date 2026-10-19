@@ -26,7 +26,9 @@ namespace CRM.Infrastructure.Persistence.Repositories
 
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                query = query.Where(x => x.CompanyName.Contains(request.Search));
+                var search = request.Search.Trim().ToLower();
+
+                query = query.Where(x => x.CompanyName.ToLower().Contains(search));
             }
 
             if (request.IsActive.HasValue)

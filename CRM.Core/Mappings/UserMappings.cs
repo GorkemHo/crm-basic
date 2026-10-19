@@ -13,6 +13,10 @@ namespace CRM.Core.Mappings
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
+                // Only populated when UserRoles (with Role) were loaded by the query.
+                RoleName = string.Join(", ", user.UserRoles
+                    .Where(x => x.Role is not null)
+                    .Select(x => x.Role.Name)),
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt

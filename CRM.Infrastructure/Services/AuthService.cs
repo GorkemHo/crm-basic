@@ -47,6 +47,12 @@ namespace CRM.Infrastructure.Services
                 "Invalid credentials.");
             }
 
+            if(!user.IsActive)
+            {
+                throw new UnauthorizedAccessException(
+                "User account is disabled.");
+            }
+
             var roles = user.UserRoles
             .Select(x => x.Role.Name);
 
