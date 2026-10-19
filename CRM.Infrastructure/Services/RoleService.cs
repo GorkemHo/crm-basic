@@ -9,10 +9,14 @@ namespace CRM.Infrastructure.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IUserRoleRepository _userRoleRepository;
 
-        public RoleService(IRoleRepository roleRepository)
+        public RoleService(
+            IRoleRepository roleRepository,
+            IUserRoleRepository userRoleRepository)
         {
             _roleRepository = roleRepository;
+            _userRoleRepository = userRoleRepository;
         }
 
         public async Task<IEnumerable<Role>> GetAllAsync()
@@ -67,6 +71,12 @@ namespace CRM.Infrastructure.Services
             if (role is null)
             {
                 return false;
+            }
+
+            if (await _userRoleRepository.AnyWithRoleAsync(id))
+            {
+                throw new InvalidOperationException(
+                "The role is assigned to users and cannot be deleted.");
             }
 
             await _roleRepository.DeleteAsync(role);

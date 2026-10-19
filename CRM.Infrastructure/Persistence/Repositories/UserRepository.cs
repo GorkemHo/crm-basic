@@ -12,13 +12,29 @@ namespace CRM.Infrastructure.Persistence.Repositories
         {
         }
 
+        public override async Task<User?> GetByIdAsync(int id)
+        {
+            return await WithRoles(_dbSet)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public override async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await WithRoles(_dbSet.AsNoTracking())
+            .ToListAsync();
+        }
+
         public async Task<User?> GetByEmailAsync(string email)
         {
-
-            return await _context.Users
-            .Include(x => x.UserRoles)
-            .ThenInclude(x => x.Role)
+            return await WithRoles(_dbSet)
             .FirstOrDefaultAsync(x => x.Email == email);
+        }
+
+        private static IQueryable<User> WithRoles(IQueryable<User> query)
+        {
+            return query
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role);
         }
     }
 }

@@ -12,6 +12,7 @@ export interface LoginResponse {
   refreshToken: string;
   email: string;
   expiresAt: string;
+  refreshTokenExpiresAt: string;
   roles: string[];
   user: UserDto;
 }

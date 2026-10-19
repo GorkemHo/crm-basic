@@ -8,9 +8,10 @@ public class LoginResponseDto
     public string RefreshToken { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
+    public DateTime RefreshTokenExpiresAt { get; set; }
 
     public IEnumerable<string> Roles { get; set; }
         = Enumerable.Empty<string>();
 
-    public UserDto User { get; set; }
+    public UserDto User { get; set; } = null!;
 }

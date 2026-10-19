@@ -35,6 +35,7 @@ namespace CRM.Infrastructure.DependencyInjection
             services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IRoleService, RoleService>();

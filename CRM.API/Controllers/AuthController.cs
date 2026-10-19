@@ -37,6 +37,22 @@ namespace CRM.API.Controllers
             });
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto request)
+        {
+            var response = await _authService.RefreshAsync(request.RefreshToken);
+
+            return Ok(response);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto request)
+        {
+            await _authService.LogoutAsync(request.RefreshToken);
+
+            return NoContent();
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpGet("admin-only")]
         public IActionResult AdminOnly()

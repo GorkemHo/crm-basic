@@ -44,13 +44,19 @@ namespace CRM.Infrastructure.Persistence.Repositories
 
         public virtual async Task UpdateAsync(TEntity entity)
         {
-            _dbSet.Update(entity);
+            var entry = _context.Entry(entity);
 
-            _context.Entry(entity).State = EntityState.Modified;
+            // Tracked entities are diffed by the change tracker. Only attach detached ones,
+            // and only the root entity, so loaded navigations are not rewritten.
+            if(entry.State == EntityState.Detached)
+            {
+                entry.State = EntityState.Modified;
 
-            _context.Entry(entity)
-        .Property("CreatedAt")
-        .IsModified = false;
+                if(entry.Metadata.FindProperty("CreatedAt") is not null)
+                {
+                    entry.Property("CreatedAt").IsModified = false;
+                }
+            }
 
             await _context.SaveChangesAsync();
         }

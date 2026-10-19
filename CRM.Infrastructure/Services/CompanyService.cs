@@ -9,10 +9,14 @@ namespace CRM.Core.Services
     public class CompanyService : ICompanyService
     {
         private readonly ICompanyRepository _companyRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public CompanyService(ICompanyRepository companyRepository)
+        public CompanyService(
+            ICompanyRepository companyRepository,
+            ICustomerRepository customerRepository)
         {
             _companyRepository = companyRepository;
+            _customerRepository = customerRepository;
         }
 
         public async Task<IEnumerable<Company>> GetAllAsync()
@@ -62,6 +66,12 @@ namespace CRM.Core.Services
             if (company is null)
             {
                 return false;
+            }
+
+            if (await _customerRepository.ExistsAsync(x => x.CompanyId == id))
+            {
+                throw new InvalidOperationException(
+                "The company has customers and cannot be deleted.");
             }
 
             await _companyRepository.DeleteAsync(company);

@@ -7,5 +7,7 @@ namespace CRM.Core.Services
     {
         Task RegisterAsync(RegisterUserDto request);
         Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
+        Task<LoginResponseDto> RefreshAsync(string refreshToken);
+        Task LogoutAsync(string refreshToken);
     }
 }

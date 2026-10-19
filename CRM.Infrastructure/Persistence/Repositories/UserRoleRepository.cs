@@ -24,6 +24,12 @@ namespace CRM.Infrastructure.Persistence.Repositories
             .ToListAsync();
         }
 
+        public async Task<bool> AnyWithRoleAsync(int roleId)
+        {
+            return await _context.UserRoles
+            .AnyAsync(x => x.RoleId == roleId);
+        }
+
         public async Task ReplaceUserRolesAsync(
         int userId,
         IEnumerable<int> roleIds)

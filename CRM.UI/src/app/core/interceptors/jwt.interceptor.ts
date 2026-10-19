@@ -1,35 +1,43 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { catchError, switchMap, throwError } from 'rxjs';
 
 import { AuthStore } from '../stores/auth.store';
-import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+
+// Endpoints that must never carry a bearer token or trigger a refresh.
+const ANONYMOUS_AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+
+const withToken = (req: HttpRequest<unknown>, token: string | null) =>
+  token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
-  const router = inject(Router);
   const authService = inject(AuthService);
 
-  const token = authStore.accessToken();
-
-  let clonedRequest = req;
-
-  if (token) {
-    clonedRequest = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  if (ANONYMOUS_AUTH_PATHS.some((path) => req.url.includes(path))) {
+    return next(req);
   }
 
-  return next(clonedRequest).pipe(
+  return next(withToken(req, authStore.accessToken())).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
-        authService.logOut();
+      if (error.status !== 401) {
+        return throwError(() => error);
       }
 
-      return throwError(() => error);
+      if (!authStore.refreshToken()) {
+        authService.logOut();
+        return throwError(() => error);
+      }
+
+      // Access token rejected: refresh once and retry the original request.
+      return authService.refreshAccessToken().pipe(
+        switchMap((newToken) => next(withToken(req, newToken))),
+        catchError((refreshError) => {
+          authService.logOut();
+          return throwError(() => refreshError);
+        }),
+      );
     }),
   );
 };
