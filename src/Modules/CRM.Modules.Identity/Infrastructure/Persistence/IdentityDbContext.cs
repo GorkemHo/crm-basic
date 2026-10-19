@@ -33,7 +33,8 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.PreferredLanguage).HasMaxLength(5).HasDefaultValue(Languages.Default);
         builder.Property(x => x.IsActive).HasDefaultValue(true);
 
-        builder.HasIndex(x => x.Email).IsUnique();
+        // Soft-deleted users keep their row; their email can be reused.
+        builder.HasIndex(x => x.Email).IsUnique().HasFilter("is_deleted = false");
 
         builder.Ignore(x => x.FullName);
     }

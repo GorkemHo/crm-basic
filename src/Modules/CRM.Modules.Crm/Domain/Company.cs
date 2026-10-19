@@ -2,7 +2,7 @@ using CRM.BuildingBlocks.Domain;
 
 namespace CRM.Modules.Crm.Domain;
 
-internal sealed class Company : AuditableEntity
+internal sealed class Company : SoftDeletableEntity
 {
     public string CompanyName { get; set; } = string.Empty;
 
@@ -14,7 +14,7 @@ internal sealed class Company : AuditableEntity
     public ICollection<Customer> Customers { get; set; } = new List<Customer>();
 }
 
-internal sealed class Customer : AuditableEntity
+internal sealed class Customer : SoftDeletableEntity
 {
     public string FirstName { get; set; } = string.Empty;
 

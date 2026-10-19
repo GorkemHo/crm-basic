@@ -25,7 +25,10 @@ public static class PersistenceServiceCollectionExtensions
         {
             options
                 .UseNpgsql(connectionString, npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", schema))
-                .UseSnakeCaseNamingConvention();
+                .UseSnakeCaseNamingConvention()
+                // Required navigations to soft-deletable principals are intentional (we never soft-delete a
+                // principal that still has dependents), so this model warning is noise.
+                .ConfigureWarnings(w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
 
             options.AddInterceptors(serviceProvider.GetServices<IInterceptor>());
         });

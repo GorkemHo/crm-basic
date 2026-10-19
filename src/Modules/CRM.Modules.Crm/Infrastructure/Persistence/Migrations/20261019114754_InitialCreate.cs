@@ -16,6 +16,25 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                 name: "crm");
 
             migrationBuilder.CreateTable(
+                name: "audit_logs",
+                schema: "crm",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    entity_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    entity_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    action = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    changes = table.Column<string>(type: "jsonb", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: true),
+                    occurred_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_audit_logs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "companies",
                 schema: "crm",
                 columns: table => new
@@ -28,7 +47,10 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<int>(type: "integer", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<int>(type: "integer", nullable: true)
+                    updated_by = table.Column<int>(type: "integer", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_by = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -51,7 +73,10 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<int>(type: "integer", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<int>(type: "integer", nullable: true)
+                    updated_by = table.Column<int>(type: "integer", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_by = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -66,6 +91,12 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "ix_audit_logs_entity_name_entity_id_occurred_at",
+                schema: "crm",
+                table: "audit_logs",
+                columns: new[] { "entity_name", "entity_id", "occurred_at" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_companies_company_name",
                 schema: "crm",
                 table: "companies",
@@ -77,7 +108,7 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                 table: "companies",
                 column: "tax_number",
                 unique: true,
-                filter: "tax_number IS NOT NULL");
+                filter: "tax_number IS NOT NULL AND is_deleted = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_customers_company_id",
@@ -90,12 +121,17 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                 schema: "crm",
                 table: "customers",
                 column: "email",
-                unique: true);
+                unique: true,
+                filter: "is_deleted = false");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "audit_logs",
+                schema: "crm");
+
             migrationBuilder.DropTable(
                 name: "customers",
                 schema: "crm");

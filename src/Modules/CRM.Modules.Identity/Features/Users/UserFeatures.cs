@@ -226,7 +226,13 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Unit>
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException("User", request.Id);
 
+        // Soft delete (see ISoftDeletable); also end the user's sessions.
         _db.Users.Remove(user);
+        foreach(var token in await _db.RefreshTokens.Where(x => x.UserId == user.Id && x.RevokedAt == null).ToListAsync(cancellationToken))
+        {
+            token.RevokedAt = DateTime.UtcNow;
+        }
+
         await _db.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

@@ -28,7 +28,7 @@ internal sealed class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.Property(x => x.TaxNumber).HasMaxLength(11);
         builder.Property(x => x.IsActive).HasDefaultValue(true);
 
-        builder.HasIndex(x => x.TaxNumber).IsUnique().HasFilter("tax_number IS NOT NULL");
+        builder.HasIndex(x => x.TaxNumber).IsUnique().HasFilter("tax_number IS NOT NULL AND is_deleted = false");
         builder.HasIndex(x => x.CompanyName);
     }
 }
@@ -43,7 +43,7 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(x => x.PhoneNumber).HasMaxLength(20);
         builder.Property(x => x.IsActive).HasDefaultValue(true);
 
-        builder.HasIndex(x => x.Email).IsUnique();
+        builder.HasIndex(x => x.Email).IsUnique().HasFilter("is_deleted = false");
 
         // A company that still has customers cannot be deleted.
         builder.HasOne(x => x.Company)

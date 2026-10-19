@@ -2,7 +2,7 @@ using CRM.BuildingBlocks.Domain;
 
 namespace CRM.Modules.Identity.Domain;
 
-internal sealed class User : AuditableEntity
+internal sealed class User : SoftDeletableEntity
 {
     public string FirstName { get; set; } = string.Empty;
 
@@ -10,6 +10,7 @@ internal sealed class User : AuditableEntity
 
     public string Email { get; set; } = string.Empty;
 
+    [NotAudited]
     public string PasswordHash { get; set; } = string.Empty;
 
     public bool IsActive { get; set; } = true;

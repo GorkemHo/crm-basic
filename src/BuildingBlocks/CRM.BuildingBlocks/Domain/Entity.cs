@@ -33,6 +33,16 @@ public interface ISoftDeletable
     int? DeletedBy { get; set; }
 }
 
+/// <summary>Convenience base for auditable entities that are soft-deleted.</summary>
+public abstract class SoftDeletableEntity : AuditableEntity, ISoftDeletable
+{
+    public bool IsDeleted { get; set; }
+
+    public DateTime? DeletedAt { get; set; }
+
+    public int? DeletedBy { get; set; }
+}
+
 /// <summary>Convenience base for entities that are auditable.</summary>
 public abstract class AuditableEntity : Entity, IAuditable
 {

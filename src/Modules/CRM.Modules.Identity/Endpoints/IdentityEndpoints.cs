@@ -88,6 +88,9 @@ internal static class IdentityEndpoints
             return TypedResults.NoContent();
         });
 
+        users.MapGet("/{id:int}/history", async ([AsParameters] GetUserHistory query, ISender sender, CancellationToken ct) =>
+            TypedResults.Ok(await sender.Send(query, ct)));
+
         users.MapPut("/{id:int}/roles", async (int id, AssignRolesBody body, ISender sender, CancellationToken ct) =>
             TypedResults.Ok(await sender.Send(new AssignUserRoles(id, body.RoleIds), ct)));
     }

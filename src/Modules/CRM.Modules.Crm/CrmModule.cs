@@ -2,6 +2,7 @@ using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Modules;
 using CRM.BuildingBlocks.Pagination;
 using CRM.BuildingBlocks.Persistence;
+using CRM.Modules.Crm.Features;
 using CRM.Modules.Crm.Features.Companies;
 using CRM.Modules.Crm.Features.Customers;
 using CRM.Modules.Crm.Infrastructure.Persistence;
@@ -57,6 +58,9 @@ public sealed class CrmModule : IModule
             return TypedResults.NoContent();
         });
 
+        companies.MapGet("/{id:int}/history", async ([AsParameters] GetCompanyHistory query, ISender sender, CancellationToken ct) =>
+            TypedResults.Ok(await sender.Send(query, ct)));
+
         var customers = api.MapGroup("/customers").WithTags("Customers").RequireAuthorization(AccessPolicy);
 
         customers.MapGet("", async ([AsParameters] GetCustomers query, ISender sender, CancellationToken ct) =>
@@ -80,6 +84,9 @@ public sealed class CrmModule : IModule
             await sender.Send(new DeleteCustomer(id), ct);
             return TypedResults.NoContent();
         });
+
+        customers.MapGet("/{id:int}/history", async ([AsParameters] GetCustomerHistory query, ISender sender, CancellationToken ct) =>
+            TypedResults.Ok(await sender.Send(query, ct)));
     }
 
     public async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken)

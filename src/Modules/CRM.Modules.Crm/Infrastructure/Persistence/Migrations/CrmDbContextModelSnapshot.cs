@@ -23,6 +23,55 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CRM.BuildingBlocks.Domain.AuditLogEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("Changes")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("changes");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("entity_name");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_logs");
+
+                    b.HasIndex("EntityName", "EntityId", "OccurredAt")
+                        .HasDatabaseName("ix_audit_logs_entity_name_entity_id_occurred_at");
+
+                    b.ToTable("audit_logs", "crm");
+                });
+
             modelBuilder.Entity("CRM.Modules.Crm.Domain.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -46,11 +95,25 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("created_by");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("deleted_by");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("TaxNumber")
                         .HasMaxLength(11)
@@ -74,7 +137,7 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("TaxNumber")
                         .IsUnique()
                         .HasDatabaseName("ix_companies_tax_number")
-                        .HasFilter("tax_number IS NOT NULL");
+                        .HasFilter("tax_number IS NOT NULL AND is_deleted = false");
 
                     b.ToTable("companies", "crm");
                 });
@@ -100,6 +163,14 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("created_by");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("deleted_by");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -117,6 +188,12 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -145,7 +222,8 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique()
-                        .HasDatabaseName("ix_customers_email");
+                        .HasDatabaseName("ix_customers_email")
+                        .HasFilter("is_deleted = false");
 
                     b.ToTable("customers", "crm");
                 });
