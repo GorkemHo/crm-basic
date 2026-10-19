@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CRM.Core.DTOs.CompanyDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Infrastructure.Services;
 using NSubstitute;
@@ -33,7 +34,7 @@ public class CompanyServiceTests
     {
         _companies.GetByTaxNumberAsync("123").Returns(new Company { Id = 1, TaxNumber = "123" });
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<ConflictException>(() =>
             _sut.CreateAsync(new Company { CompanyName = "Copy", TaxNumber = "123" }));
     }
 
@@ -56,7 +57,7 @@ public class CompanyServiceTests
         _companies.GetByIdAsync(5).Returns(new Company { Id = 5, CompanyName = "Acme" });
         _companies.GetByTaxNumberAsync("999").Returns(new Company { Id = 6, TaxNumber = "999" });
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<ConflictException>(() =>
             _sut.PatchAsync(5, new UpdateCompanyPatchDto { TaxNumber = "999" }));
     }
 
@@ -66,7 +67,7 @@ public class CompanyServiceTests
         _companies.GetByIdAsync(5).Returns(new Company { Id = 5 });
         _customers.ExistsAsync(Arg.Any<Expression<Func<Customer, bool>>>()).Returns(true);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.DeleteAsync(5));
+        await Assert.ThrowsAsync<ConflictException>(() => _sut.DeleteAsync(5));
         await _companies.DidNotReceive().DeleteAsync(Arg.Any<Company>());
     }
 

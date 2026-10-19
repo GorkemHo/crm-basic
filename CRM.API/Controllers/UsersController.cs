@@ -2,6 +2,7 @@
 using CRM.Core.DTOs.UserDtos;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
+using CRM.Core.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,7 @@ namespace CRM.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;

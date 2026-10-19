@@ -1,6 +1,7 @@
 using CRM.Core.Common;
 using CRM.Core.DTOs.UserDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Mappings;
 using CRM.Core.Messaging;
 
@@ -32,9 +33,9 @@ public class QueryAndMappingTests
     [Theory]
     [InlineData("doesNotExist", "asc")]
     [InlineData("companyName", "sideways")]
-    public void ApplySorting_InvalidInput_ThrowsInvalidOperation(string sortBy, string direction)
+    public void ApplySorting_InvalidInput_ThrowsValidation(string sortBy, string direction)
     {
-        Assert.Throws<InvalidOperationException>(() => Companies.ApplySorting(sortBy, direction).ToList());
+        Assert.Throws<ValidationException>(() => Companies.ApplySorting(sortBy, direction).ToList());
     }
 
     [Fact]
@@ -42,7 +43,7 @@ public class QueryAndMappingTests
     {
         var users = Array.Empty<User>().AsQueryable();
 
-        Assert.Throws<InvalidOperationException>(() => users.ApplySorting(nameof(User.UserRoles), "asc"));
+        Assert.Throws<ValidationException>(() => users.ApplySorting(nameof(User.UserRoles), "asc"));
     }
 
     [Theory]

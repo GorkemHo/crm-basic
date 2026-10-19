@@ -1,8 +1,9 @@
-using System.Security.Claims;
+using CRM.Core.Exceptions;
 using CRM.Core.DTOs;
 using CRM.Core.DTOs.UserDtos;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
+using CRM.Core.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,28 +15,24 @@ namespace CRM.API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IUserService _userService;
+        private readonly ICurrentUser _currentUser;
 
-        public AuthController(IAuthService authService, IUserService userService)
+        public AuthController(IAuthService authService, IUserService userService, ICurrentUser currentUser)
         {
             _authService = authService;
             _userService = userService;
+            _currentUser = currentUser;
         }
 
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> Me()
         {
-            if(!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-            {
-                return Unauthorized();
-            }
+            var userId = _currentUser.Id
+                ?? throw new UnauthorizedException("The access token has no user id.", "auth.invalid_token");
 
-            var user = await _userService.GetByIdAsync(userId);
-
-            if(user is null)
-            {
-                return NotFound();
-            }
+            var user = await _userService.GetByIdAsync(userId)
+                ?? throw new NotFoundException("User", userId);
 
             return Ok(user.ToDto());
         }
@@ -74,16 +71,6 @@ namespace CRM.API.Controllers
             await _authService.LogoutAsync(request.RefreshToken);
 
             return NoContent();
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("admin-only")]
-        public IActionResult AdminOnly()
-        {
-            return Ok(new
-            {
-                Message = "Welcome Admin"
-            });
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using CRM.Core.Exceptions;
 
 namespace CRM.Core.Common;
 
@@ -22,14 +23,14 @@ public static class QueryableExtensions
 
         if (propertyInfo is null || !IsSortableType(propertyInfo.PropertyType))
         {
-            throw new InvalidOperationException($"Invalid sort field: '{sortBy}'.");
+            throw new ValidationException("sortBy", $"Invalid sort field: '{sortBy}'.", "query.invalid_sort_field");
         }
 
         var isDescending = sortDirection?.ToLowerInvariant() switch
         {
             null or "" or "asc" => false,
             "desc" => true,
-            _ => throw new InvalidOperationException($"Invalid sort direction: '{sortDirection}'. Use 'asc' or 'desc'.")
+            _ => throw new ValidationException("sortDirection", $"Invalid sort direction: '{sortDirection}'. Use 'asc' or 'desc'.", "query.invalid_sort_direction")
         };
 
         var parameter = Expression.Parameter(typeof(T), "x");

@@ -1,5 +1,6 @@
 ﻿using CRM.Core.DTOs.RoleDtos;
 using CRM.Core.DTOs.UserDtos;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Core.Services;
 
@@ -36,8 +37,7 @@ namespace CRM.Infrastructure.Services
 
             if(missingRoleIds.Count > 0)
             {
-                throw new KeyNotFoundException(
-                $"Role(s) not found: {string.Join(", ", missingRoleIds)}.");
+                throw new NotFoundException($"Role(s) not found: {string.Join(", ", missingRoleIds)}.", "role.not_found");
             }
 
             await _userRoleRepository
@@ -63,8 +63,7 @@ namespace CRM.Infrastructure.Services
         {
             if(!await _userRepository.ExistsAsync(x => x.Id == userId))
             {
-                throw new KeyNotFoundException(
-                "User not found.");
+                throw new NotFoundException("User", userId);
             }
         }
     }

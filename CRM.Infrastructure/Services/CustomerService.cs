@@ -1,5 +1,6 @@
 ﻿using CRM.Core.Common;
 using CRM.Core.DTOs.CustomerDtos;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
@@ -146,8 +147,7 @@ namespace CRM.Infrastructure.Services
 
             if(existingCustomer is not null && existingCustomer.Id != excludeId)
             {
-                throw new InvalidOperationException(
-                "A customer with the same email already exists.");
+                throw new ConflictException("A customer with the same email already exists.", "customer.email_taken");
             }
         }
 
@@ -155,8 +155,7 @@ namespace CRM.Infrastructure.Services
         {
             if(!await _companyRepository.ExistsAsync(x => x.Id == companyId))
             {
-                throw new KeyNotFoundException(
-                "Company not found.");
+                throw new NotFoundException("Company", companyId);
             }
         }
     }

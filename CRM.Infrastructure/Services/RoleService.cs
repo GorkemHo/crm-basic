@@ -1,5 +1,6 @@
 ﻿using CRM.Core.DTOs.RoleDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
@@ -41,8 +42,7 @@ namespace CRM.Infrastructure.Services
 
             if (existingRole is not null)
             {
-                throw new InvalidOperationException(
-                "A role with the same name already exists.");
+                throw new ConflictException("A role with the same name already exists.", "role.name_taken");
             }
 
             return await _roleRepository.AddAsync(role);
@@ -75,8 +75,7 @@ namespace CRM.Infrastructure.Services
 
             if (await _userRoleRepository.AnyWithRoleAsync(id))
             {
-                throw new InvalidOperationException(
-                "The role is assigned to users and cannot be deleted.");
+                throw new ConflictException("The role is assigned to users and cannot be deleted.", "role.in_use");
             }
 
             await _roleRepository.DeleteAsync(role);

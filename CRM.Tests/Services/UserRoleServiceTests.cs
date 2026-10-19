@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CRM.Core.DTOs.RoleDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Infrastructure.Services;
 using NSubstitute;
@@ -31,7 +32,7 @@ public class UserRoleServiceTests
     {
         UserExists(false);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+        await Assert.ThrowsAsync<NotFoundException>(() =>
             _sut.AssignRolesAsync(1, new AssignRolesDto { RoleIds = [1] }));
         await _userRoles.DidNotReceive().ReplaceUserRolesAsync(Arg.Any<int>(), Arg.Any<IEnumerable<int>>());
     }
@@ -42,7 +43,7 @@ public class UserRoleServiceTests
         UserExists(true);
         RolesInDatabase(1);
 
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+        var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
             _sut.AssignRolesAsync(1, new AssignRolesDto { RoleIds = [1, 99] }));
 
         Assert.Contains("99", exception.Message);

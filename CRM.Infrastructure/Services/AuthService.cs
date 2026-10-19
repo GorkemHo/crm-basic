@@ -4,8 +4,10 @@ using CRM.Core.Common;
 using CRM.Core.DTOs;
 using CRM.Core.DTOs.UserDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Core.Mappings;
+using CRM.Core.Security;
 using CRM.Core.Services;
 using Microsoft.Extensions.Options;
 
@@ -13,7 +15,7 @@ namespace CRM.Infrastructure.Services
 {
     public class AuthService : IAuthService
     {
-        private const string DefaultRoleName = "User";
+        private const string DefaultRoleName = Roles.User;
 
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
@@ -42,8 +44,7 @@ namespace CRM.Infrastructure.Services
 
             if(user is null)
             {
-                throw new UnauthorizedAccessException(
-                "Invalid credentials.");
+                throw new UnauthorizedException("Invalid email or password.", "auth.invalid_credentials");
             }
 
             var validPassword =
@@ -53,14 +54,12 @@ namespace CRM.Infrastructure.Services
 
             if(!validPassword)
             {
-                throw new UnauthorizedAccessException(
-                "Invalid credentials.");
+                throw new UnauthorizedException("Invalid email or password.", "auth.invalid_credentials");
             }
 
             if(!user.IsActive)
             {
-                throw new UnauthorizedAccessException(
-                "User account is disabled.");
+                throw new UnauthorizedException("User account is disabled.", "auth.user_disabled");
             }
 
             return await IssueTokensAsync(user);
@@ -73,8 +72,7 @@ namespace CRM.Infrastructure.Services
 
             if(storedToken is null)
             {
-                throw new UnauthorizedAccessException(
-                "Invalid refresh token.");
+                throw new UnauthorizedException("Invalid refresh token.", "auth.invalid_refresh_token");
             }
 
             if(storedToken.IsRevoked)
@@ -83,20 +81,17 @@ namespace CRM.Infrastructure.Services
                 // invalidate every session of that user.
                 await _refreshTokenRepository.RevokeAllForUserAsync(storedToken.UserId);
 
-                throw new UnauthorizedAccessException(
-                "Invalid refresh token.");
+                throw new UnauthorizedException("Invalid refresh token.", "auth.invalid_refresh_token");
             }
 
             if(storedToken.ExpiresAt <= DateTime.UtcNow)
             {
-                throw new UnauthorizedAccessException(
-                "Refresh token has expired.");
+                throw new UnauthorizedException("Refresh token has expired.", "auth.refresh_token_expired");
             }
 
             if(!storedToken.User.IsActive)
             {
-                throw new UnauthorizedAccessException(
-                "User account is disabled.");
+                throw new UnauthorizedException("User account is disabled.", "auth.user_disabled");
             }
 
             // Rotate: the presented token is single-use.
@@ -127,8 +122,7 @@ namespace CRM.Infrastructure.Services
 
             if(existingUser is not null)
             {
-                throw new InvalidOperationException(
-                "User already exists.");
+                throw new ConflictException("A user with this email already exists.", "user.email_taken");
             }
 
             // Self-registration always gets the default role; elevated roles are assigned by an Admin.
@@ -137,8 +131,8 @@ namespace CRM.Infrastructure.Services
 
             if(role is null)
             {
-                throw new KeyNotFoundException(
-                "Role not found.");
+                // Missing seed data is a server misconfiguration, not a client error.
+                throw new InvalidOperationException($"Default role '{DefaultRoleName}' does not exist.");
             }
 
             var user = new User

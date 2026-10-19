@@ -1,5 +1,6 @@
 ﻿using CRM.Core.DTOs.UserDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
@@ -108,8 +109,7 @@ namespace CRM.Infrastructure.Services
 
             if(existingUser is not null && existingUser.Id != excludeId)
             {
-                throw new InvalidOperationException(
-                "A user with the same email already exists.");
+                throw new ConflictException("A user with the same email already exists.", "user.email_taken");
             }
         }
     }

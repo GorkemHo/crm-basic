@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CRM.Core.DTOs.CustomerDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Infrastructure.Services;
 using NSubstitute;
@@ -27,7 +28,7 @@ public class CustomerServiceTests
     {
         CompanyExists(false);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+        await Assert.ThrowsAsync<NotFoundException>(() =>
             _sut.CreateAsync(new Customer { Email = "a@b.c", CompanyId = 99 }));
     }
 
@@ -37,7 +38,7 @@ public class CustomerServiceTests
         CompanyExists(true);
         _customers.GetByEmailAsync("a@b.c").Returns(new Customer { Id = 1, Email = "a@b.c" });
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<ConflictException>(() =>
             _sut.CreateAsync(new Customer { Email = "a@b.c", CompanyId = 1 }));
     }
 
@@ -70,7 +71,7 @@ public class CustomerServiceTests
         _customers.GetByIdAsync(3).Returns(new Customer { Id = 3, CompanyId = 1 });
         CompanyExists(false);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+        await Assert.ThrowsAsync<NotFoundException>(() =>
             _sut.PatchAsync(3, new UpdateCustomerPatchDto { CompanyId = 99 }));
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CRM.Core.Common;
 using CRM.Core.DTOs.CompanyDtos;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
@@ -71,8 +72,7 @@ namespace CRM.Infrastructure.Services
 
             if (await _customerRepository.ExistsAsync(x => x.CompanyId == id))
             {
-                throw new InvalidOperationException(
-                "The company has customers and cannot be deleted.");
+                throw new ConflictException("The company has customers and cannot be deleted.", "company.has_customers");
             }
 
             await _companyRepository.DeleteAsync(company);
@@ -131,8 +131,7 @@ namespace CRM.Infrastructure.Services
 
             if (existingCompany is not null && existingCompany.Id != excludeId)
             {
-                throw new InvalidOperationException(
-                "A company with the same tax number already exists.");
+                throw new ConflictException("A company with the same tax number already exists.", "company.tax_number_taken");
             }
         }
     }

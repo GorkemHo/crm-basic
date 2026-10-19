@@ -5,6 +5,7 @@ using System.Text;
 using CRM.Core.Common;
 using CRM.Core.DTOs;
 using CRM.Core.Entities;
+using CRM.Core.Security;
 using CRM.Core.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -26,15 +27,16 @@ public class JwtTokenService : IJwtTokenService
     {
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email),
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+            new(CrmClaimTypes.UserId, user.Id.ToString()),
+            new(CrmClaimTypes.Email, user.Email),
+            new(CrmClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+            new(CrmClaimTypes.GivenName, user.FirstName),
+            new(CrmClaimTypes.FamilyName, user.LastName),
+            new(CrmClaimTypes.TokenId, Guid.NewGuid().ToString())
         };
 
         claims.AddRange(
-            roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            roles.Select(role => new Claim(CrmClaimTypes.Role, role)));
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));

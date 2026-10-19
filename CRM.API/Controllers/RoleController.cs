@@ -1,6 +1,7 @@
 ﻿using CRM.Core.DTOs.RoleDtos;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
+using CRM.Core.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace CRM.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public class RoleController : ControllerBase
     {
         private readonly IRoleService _roleService;

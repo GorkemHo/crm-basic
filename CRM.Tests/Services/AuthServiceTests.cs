@@ -2,6 +2,7 @@ using CRM.Core.Common;
 using CRM.Core.DTOs;
 using CRM.Core.DTOs.UserDtos;
 using CRM.Core.Entities;
+using CRM.Core.Exceptions;
 using CRM.Core.Interfaces;
 using CRM.Infrastructure.Services;
 using Microsoft.Extensions.Options;
@@ -75,7 +76,7 @@ public class AuthServiceTests
     {
         _users.GetByEmailAsync("ada@example.com").Returns(CreateUser());
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.RegisterAsync(new RegisterUserDto
+        await Assert.ThrowsAsync<ConflictException>(() => _sut.RegisterAsync(new RegisterUserDto
         {
             FirstName = "Ada",
             LastName = "L",
@@ -89,7 +90,7 @@ public class AuthServiceTests
     {
         _users.GetByEmailAsync("ada@example.com").Returns(CreateUser());
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+        await Assert.ThrowsAsync<UnauthorizedException>(() =>
             _sut.LoginAsync(new LoginRequestDto { Email = "ada@example.com", Password = "wrong" }));
     }
 
@@ -98,7 +99,7 @@ public class AuthServiceTests
     {
         _users.GetByEmailAsync("ada@example.com").Returns(CreateUser(isActive: false));
 
-        var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+        var exception = await Assert.ThrowsAsync<UnauthorizedException>(() =>
             _sut.LoginAsync(new LoginRequestDto { Email = "ada@example.com", Password = Password }));
 
         Assert.Contains("disabled", exception.Message);
@@ -117,6 +118,21 @@ public class AuthServiceTests
         await _refreshTokens.Received(1).AddAsync(Arg.Is<RefreshToken>(t =>
             t.UserId == 42 && t.Token != response.RefreshToken && t.Token.Length == 64));
         await _refreshTokens.Received(1).SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task Login_AccessToken_UsesShortClaimNames()
+    {
+        _users.GetByEmailAsync("ada@example.com").Returns(CreateUser(true, "Admin", "User"));
+
+        var response = await _sut.LoginAsync(new LoginRequestDto { Email = "ada@example.com", Password = Password });
+        var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().ReadJwtToken(response.AccessToken);
+
+        Assert.Equal("42", token.Claims.Single(c => c.Type == "sub").Value);
+        Assert.Equal("ada@example.com", token.Claims.Single(c => c.Type == "email").Value);
+        Assert.Equal("Ada Lovelace", token.Claims.Single(c => c.Type == "name").Value);
+        Assert.Equal(["Admin", "User"], token.Claims.Where(c => c.Type == "role").Select(c => c.Value));
+        Assert.DoesNotContain(token.Claims, c => c.Type.StartsWith("http"));
     }
 
     [Fact]
@@ -144,7 +160,7 @@ public class AuthServiceTests
         };
         _refreshTokens.GetByTokenHashAsync(Arg.Any<string>()).Returns(stored);
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _sut.RefreshAsync("stolen-token"));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => _sut.RefreshAsync("stolen-token"));
 
         await _refreshTokens.Received(1).RevokeAllForUserAsync(42);
         await _refreshTokens.DidNotReceive().AddAsync(Arg.Any<RefreshToken>());
@@ -156,7 +172,7 @@ public class AuthServiceTests
         var stored = new RefreshToken { UserId = 42, User = CreateUser(), ExpiresAt = DateTime.UtcNow.AddMinutes(-1) };
         _refreshTokens.GetByTokenHashAsync(Arg.Any<string>()).Returns(stored);
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _sut.RefreshAsync("old-token"));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => _sut.RefreshAsync("old-token"));
     }
 
     [Fact]
@@ -164,6 +180,6 @@ public class AuthServiceTests
     {
         _refreshTokens.GetByTokenHashAsync(Arg.Any<string>()).Returns((RefreshToken?)null);
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _sut.RefreshAsync("nope"));
+        await Assert.ThrowsAsync<UnauthorizedException>(() => _sut.RefreshAsync("nope"));
     }
 }

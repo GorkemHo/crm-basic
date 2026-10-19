@@ -1,37 +1,27 @@
 using System.Text;
+using CRM.API.ErrorHandling;
 using CRM.API.Extensions;
+using CRM.API.Security;
 using CRM.Core.Common;
+using CRM.Core.Security;
 using CRM.Infrastructure.DependencyInjection;
+using CRM.Infrastructure.Persistence.Seeding;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddControllers()
-                .ConfigureApiBehaviorOptions(options =>
-                {
-                    options.InvalidModelStateResponseFactory = context =>
-                    {
-                        var errors = context.ModelState
-                                .Where(x => x.Value!.Errors.Count > 0)
-                                .SelectMany(x => x.Value!.Errors)
-                                .Select(x => x.ErrorMessage)
-                                .ToList();
-                        return new BadRequestObjectResult(new ExceptionResponse
-                        {
-                            StatusCode = StatusCodes.Status400BadRequest,
-                            Message = string.Join(" | ", errors),
-                            Timestamp = DateTime.UtcNow
-                        });
-                    };
-                });
+// Errors: every failure is returned as an RFC 7807 problem (application/problem+json).
+builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ProblemDetailsDefaults.Customize);
+builder.Services.AddExceptionHandler<AppExceptionHandler>();
 
+builder.Services.AddControllers();
 
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
 
 var jwtSettings = builder.Configuration
     .GetSection(JwtSettings.SectionName)
@@ -64,6 +54,9 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Keep the token's short claim names (sub, role, ...) instead of mapping them to ClaimTypes URIs.
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -78,6 +71,9 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
+            NameClaimType = CrmClaimTypes.Name,
+            RoleClaimType = CrmClaimTypes.Role,
+
             ClockSkew = TimeSpan.Zero
         };
     });
@@ -87,23 +83,26 @@ builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
 
-
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
+// Bare status codes (401/403 from auth, 404 for unknown routes) also get a problem body.
+app.UseStatusCodePages();
 
 // Configure the HTTP request pipeline.
 if(app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+
+    await app.Services.SeedDatabaseAsync();
 }
 
 app.UseHttpsRedirection();
 
 app.UseCors("AngularPolicy");
-
-app.UseGlobalExceptionMiddleware();
 
 app.UseAuthentication();
 app.UseAuthorization();
