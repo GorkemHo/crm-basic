@@ -9,6 +9,8 @@ namespace CRM.Infrastructure.Services
 {
     public class AuthService : IAuthService
     {
+        private const string DefaultRoleName = "User";
+
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IJwtTokenService _jwtTokenService;
@@ -67,8 +69,9 @@ namespace CRM.Infrastructure.Services
                 "User already exists.");
             }
 
+            // Self-registration always gets the default role; elevated roles are assigned by an Admin.
             var role =
-            await _roleRepository.GetByNameAsync(request.RoleName);
+            await _roleRepository.GetByNameAsync(DefaultRoleName);
 
             if(role is null)
             {

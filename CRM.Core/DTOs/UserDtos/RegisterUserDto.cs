@@ -20,7 +20,4 @@ public class RegisterUserDto
     [Required]
     [MinLength(6)]
     public string Password { get; set; } = string.Empty;
-
-    [Required]
-    public string RoleName { get; set; } = string.Empty;
 }

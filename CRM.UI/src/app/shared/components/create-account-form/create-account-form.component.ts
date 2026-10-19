@@ -36,8 +36,7 @@ export class CreateAccountFormComponent {
       firstName: firstName,
       lastName: lastName,
       email: email,
-      password: password,
-      roleName: "User"
+      password: password
     }
 
 

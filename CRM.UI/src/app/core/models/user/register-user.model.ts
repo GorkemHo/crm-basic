@@ -3,5 +3,4 @@ export interface RegisterUser {
     lastName: string;
     email:string;
     password:string;
-    roleName:string;
 }

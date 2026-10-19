@@ -38,17 +38,25 @@ var jwtSettings = builder.Configuration
     .Get<JwtSettings>()
     ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
 
+if(string.IsNullOrWhiteSpace(jwtSettings.SecretKey) || Encoding.UTF8.GetByteCount(jwtSettings.SecretKey) < 32)
+{
+    throw new InvalidOperationException(
+        "JwtSettings:SecretKey must be set (at least 32 bytes). Use user-secrets or the JwtSettings__SecretKey environment variable.");
+}
+
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? [];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularPolicy",
     policy =>
     {
         policy
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    //.AllowCredentials()
-    .AllowAnyOrigin();
-        //.WithOrigins("http://localhost:4200");
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
