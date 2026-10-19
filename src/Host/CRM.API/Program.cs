@@ -1,6 +1,5 @@
 using CRM.API.ErrorHandling;
 using CRM.API.Extensions;
-using CRM.BuildingBlocks.Messaging.RabbitMq;
 using CRM.BuildingBlocks.Modules;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
@@ -16,8 +15,6 @@ builder.Services.AddExceptionHandler<AppExceptionHandler>();
 builder.AddModules(
     new IdentityModule(),
     new CrmModule());
-
-builder.Services.AddMessaging(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {

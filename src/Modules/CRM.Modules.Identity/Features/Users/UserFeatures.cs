@@ -2,6 +2,7 @@ using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
 using CRM.BuildingBlocks.Pagination;
 using CRM.BuildingBlocks.Security;
+using CRM.Modules.Identity.Contracts;
 using CRM.Modules.Identity.Domain;
 using CRM.Modules.Identity.Infrastructure.Persistence;
 using CRM.Modules.Identity.Infrastructure.Security;
@@ -134,7 +135,8 @@ internal sealed class CreateUserHandler : IRequestHandler<CreateUser, UserDto>
         }
 
         _db.Users.Add(user);
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAndPublishAsync(
+            () => new UserRegistered(user.Id, user.Email, user.FullName, user.PreferredLanguage), cancellationToken);
 
         return UserDto.From(user);
     }
@@ -228,6 +230,7 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Unit>
 
         // Soft delete (see ISoftDeletable); also end the user's sessions.
         _db.Users.Remove(user);
+        _db.AddIntegrationEvent(new UserDeleted(user.Id));
         foreach(var token in await _db.RefreshTokens.Where(x => x.UserId == user.Id && x.RevokedAt == null).ToListAsync(cancellationToken))
         {
             token.RevokedAt = DateTime.UtcNow;

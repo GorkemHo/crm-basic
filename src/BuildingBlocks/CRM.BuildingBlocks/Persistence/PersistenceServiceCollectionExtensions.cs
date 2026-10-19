@@ -1,3 +1,4 @@
+using CRM.BuildingBlocks.Persistence.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,9 @@ public static class PersistenceServiceCollectionExtensions
 
             options.AddInterceptors(serviceProvider.GetServices<IInterceptor>());
         });
+
+        // Delivers the module's outbox in the background.
+        services.AddHostedService<OutboxProcessor<TContext>>();
 
         return services;
     }

@@ -1,6 +1,7 @@
 using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
 using CRM.BuildingBlocks.Security;
+using CRM.Modules.Identity.Contracts;
 using CRM.Modules.Identity.Domain;
 using CRM.Modules.Identity.Infrastructure.Persistence;
 using CRM.Modules.Identity.Infrastructure.Security;
@@ -103,7 +104,8 @@ internal sealed class RegisterHandler : IRequestHandler<Register, UserDto>
         user.UserRoles.Add(new UserRole { Role = defaultRole });
 
         _db.Users.Add(user);
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAndPublishAsync(
+            () => new UserRegistered(user.Id, user.Email, user.FullName, user.PreferredLanguage), cancellationToken);
 
         return UserDto.From(user);
     }

@@ -58,6 +58,24 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "outbox_messages",
+                schema: "crm",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    content = table.Column<string>(type: "jsonb", nullable: false),
+                    occurred_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    attempt_count = table.Column<int>(type: "integer", nullable: false),
+                    error = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_outbox_messages", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "customers",
                 schema: "crm",
                 columns: table => new
@@ -123,6 +141,13 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
                 column: "email",
                 unique: true,
                 filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_outbox_messages_occurred_at",
+                schema: "crm",
+                table: "outbox_messages",
+                column: "occurred_at",
+                filter: "processed_at IS NULL");
         }
 
         /// <inheritdoc />
@@ -134,6 +159,10 @@ namespace CRM.Modules.Crm.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "customers",
+                schema: "crm");
+
+            migrationBuilder.DropTable(
+                name: "outbox_messages",
                 schema: "crm");
 
             migrationBuilder.DropTable(

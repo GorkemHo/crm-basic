@@ -1,4 +1,5 @@
 using CRM.BuildingBlocks.Application;
+using CRM.BuildingBlocks.Messaging.RabbitMq;
 using CRM.BuildingBlocks.Persistence;
 using CRM.BuildingBlocks.Security;
 using Microsoft.AspNetCore.Builder;
@@ -26,6 +27,9 @@ public static class ModuleHostExtensions
         {
             module.Register(builder.Services, builder.Configuration);
         }
+
+        // Outbox delivery publishes through this (a no-op unless RabbitMq:Enabled).
+        builder.Services.AddMessaging(builder.Configuration);
 
         builder.Services.AddSingleton(new ModuleCatalog(modules));
 

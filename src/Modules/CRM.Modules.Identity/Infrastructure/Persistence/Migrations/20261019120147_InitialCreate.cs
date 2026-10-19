@@ -35,6 +35,24 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "outbox_messages",
+                schema: "identity",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
+                    content = table.Column<string>(type: "jsonb", nullable: false),
+                    occurred_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    attempt_count = table.Column<int>(type: "integer", nullable: false),
+                    error = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_outbox_messages", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "permissions",
                 schema: "identity",
                 columns: table => new
@@ -180,6 +198,13 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                 columns: new[] { "entity_name", "entity_id", "occurred_at" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_outbox_messages_occurred_at",
+                schema: "identity",
+                table: "outbox_messages",
+                column: "occurred_at",
+                filter: "processed_at IS NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_refresh_tokens_token_hash",
                 schema: "identity",
                 table: "refresh_tokens",
@@ -225,6 +250,10 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
         {
             migrationBuilder.DropTable(
                 name: "audit_logs",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "outbox_messages",
                 schema: "identity");
 
             migrationBuilder.DropTable(

@@ -13,11 +13,10 @@ public sealed class NullMessagePublisher : IMessagePublisher
         _logger = logger;
     }
 
-    public Task PublishAsync<T>(T message, string? routingKey = null, CancellationToken cancellationToken = default)
-        where T : class
+    public Task PublishAsync(object message, Type messageType, string? routingKey = null, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Messaging disabled; dropped {MessageType} ({RoutingKey})",
-            typeof(T).Name, routingKey ?? MessageRouting.For<T>());
+            messageType.Name, routingKey ?? MessageRouting.For(messageType));
 
         return Task.CompletedTask;
     }

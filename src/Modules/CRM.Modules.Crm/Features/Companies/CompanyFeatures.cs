@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
 using CRM.BuildingBlocks.Pagination;
+using CRM.Modules.Crm.Contracts;
 using CRM.Modules.Crm.Domain;
 using CRM.Modules.Crm.Infrastructure.Persistence;
 using FluentValidation;
@@ -103,7 +104,7 @@ internal sealed class CreateCompanyHandler : IRequestHandler<CreateCompany, Comp
 
         var company = new Company { CompanyName = request.CompanyName.Trim(), TaxNumber = taxNumber };
         _db.Companies.Add(company);
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAndPublishAsync(() => new CompanyCreated(company.Id, company.CompanyName), cancellationToken);
 
         return CompanyDto.Compiled(company);
     }
@@ -167,6 +168,7 @@ internal sealed class DeleteCompanyHandler : IRequestHandler<DeleteCompany, Unit
         }
 
         _db.Companies.Remove(company);
+        _db.AddIntegrationEvent(new CompanyDeleted(company.Id));
         await _db.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

@@ -16,7 +16,7 @@ Decisions (2026-10-19):
 | 3 | **Crm** module: companies, customers, own `crm` schema; host composes modules; legacy projects removed | ✅ |
 | 4 | Auditing (`created_by`/`updated_by`), soft delete, audit log, applied to every module automatically | ✅ |
 | 5 | Permission-based authorization, modules declare their permissions | ✅ |
-| 6 | Outbox + cross-module integration events (RabbitMQ when enabled) | ⬜ |
+| 6 | Outbox + cross-module integration events (RabbitMQ when enabled) | ✅ |
 | 7 | Serilog, OpenTelemetry, health checks, rate limiting, Dockerfile + docker-compose | ⬜ |
 | 8 | Unit, architecture (module boundaries) and integration tests; GitHub Actions CI | ⬜ |
 

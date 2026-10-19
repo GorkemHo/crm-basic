@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
 using CRM.BuildingBlocks.Pagination;
+using CRM.Modules.Crm.Contracts;
 using CRM.Modules.Crm.Domain;
 using CRM.Modules.Crm.Infrastructure.Persistence;
 using FluentValidation;
@@ -132,7 +133,7 @@ internal sealed class CreateCustomerHandler : IRequestHandler<CreateCustomer, Cu
         };
 
         _db.Customers.Add(customer);
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAndPublishAsync(() => new CustomerCreated(customer.Id, customer.CompanyId, customer.Email), cancellationToken);
 
         return await _db.Customers.Where(x => x.Id == customer.Id).Select(CustomerDto.Projection).SingleAsync(cancellationToken);
     }
@@ -208,6 +209,7 @@ internal sealed class DeleteCustomerHandler : IRequestHandler<DeleteCustomer, Un
             ?? throw new NotFoundException("Customer", request.Id);
 
         _db.Customers.Remove(customer);
+        _db.AddIntegrationEvent(new CustomerDeleted(customer.Id, customer.CompanyId));
         await _db.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

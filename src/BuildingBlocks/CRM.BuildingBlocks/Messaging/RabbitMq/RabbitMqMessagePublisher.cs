@@ -1,5 +1,4 @@
 using System.Text.Json;
-using CRM.BuildingBlocks.Messaging;
 using RabbitMQ.Client;
 
 namespace CRM.BuildingBlocks.Messaging.RabbitMq;
@@ -20,17 +19,16 @@ public sealed class RabbitMqMessagePublisher : IMessagePublisher, IAsyncDisposab
         _connectionProvider = connectionProvider;
     }
 
-    public async Task PublishAsync<T>(T message, string? routingKey = null, CancellationToken cancellationToken = default)
-        where T : class
+    public async Task PublishAsync(object message, Type messageType, string? routingKey = null, CancellationToken cancellationToken = default)
     {
-        var body = JsonSerializer.SerializeToUtf8Bytes(message, JsonSerializerOptions.Web);
+        var body = JsonSerializer.SerializeToUtf8Bytes(message, messageType, JsonSerializerOptions.Web);
 
         var properties = new BasicProperties
         {
             ContentType = "application/json",
             DeliveryMode = DeliveryModes.Persistent,
-            MessageId = Guid.NewGuid().ToString(),
-            Type = typeof(T).Name,
+            MessageId = (message as IIntegrationEvent)?.EventId.ToString() ?? Guid.NewGuid().ToString(),
+            Type = messageType.Name,
             Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds())
         };
 
@@ -44,7 +42,7 @@ public sealed class RabbitMqMessagePublisher : IMessagePublisher, IAsyncDisposab
 
             await _channel.BasicPublishAsync(
                 exchange: _connectionProvider.Options.ExchangeName,
-                routingKey: routingKey ?? MessageRouting.For<T>(),
+                routingKey: routingKey ?? MessageRouting.For(messageType),
                 mandatory: false,
                 basicProperties: properties,
                 body: body,
