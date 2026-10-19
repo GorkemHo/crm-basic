@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
-import { MessageService } from 'primeng/api';
 
 /** RFC 7807 problem returned by the API for every error. */
 export interface ApiProblem {
@@ -21,23 +21,24 @@ export function getProblem(error: unknown): ApiProblem | null {
     : null;
 }
 
-/** Toasts and API-error presentation. */
+/** Snack bar notifications and API-error presentation. */
 @Injectable({ providedIn: 'root' })
 export class NotifyService {
-  private readonly messages = inject(MessageService);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
 
   success(key: string, params?: Record<string, unknown>): void {
-    this.messages.add({ severity: 'success', summary: this.transloco.translate(key, params), life: 3000 });
+    this.snackBar.open(this.transloco.translate(key, params), undefined, {
+      duration: 3000,
+      panelClass: 'snack-success',
+    });
   }
 
   /** Shows an API error: a translation of its code when we have one, otherwise the API's message. */
   error(error: unknown): void {
-    this.messages.add({
-      severity: 'error',
-      summary: this.transloco.translate('common.error'),
-      detail: this.describe(error),
-      life: 6000,
+    this.snackBar.open(this.describe(error), this.transloco.translate('common.close'), {
+      duration: 7000,
+      panelClass: 'snack-error',
     });
   }
 
@@ -62,7 +63,7 @@ export class NotifyService {
 
   /**
    * Puts API validation errors on the matching form controls (`server` error) and returns true if any
-   * field matched; callers show a toast otherwise.
+   * field matched; callers show a snack bar otherwise.
    */
   applyToForm(form: FormGroup, error: unknown): boolean {
     const errors = getProblem(error)?.errors;

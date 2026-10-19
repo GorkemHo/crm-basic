@@ -1,21 +1,24 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { MenuItem } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
-import { ButtonModule } from 'primeng/button';
-import { MenuModule } from 'primeng/menu';
-import { TooltipModule } from 'primeng/tooltip';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { map } from 'rxjs';
 
 import { AuthService } from '../core/auth/auth.service';
 import { AuthStore } from '../core/auth/auth.store';
 import { Permissions } from '../core/auth/permissions';
-import { LanguageService } from '../core/i18n/language.service';
 import { ThemeService } from '../core/ui/theme.service';
 import { LanguageSwitcher } from './language-switcher';
 
 interface NavItem {
   label: string;
+  /** Material Symbols name. */
   icon: string;
   route: string;
   /** Hidden unless the user has this permission. */
@@ -30,38 +33,42 @@ interface NavSection {
 
 /** Add new modules' pages here; items the user can't access are hidden. */
 const NAVIGATION: NavSection[] = [
-  { items: [{ label: 'nav.dashboard', icon: 'pi pi-home', route: '/', exact: true }] },
+  { items: [{ label: 'nav.dashboard', icon: 'space_dashboard', route: '/', exact: true }] },
   {
     label: 'nav.crm',
     items: [
-      { label: 'nav.companies', icon: 'pi pi-building', route: '/companies', permission: Permissions.companiesRead },
-      { label: 'nav.customers', icon: 'pi pi-users', route: '/customers', permission: Permissions.customersRead },
+      { label: 'nav.companies', icon: 'apartment', route: '/companies', permission: Permissions.companiesRead },
+      { label: 'nav.customers', icon: 'groups', route: '/customers', permission: Permissions.customersRead },
     ],
   },
   {
     label: 'nav.administration',
     items: [
-      { label: 'nav.users', icon: 'pi pi-user-edit', route: '/users', permission: Permissions.usersRead },
-      { label: 'nav.roles', icon: 'pi pi-shield', route: '/roles', permission: Permissions.rolesRead },
+      { label: 'nav.users', icon: 'manage_accounts', route: '/users', permission: Permissions.usersRead },
+      { label: 'nav.roles', icon: 'admin_panel_settings', route: '/roles', permission: Permissions.rolesRead },
     ],
   },
 ];
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, ButtonModule, MenuModule, AvatarModule, TooltipModule, LanguageSwitcher],
+  imports: [
+    RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe,
+    MatSidenavModule, MatButtonModule, MatMenuModule, MatDividerModule, MatTooltipModule, LanguageSwitcher,
+  ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
 export class Shell {
   private readonly auth = inject(AuthService);
-  private readonly transloco = inject(TranslocoService);
-  private readonly language = inject(LanguageService);
   readonly store = inject(AuthStore);
   readonly theme = inject(ThemeService);
 
-  /** Mobile: sidebar is an overlay toggled by the menu button. */
-  readonly sidebarOpen = signal(false);
+  /** Below 960px the sidebar overlays the content and is opened from the menu button. */
+  readonly isMobile = toSignal(
+    inject(BreakpointObserver).observe('(max-width: 959.98px)').pipe(map((state) => state.matches)),
+    { initialValue: false },
+  );
 
   readonly sections = computed(() => {
     const permissions = this.store.permissions();
@@ -75,17 +82,7 @@ export class Shell {
     return ((user?.firstName[0] ?? '') + (user?.lastName[0] ?? '')).toUpperCase() || '?';
   });
 
-  readonly userMenu = computed<MenuItem[]>(() => {
-    this.language.current(); // re-translate on language change
-    return [
-      { label: this.transloco.translate('nav.profile'), icon: 'pi pi-user', routerLink: '/profile' },
-      {
-        label: this.transloco.translate(this.theme.dark() ? 'nav.lightMode' : 'nav.darkMode'),
-        icon: this.theme.dark() ? 'pi pi-sun' : 'pi pi-moon',
-        command: () => this.theme.toggle(),
-      },
-      { separator: true },
-      { label: this.transloco.translate('nav.logout'), icon: 'pi pi-sign-out', command: () => this.auth.logout() },
-    ];
-  });
+  logout(): void {
+    this.auth.logout();
+  }
 }

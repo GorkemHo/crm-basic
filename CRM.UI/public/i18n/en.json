@@ -30,7 +30,11 @@
     "minLength": "Must be at least {{n}} characters",
     "maxLength": "Must be at most {{n}} characters",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "close": "Close",
+    "loading": "Loading…",
+    "showPassword": "Show password",
+    "clearSelection": "Clear selection"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -222,5 +226,14 @@
       "admin_permissions_fixed": "The Admin role's permissions cannot be changed.",
       "not_found": "Role not found."
     }
+  },
+  "paginator": {
+    "itemsPerPage": "Items per page",
+    "next": "Next page",
+    "previous": "Previous page",
+    "first": "First page",
+    "last": "Last page",
+    "empty": "0 items",
+    "range": "{{start}}–{{end}} of {{length}}"
   }
 }

@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ButtonModule } from 'primeng/button';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TimelineModule } from 'primeng/timeline';
 
 import { AuditLogDto, PagedResponse } from '../core/api/models';
 import { AppDatePipe } from '../core/i18n/date.pipe';
@@ -12,93 +11,107 @@ import { NotifyService } from '../core/ui/notify.service';
 /** Change history (audit log) of one record, newest first, from an `…/{id}/history` endpoint. */
 @Component({
   selector: 'app-history-timeline',
-  imports: [TimelineModule, SkeletonModule, ButtonModule, TranslocoPipe, AppDatePipe],
+  imports: [MatButtonModule, MatProgressBarModule, TranslocoPipe, AppDatePipe],
   template: `
     @if (loading() && entries().length === 0) {
-      <p-skeleton height="4rem" styleClass="mb-2" />
-      <p-skeleton height="4rem" />
+      <mat-progress-bar mode="indeterminate" />
     } @else if (entries().length === 0) {
       <p class="muted">{{ 'history.empty' | transloco }}</p>
     } @else {
-      <p-timeline [value]="entries()" align="left">
-        <ng-template #marker let-entry>
-          <span class="marker" [class.deleted]="entry.action === 'Deleted'">
-            <i [class]="entry.action === 'Deleted' ? 'pi pi-trash' : 'pi pi-pencil'"></i>
-          </span>
-        </ng-template>
-        <ng-template #content let-entry>
-          <div class="entry">
-            <div class="entry-header">
-              <strong>{{ 'history.' + entry.action | transloco }}</strong>
-              <span class="muted">
-                {{ entry.occurredAt | appDate: 'datetime' }} ·
-                {{ entry.userId ? ('history.byUser' | transloco: { id: entry.userId }) : ('history.bySystem' | transloco) }}
-              </span>
+      <ol class="timeline">
+        @for (entry of entries(); track entry.id) {
+          <li>
+            <span class="marker" [class.deleted]="entry.action === 'Deleted'">
+              <span class="material-symbols-outlined">{{ entry.action === 'Deleted' ? 'delete' : 'edit' }}</span>
+            </span>
+            <div class="entry">
+              <div class="entry-header">
+                <strong>{{ 'history.' + entry.action | transloco }}</strong>
+                <span class="muted">
+                  {{ entry.occurredAt | appDate: 'datetime' }} ·
+                  {{ entry.userId ? ('history.byUser' | transloco: { id: entry.userId }) : ('history.bySystem' | transloco) }}
+                </span>
+              </div>
+              <ul>
+                @for (change of changesOf(entry); track change.field) {
+                  <li>
+                    <code>{{ change.field }}</code>:
+                    @if (entry.action === 'Updated') {
+                      <span class="old">{{ display(change.old) }}</span>
+                      <span class="material-symbols-outlined arrow">arrow_forward</span>
+                      <span>{{ display(change.new) }}</span>
+                    } @else {
+                      <span>{{ display(change.old) }}</span>
+                    }
+                  </li>
+                }
+              </ul>
             </div>
-            <ul>
-              @for (change of changesOf(entry); track change.field) {
-                <li>
-                  <code>{{ change.field }}</code>:
-                  @if (entry.action === 'Updated') {
-                    <span class="old">{{ display(change.old) }}</span>
-                    <i class="pi pi-arrow-right"></i>
-                    <span class="new">{{ display(change.new) }}</span>
-                  } @else {
-                    <span>{{ display(change.old) }}</span>
-                  }
-                </li>
-              }
-            </ul>
-          </div>
-        </ng-template>
-      </p-timeline>
+          </li>
+        }
+      </ol>
 
       @if (hasMore()) {
-        <p-button [label]="'common.viewAll' | transloco" [text]="true" [loading]="loading()" (onClick)="loadMore()" />
+        <button matButton (click)="loadMore()" [disabled]="loading()">{{ 'common.viewAll' | transloco }}</button>
       }
     }
   `,
   styles: `
+    .timeline {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .timeline > li {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+      padding-bottom: 1.25rem;
+    }
+    .timeline > li:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 1rem;
+      top: 2.25rem;
+      bottom: 0;
+      width: 2px;
+      background: var(--mat-sys-outline-variant);
+    }
     .marker {
-      display: inline-flex;
-      width: 2rem;
+      flex: 0 0 2rem;
       height: 2rem;
       border-radius: 50%;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: var(--p-primary-100);
-      color: var(--p-primary-700);
+      background: var(--mat-sys-primary-container);
+      color: var(--mat-sys-on-primary-container);
     }
     .marker.deleted {
-      background: var(--p-red-100);
-      color: var(--p-red-700);
+      background: var(--mat-sys-error-container);
+      color: var(--mat-sys-on-error-container);
     }
-    .entry {
-      padding-bottom: 1rem;
+    .marker .material-symbols-outlined {
+      font-size: 1.1rem;
     }
     .entry-header {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       align-items: baseline;
+      min-height: 2rem;
     }
     ul {
-      margin: 0.5rem 0 0;
+      margin: 0.25rem 0 0;
       padding-left: 1rem;
-    }
-    li {
-      margin-bottom: 0.25rem;
     }
     .old {
       text-decoration: line-through;
-      color: var(--p-text-muted-color);
+      color: var(--mat-sys-on-surface-variant);
     }
-    .pi-arrow-right {
-      font-size: 0.7rem;
-      margin: 0 0.35rem;
-    }
-    :host ::ng-deep .p-timeline-event-opposite {
-      display: none;
+    .arrow {
+      font-size: 0.9rem;
+      margin: 0 0.25rem;
     }
   `,
 })

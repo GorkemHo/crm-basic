@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { SelectModule } from 'primeng/select';
 import { switchMap } from 'rxjs';
 
 import { AuthService } from '../core/auth/auth.service';
@@ -12,26 +12,26 @@ import { NotifyService } from '../core/ui/notify.service';
 /** tr/en switch. When signed in the choice is saved as the user's preference (and lands in the next token). */
 @Component({
   selector: 'app-language-switcher',
-  imports: [SelectModule, FormsModule, TranslocoPipe],
+  imports: [MatButtonModule, MatMenuModule, TranslocoPipe],
   template: `
-    <p-select
-      [options]="languages"
-      [ngModel]="language.current()"
-      (ngModelChange)="change($event)"
-      [ariaLabel]="'nav.language' | transloco"
-      size="small"
-    >
-      <ng-template #selectedItem let-lang>
-        <span class="lang"><i class="pi pi-globe"></i> {{ lang.toUpperCase() }}</span>
-      </ng-template>
-      <ng-template #item let-lang>{{ 'languages.' + lang | transloco }}</ng-template>
-    </p-select>
+    <button matButton [matMenuTriggerFor]="menu" [attr.aria-label]="'nav.language' | transloco" class="trigger">
+      <span class="material-symbols-outlined">language</span>
+      {{ language.current().toUpperCase() }}
+    </button>
+    <mat-menu #menu="matMenu">
+      @for (lang of languages; track lang) {
+        <button mat-menu-item (click)="change(lang)" [class.selected]="lang === language.current()">
+          {{ 'languages.' + lang | transloco }}
+        </button>
+      }
+    </mat-menu>
   `,
   styles: `
-    .lang {
-      display: inline-flex;
-      gap: 0.4rem;
-      align-items: center;
+    .trigger .material-symbols-outlined {
+      margin-right: 0.25rem;
+    }
+    .selected {
+      font-weight: 600;
     }
   `,
 })
@@ -44,6 +44,8 @@ export class LanguageSwitcher {
   readonly languages = [...LANGUAGES];
 
   change(lang: string): void {
+    if (lang === this.language.current()) return;
+
     this.language.use(lang);
 
     if (this.store.isAuthenticated()) {

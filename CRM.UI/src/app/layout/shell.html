@@ -1,6 +1,12 @@
-<div class="layout" [class.sidebar-open]="sidebarOpen()">
-  <aside class="sidebar">
-    <a class="brand" routerLink="/"><i class="pi pi-briefcase"></i> {{ 'common.appName' | transloco }}</a>
+<mat-sidenav-container class="layout">
+  <mat-sidenav
+    #sidenav
+    class="sidebar"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    [fixedInViewport]="true"
+  >
+    <a class="brand" routerLink="/"><span class="material-symbols-outlined">hub</span> {{ 'common.appName' | transloco }}</a>
 
     <nav>
       @for (section of sections(); track $index) {
@@ -13,54 +19,62 @@
             [routerLink]="item.route"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: !!item.exact }"
-            (click)="sidebarOpen.set(false)"
+            (click)="isMobile() && sidenav.close()"
           >
-            <i [class]="item.icon"></i>
+            <span class="material-symbols-outlined">{{ item.icon }}</span>
             <span>{{ item.label | transloco }}</span>
           </a>
         }
       }
     </nav>
-  </aside>
+  </mat-sidenav>
 
-  <div class="backdrop" (click)="sidebarOpen.set(false)"></div>
-
-  <div class="main">
+  <mat-sidenav-content class="main">
     <header class="topbar">
-      <p-button
-        class="menu-button"
-        icon="pi pi-bars"
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        [ariaLabel]="'nav.toggleMenu' | transloco"
-        (onClick)="sidebarOpen.set(!sidebarOpen())"
-      />
+      @if (isMobile()) {
+        <button matIconButton (click)="sidenav.toggle()" [attr.aria-label]="'nav.toggleMenu' | transloco">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+      }
 
       <div class="spacer"></div>
 
       <app-language-switcher />
 
-      <p-button
-        [icon]="theme.dark() ? 'pi pi-sun' : 'pi pi-moon'"
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        [pTooltip]="(theme.dark() ? 'nav.lightMode' : 'nav.darkMode') | transloco"
-        tooltipPosition="bottom"
-        (onClick)="theme.toggle()"
-      />
-
-      <button type="button" class="user-button" (click)="menu.toggle($event)">
-        <p-avatar [label]="initials()" shape="circle" />
-        <span class="user-name">{{ store.user()?.name }}</span>
-        <i class="pi pi-chevron-down"></i>
+      <button
+        matIconButton
+        (click)="theme.toggle()"
+        [matTooltip]="(theme.dark() ? 'nav.lightMode' : 'nav.darkMode') | transloco"
+        [attr.aria-label]="(theme.dark() ? 'nav.lightMode' : 'nav.darkMode') | transloco"
+      >
+        <span class="material-symbols-outlined">{{ theme.dark() ? 'light_mode' : 'dark_mode' }}</span>
       </button>
-      <p-menu #menu [model]="userMenu()" [popup]="true" appendTo="body" />
+
+      <button class="user-button" [matMenuTriggerFor]="userMenu">
+        <span class="avatar">{{ initials() }}</span>
+        <span class="user-name">{{ store.user()?.name }}</span>
+        <span class="material-symbols-outlined">expand_more</span>
+      </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before">
+        <div class="menu-header">
+          <strong>{{ store.user()?.name }}</strong>
+          <span class="muted">{{ store.user()?.email }}</span>
+        </div>
+        <mat-divider />
+        <a mat-menu-item routerLink="/profile">
+          <span class="material-symbols-outlined">person</span>
+          <span>{{ 'nav.profile' | transloco }}</span>
+        </a>
+        <button mat-menu-item (click)="logout()">
+          <span class="material-symbols-outlined">logout</span>
+          <span>{{ 'nav.logout' | transloco }}</span>
+        </button>
+      </mat-menu>
     </header>
 
     <main class="content">
       <router-outlet />
     </main>
-  </div>
-</div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

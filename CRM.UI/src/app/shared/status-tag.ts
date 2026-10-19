@@ -1,16 +1,25 @@
 import { Component, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-status-tag',
-  imports: [TagModule, TranslocoPipe],
+  imports: [TranslocoPipe],
   template: `
-    <p-tag
-      [value]="(active() ? 'common.active' : 'common.inactive') | transloco"
-      [severity]="active() ? 'success' : 'secondary'"
-      [rounded]="true"
-    />
+    <span class="tag" [class.active]="active()">{{ (active() ? 'common.active' : 'common.inactive') | transloco }}</span>
+  `,
+  styles: `
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 1rem;
+      font: var(--mat-sys-label-medium);
+      background: var(--mat-sys-surface-container-highest);
+      color: var(--mat-sys-on-surface-variant);
+    }
+    .tag.active {
+      background: var(--app-success-container);
+      color: var(--app-success);
+    }
   `,
 })
 export class StatusTag {

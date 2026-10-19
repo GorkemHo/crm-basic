@@ -4,7 +4,7 @@ Decisions (2026-10-19):
 
 - **Backend first**, then the UI.
 - **Modular monolith**: one project per module. A module only exposes what is in its `Contracts` namespace.
-- **UI: PrimeNG** replaces DevExtreme (DevExtreme is commercial; this repo is public).
+- **UI: Angular Material** (MIT) replaces DevExtreme. PrimeNG was tried but since v19+ it requires a PrimeUI license key (commercial, with a conditional free tier), so it was dropped too.
 - **Language**: default `tr`, configurable per user (`preferred_language`).
 
 ## Phase 1 – Modular backend
@@ -20,9 +20,9 @@ Decisions (2026-10-19):
 | 7 | Serilog, OpenTelemetry, health checks, rate limiting, Dockerfile + docker-compose | ✅ |
 | 8 | Unit, architecture (module boundaries) and integration tests; GitHub Actions CI | ✅ |
 
-## Phase 2 – UI rewrite (Angular 22 + PrimeNG 22)
+## Phase 2 – UI rewrite (Angular 22 + Angular Material 22)
 
-`CRM.UI/`: standalone components, signals, zoneless; PrimeNG Aura theme (light/dark); Transloco (tr default, en).
+`CRM.UI/`: standalone components, signals, zoneless; Material 3 theme (light/dark), Material Symbols icons; Transloco (tr default, en). E2E tests: Playwright.
 The dev server proxies `/api` to the API, so the browser talks to one origin.
 
 ### Foundation
@@ -31,7 +31,7 @@ The dev server proxies `/api` to the API, so the browser talks to one origin.
 |---|---|---|
 | 1 | Core: auth store (claims from the access token), interceptor (bearer, `Accept-Language`, refresh + retry), guards (auth, guest, permission), problem-details → toast / form-field errors, i18n with per-user language, theme | ✅ |
 | 2 | Layout: auth layout (login/register), app shell with permission-driven sidebar, topbar (language, theme, user menu), 404 / 403 pages | ✅ |
-| 3 | Shared UI: page header, server-side table helpers (lazy paging/sort, debounced search, filters), confirm-delete, history timeline (audit log), status tag, date formatting by language | ⬜ |
+| 3 | Shared UI: page header, server-side table helpers (lazy paging/sort, debounced search, filters), confirm-delete, history timeline (audit log), status tag, date formatting by language | ✅ |
 
 ### Screens
 
@@ -53,7 +53,7 @@ Buttons for actions the user is not allowed to do are hidden (the API enforces t
 
 ### Later
 
-- Playwright e2e tests; UI build in CI.
+- UI build and e2e tests in CI.
 - Generated API client from OpenAPI (currently hand-written typed services).
 
 ## Phase 3 – New CRM modules

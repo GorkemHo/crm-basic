@@ -1,18 +1,18 @@
 import { Component, input } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ButtonModule } from 'primeng/button';
 
 /** 404 and 403 pages; `kind` comes from the route data. */
 @Component({
   selector: 'app-error-page',
-  imports: [RouterLink, TranslocoPipe, ButtonModule],
+  imports: [RouterLink, TranslocoPipe, MatButtonModule],
   template: `
     <div class="error-page">
       <div class="code">{{ kind() === 'forbidden' ? 403 : 404 }}</div>
       <h1>{{ 'pages.' + kind() + 'Title' | transloco }}</h1>
       <p class="muted">{{ 'pages.' + kind() + 'Text' | transloco }}</p>
-      <p-button [label]="'pages.home' | transloco" icon="pi pi-home" routerLink="/" />
+      <a matButton="filled" routerLink="/">{{ 'pages.home' | transloco }}</a>
     </div>
   `,
   styles: `
@@ -26,10 +26,12 @@ import { ButtonModule } from 'primeng/button';
       gap: 0.75rem;
     }
     .code {
-      font-size: 4rem;
+      font: var(--mat-sys-display-large);
       font-weight: 800;
-      color: var(--p-primary-color);
-      line-height: 1;
+      color: var(--mat-sys-primary);
+    }
+    h1 {
+      font: var(--mat-sys-headline-small);
     }
   `,
 })

@@ -1,6 +1,6 @@
 # CRM.UI
 
-Angular 22 + PrimeNG 22 front end for the CRM API.
+Angular 22 + Angular Material 22 front end for the CRM API.
 
 ```bash
 pnpm install
@@ -20,3 +20,13 @@ src/app/
   features/   one folder per area (companies, customers, users, roles, profile, dashboard)
 public/i18n/  tr.json, en.json (API error codes are translated under "errors")
 ```
+
+## E2E tests
+
+With the API and `pnpm start` running:
+
+```bash
+npx playwright test        # uses the installed Chrome locally
+```
+
+`E2E_EMAIL` / `E2E_PASSWORD` select the admin account (default: the dev seed admin).

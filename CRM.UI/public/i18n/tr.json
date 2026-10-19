@@ -30,7 +30,11 @@
     "minLength": "En az {{n}} karakter olmalı",
     "maxLength": "En fazla {{n}} karakter olabilir",
     "yes": "Evet",
-    "no": "Hayır"
+    "no": "Hayır",
+    "close": "Kapat",
+    "loading": "Yükleniyor…",
+    "showPassword": "Şifreyi göster",
+    "clearSelection": "Seçimi temizle"
   },
   "nav": {
     "dashboard": "Gösterge paneli",
@@ -222,5 +226,14 @@
       "admin_permissions_fixed": "Admin rolünün izinleri değiştirilemez.",
       "not_found": "Rol bulunamadı."
     }
+  },
+  "paginator": {
+    "itemsPerPage": "Sayfa başına",
+    "next": "Sonraki sayfa",
+    "previous": "Önceki sayfa",
+    "first": "İlk sayfa",
+    "last": "Son sayfa",
+    "empty": "0 kayıt",
+    "range": "{{start}}–{{end}} / {{length}}"
   }
 }

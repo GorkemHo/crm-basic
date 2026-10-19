@@ -1,16 +1,16 @@
 import { Component, input } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 
 /** Page title with optional subtitle, back link and right-aligned actions (projected content). */
 @Component({
   selector: 'app-page-header',
-  imports: [RouterLink, ButtonModule],
+  imports: [RouterLink, MatButtonModule],
   template: `
     <header class="page-header">
       <div class="title">
         @if (backLink(); as link) {
-          <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" [routerLink]="link" />
+          <a matIconButton [routerLink]="link" aria-label="back"><span class="material-symbols-outlined">arrow_back</span></a>
         }
         <div>
           <h1>{{ title() }}</h1>
@@ -37,7 +37,7 @@ import { ButtonModule } from 'primeng/button';
       gap: 0.5rem;
     }
     h1 {
-      font-size: 1.5rem;
+      font: var(--mat-sys-headline-small);
     }
     p {
       margin: 0.25rem 0 0;
