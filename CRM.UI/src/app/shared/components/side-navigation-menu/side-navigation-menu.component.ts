@@ -49,39 +49,26 @@ export class SideNavigationMenuComponent implements AfterViewInit, OnDestroy {
     this.menu.instance.selectItem(value);
   }
 
-  private _items!: Record<string, unknown>[];
+  private _items: Record<string, unknown>[] = [];
+  private _itemsRolesKey: string | null = null;
+
+  // Rebuilt whenever the user's roles change (login as another user, token refresh),
+  // but kept stable otherwise so the tree view doesn't re-render on every check.
   get items() {
-    // if (!this._items) {
-    //   this._items = navigation.map((item) => {
-    //     if (item.path && !/^\//.test(item.path)) {
-    //       item.path = `/${item.path}`;
-    //     }
-    //     return { ...item, expanded: !this._compactMode };
-    //   });
-    // }
-    if (!this._items) {
-      const userRoles = this.authStore.roles();
+    const userRoles = this.authStore.roles();
+    const rolesKey = userRoles.join('|');
+
+    if (this._itemsRolesKey !== rolesKey) {
+      this._itemsRolesKey = rolesKey;
 
       this._items = navigation
-        .filter((item) => {
-          // Roles tanımlı değilse herkese göster
-          if (!item.roles || item.roles.length === 0) {
-            return true;
-          }
-
-          // Kullanıcının rollerinden biri eşleşiyorsa göster
-          return item.roles.some((role) => userRoles.includes(role));
-        })
-        .map((item) => {
-          if (item.path && !/^\//.test(item.path)) {
-            item.path = `/${item.path}`;
-          }
-
-          return {
-            ...item,
-            expanded: !this._compactMode,
-          };
-        });
+        // Items without roles are visible to everyone; otherwise one matching role is enough.
+        .filter((item) => !item.roles?.length || item.roles.some((role) => userRoles.includes(role)))
+        .map((item) => ({
+          ...item,
+          path: item.path && !item.path.startsWith('/') ? `/${item.path}` : item.path,
+          expanded: !this._compactMode,
+        }));
     }
 
     return this._items;

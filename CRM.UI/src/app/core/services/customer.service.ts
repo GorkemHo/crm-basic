@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { CreateCustomer, Customer, UpdateCustomer } from '../models/customer/customer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,24 +12,20 @@ export class CustomerService {
 
   private readonly apiUrl = `${environment.apiUrl}/customers`;
 
-  getAll(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+  getAll(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(this.apiUrl);
   }
 
-  getById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  getById(id: number): Observable<Customer> {
+    return this.http.get<Customer>(`${this.apiUrl}/${id}`);
   }
 
-  create(customer: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, customer);
+  create(customer: CreateCustomer): Observable<Customer> {
+    return this.http.post<Customer>(this.apiUrl, customer);
   }
 
-  update(id: number, customer: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, customer);
-  }
-
-  patch(id: number, customer: any): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/${id}`, customer);
+  patch(id: number, customer: UpdateCustomer): Observable<Customer> {
+    return this.http.patch<Customer>(`${this.apiUrl}/${id}`, customer);
   }
 
   delete(id: number): Observable<void> {

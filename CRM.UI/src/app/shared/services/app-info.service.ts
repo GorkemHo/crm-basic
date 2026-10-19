@@ -1,18 +1,16 @@
-import { Injectable } from '@angular/core';
-import { AuthService } from '../../core/services/auth.service';
+import { Injectable, inject } from '@angular/core';
+import { AuthStore } from '../../core/stores/auth.store';
 
 @Injectable()
 export class AppInfoService {
-  userName: string = '';
+  private authStore = inject(AuthStore);
 
-  constructor(authService: AuthService) {
-    this.userName =
-      `${authService._user?.firstName ?? ''} ${authService._user?.lastName ?? ''}`.trim();
+  public get userName(): string {
+    return this.authStore.user()?.name ?? '';
   }
 
   public get title() {
-    const title = 'CRM - ISNET' + this.userName;
-    return title;
+    return this.userName ? `CRM - ISNET | ${this.userName}` : 'CRM - ISNET';
   }
 
   public get currentYear() {

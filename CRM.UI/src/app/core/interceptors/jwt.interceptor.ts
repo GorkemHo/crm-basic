@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, of, switchMap, throwError } from 'rxjs';
 
 import { AuthStore } from '../stores/auth.store';
 import { AuthService } from '../services/auth.service';
@@ -19,24 +19,32 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  return next(withToken(req, authStore.accessToken())).pipe(
-    catchError((error: HttpErrorResponse) => {
-      if (error.status !== 401) {
+  const failRefresh = (error: unknown) => {
+    authService.logOut();
+    return throwError(() => error);
+  };
+
+  // Refresh up front when the access token is already expired, instead of waiting for a 401.
+  const token$ =
+    authStore.isAccessTokenExpired() && authStore.refreshToken()
+      ? authService.refreshAccessToken().pipe(catchError(failRefresh))
+      : of(authStore.accessToken());
+
+  return token$.pipe(
+    switchMap((token) => next(withToken(req, token))),
+    catchError((error: unknown) => {
+      if (!(error instanceof HttpErrorResponse) || error.status !== 401) {
         return throwError(() => error);
       }
 
       if (!authStore.refreshToken()) {
-        authService.logOut();
-        return throwError(() => error);
+        return failRefresh(error);
       }
 
-      // Access token rejected: refresh once and retry the original request.
+      // Token rejected despite looking valid (revoked, key rotated...): refresh once and retry.
       return authService.refreshAccessToken().pipe(
         switchMap((newToken) => next(withToken(req, newToken))),
-        catchError((refreshError) => {
-          authService.logOut();
-          return throwError(() => refreshError);
-        }),
+        catchError(failRefresh),
       );
     }),
   );

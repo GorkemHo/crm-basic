@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using CRM.Core.DTOs;
 using CRM.Core.DTOs.UserDtos;
+using CRM.Core.Mappings;
 using CRM.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +13,31 @@ namespace CRM.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            if(!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userService.GetByIdAsync(userId);
+
+            if(user is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user.ToDto());
         }
 
         [HttpPost("login")]

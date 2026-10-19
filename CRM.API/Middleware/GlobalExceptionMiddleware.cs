@@ -51,7 +51,7 @@ namespace CRM.API.Middleware
                 Timestamp = DateTime.UtcNow
             };
 
-            var json = JsonSerializer.Serialize(response);
+            var json = JsonSerializer.Serialize(response, JsonSerializerOptions.Web);
 
             await context.Response.WriteAsync(json);
         }

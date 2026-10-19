@@ -1,14 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { DxDataGridModule } from 'devextreme-angular/ui/data-grid';
 import { CustomStore } from 'devextreme-angular/common/data';
-import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ExportingEvent } from 'devextreme/ui/data_grid';
-import { Workbook } from 'exceljs';
-import saveAs from 'file-saver';
-import { exportDataGrid } from 'devextreme/excel_exporter';
 import { UserService } from '../../core/services/user.service';
+import { UserDto } from '../../core/models/user/user.model';
+import { request } from '../../core/utils/http-error';
+import { exportGridToExcel } from '../../core/utils/grid-export';
 
 @Component({
   templateUrl: 'users.component.html',
@@ -17,69 +14,38 @@ import { UserService } from '../../core/services/user.service';
   imports: [DxDataGridModule],
 })
 export class UsersComponent {
-  dataSource: any;
-  users: any[] = [];
-
   private userService = inject(UserService);
 
-  constructor() {
-    this.userService.getAll().subscribe({
-      next: (response) => {
-        this.users = response;
-      },
-      error: (err) => {
-        console.error('Users loading error', err);
-      },
-    });
+  // The password can only be set when creating a user, never edited from the grid.
+  isNewRow = false;
 
-    this.dataSource = {
-      store: new CustomStore({
-        key: 'id',
+  readonly dataSource = {
+    store: new CustomStore<UserDto & { password?: string }, number>({
+      key: 'id',
+      load: () => request(this.userService.getAll()),
+      insert: (values) =>
+        request(
+          this.userService.create({
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+            password: values.password ?? '',
+          }),
+        ),
+      update: (key, values) => request(this.userService.patch(key, values)),
+      remove: (key) => request(this.userService.delete(key)),
+    }),
+  };
 
-        load: async () => {
-          try {
-            const response = await lastValueFrom(this.userService.getAll());
-
-            return {
-              data: response,
-            };
-          } catch (error) {
-            throw new Error('Users Loading Error');
-          }
-        },
-
-        insert: async (values) => {
-          return await lastValueFrom(this.userService.create(values));
-        },
-
-        update: async (key, values) => {
-          return await lastValueFrom(this.userService.patch(key, values));
-        },
-
-        remove: async (key) => {
-          return await lastValueFrom(this.userService.delete(key));
-        },
-      }),
-    };
+  onInitNewRow() {
+    this.isNewRow = true;
   }
 
-  exportGrid($event: ExportingEvent) {
-    const workbook = new Workbook();
-    const worksheet = workbook.addWorksheet('Main Sheet');
+  onEditingStart() {
+    this.isNewRow = false;
+  }
 
-    exportDataGrid({
-      component: $event.component,
-      worksheet: worksheet,
-      autoFilterEnabled: true,
-      keepColumnWidths: true,
-    }).then(() => {
-      workbook.xlsx.writeBuffer().then((buffer) => {
-        saveAs(
-          new Blob([buffer], { type: 'application/octet-stream' }),
-          'DataGrid_Export_test.xlsx',
-        );
-      });
-    });
-    $event.cancel = true;
+  exportGrid(event: ExportingEvent) {
+    exportGridToExcel(event, 'Users');
   }
 }

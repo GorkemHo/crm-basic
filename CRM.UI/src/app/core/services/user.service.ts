@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { CreateUser, UpdateUser, UserDto } from '../models/user/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,27 +12,23 @@ export class UserService {
 
   private readonly apiUrl = `${environment.apiUrl}/users`;
 
-  getAll(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+  getAll(): Observable<UserDto[]> {
+    return this.http.get<UserDto[]>(this.apiUrl);
   }
 
-  getById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  getById(id: number): Observable<UserDto> {
+    return this.http.get<UserDto>(`${this.apiUrl}/${id}`);
   }
 
-  create(user: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, user);
+  create(user: CreateUser): Observable<UserDto> {
+    return this.http.post<UserDto>(this.apiUrl, user);
   }
 
-  update(id: number, user: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, user);
+  patch(id: number, user: UpdateUser): Observable<UserDto> {
+    return this.http.patch<UserDto>(`${this.apiUrl}/${id}`, user);
   }
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  patch(id: number, user: any) {
-    return this.http.patch<any>(`${this.apiUrl}/${id}`, user);
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, finalize, firstValueFrom, map, shareReplay, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -9,50 +9,44 @@ import { LoginResponse } from '../models/auth/login-response.model';
 import { AuthStore } from '../stores/auth.store';
 import { RegisterUser } from '../models/user/register-user.model';
 import { UserDto } from '../models/user/user.model';
+import { getErrorMessage } from '../utils/http-error';
+
+export interface AuthResult<T = unknown> {
+  isOk: boolean;
+  data?: T;
+  message?: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private router: Router) {}
-
   private http = inject(HttpClient);
+  private router = inject(Router);
   private authStore = inject(AuthStore);
-  public _user: UserDto | null = null;
+
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   private loggingOut = false;
 
-  // Shared so that concurrent 401s trigger a single refresh request.
+  // Shared so that concurrent requests trigger a single refresh call.
   private refreshInFlight$: Observable<string> | null = null;
 
-  async login(request: LoginRequest) {
+  async login(request: LoginRequest): Promise<AuthResult<LoginResponse>> {
     try {
       const response = await firstValueFrom(
-        this.http.post<LoginResponse>(
-          `${environment.apiUrl}/auth/login`,
-          request,
-        ),
+        this.http.post<LoginResponse>(`${this.apiUrl}/login`, request),
       );
 
-      this.applyLoginResponse(response);
+      this.authStore.setTokens(response.accessToken, response.refreshToken);
 
-      return {
-        isOk: true,
-        data: response,
-      };
+      return { isOk: true, data: response };
     } catch (error) {
-      const httpError = error as HttpErrorResponse;
-
-      return {
-        isOk: false,
-        message: httpError.error?.Message ?? httpError.error?.message ?? 'Giriş sırasında bir hata oluştu.',
-      };
+      return { isOk: false, message: getErrorMessage(error, 'Giriş sırasında bir hata oluştu.') };
     }
   }
 
-  /**
-   * Exchanges the stored refresh token for a new token pair and emits the new access token.
-   */
+  /** Exchanges the stored refresh token for a new token pair and emits the new access token. */
   refreshAccessToken(): Observable<string> {
     const refreshToken = this.authStore.refreshToken();
 
@@ -62,9 +56,9 @@ export class AuthService {
 
     if (!this.refreshInFlight$) {
       this.refreshInFlight$ = this.http
-        .post<LoginResponse>(`${environment.apiUrl}/auth/refresh`, { refreshToken })
+        .post<LoginResponse>(`${this.apiUrl}/refresh`, { refreshToken })
         .pipe(
-          tap((response) => this.applyLoginResponse(response)),
+          tap((response) => this.authStore.setTokens(response.accessToken, response.refreshToken)),
           map((response) => response.accessToken),
           finalize(() => (this.refreshInFlight$ = null)),
           shareReplay(1),
@@ -72,6 +66,10 @@ export class AuthService {
     }
 
     return this.refreshInFlight$;
+  }
+
+  getCurrentUser(): Observable<UserDto> {
+    return this.http.get<UserDto>(`${this.apiUrl}/me`);
   }
 
   logOut(): void {
@@ -83,44 +81,24 @@ export class AuthService {
 
     if (refreshToken) {
       // Best effort: revoke the refresh token server-side; local logout proceeds regardless.
-      this.http
-        .post(`${environment.apiUrl}/auth/logout`, { refreshToken })
-        .subscribe({ error: () => {} });
+      this.http.post(`${this.apiUrl}/logout`, { refreshToken }).subscribe({ error: () => {} });
     }
 
     this.authStore.clear();
-    this._user = null;
     this.router.navigate(['/login-form']).finally(() => {
       this.loggingOut = false;
     });
   }
 
-  async createAccount(request: RegisterUser) {
+  async createAccount(request: RegisterUser): Promise<AuthResult> {
     try {
       const response = await firstValueFrom(
-        this.http.post<{ message: string }>(
-          `${environment.apiUrl}/auth/register`,
-          request,
-        ),
+        this.http.post<{ message: string }>(`${this.apiUrl}/register`, request),
       );
 
-      return {
-        isOk: true,
-        message: response.message,
-      };
+      return { isOk: true, message: response.message };
     } catch (error) {
-      const httpError = error as HttpErrorResponse;
-
-      return {
-        isOk: false,
-        message: httpError.error?.Message ?? httpError.error?.message ?? 'Kayıt sırasında bir hata oluştu.',
-      };
+      return { isOk: false, message: getErrorMessage(error, 'Kayıt sırasında bir hata oluştu.') };
     }
-  }
-
-  private applyLoginResponse(response: LoginResponse): void {
-    this.authStore.setTokens(response.accessToken, response.refreshToken);
-    this.authStore.setRoles(response.roles);
-    this._user = response.user;
   }
 }

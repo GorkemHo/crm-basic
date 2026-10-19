@@ -6,7 +6,6 @@ import { DxHttpModule } from 'devextreme-angular/http';
 import { FooterComponent } from './shared/components';
 import { UnauthenticatedContentComponent } from './unauthenticated-content';
 import { SideNavOuterToolbarComponent as SideNavToolbarComponent } from './layouts';
-import { AuthService } from './core/services/auth.service';
 import { AuthStore } from './core/stores/auth.store';
 
 @Component({
@@ -34,13 +33,8 @@ export class App {
   }
 
   constructor(
-    private authService: AuthService,
     private screen: ScreenService,
     public appInfo: AppInfoService,
     public authStore: AuthStore,
   ) {}
-
-  isAuthenticated() {
-    // return this.authService.loggedIn;
-  }
 }

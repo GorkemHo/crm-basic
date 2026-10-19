@@ -1,15 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { DxDataGridModule } from 'devextreme-angular/ui/data-grid';
 import { CustomStore } from 'devextreme-angular/common/data';
-import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ExportingEvent } from 'devextreme/ui/data_grid';
-import { Workbook } from 'exceljs';
-import saveAs from 'file-saver';
-import { exportDataGrid } from 'devextreme/excel_exporter';
 import { CustomerService } from '../../core/services/customer.service';
 import { CompanyService } from '../../core/services/company.service';
+import { Customer } from '../../core/models/customer/customer.model';
+import { request } from '../../core/utils/http-error';
+import { exportGridToExcel } from '../../core/utils/grid-export';
 
 @Component({
   templateUrl: 'customers.component.html',
@@ -18,70 +15,29 @@ import { CompanyService } from '../../core/services/company.service';
   imports: [DxDataGridModule],
 })
 export class CustomersComponent {
-  dataSource: any;
-  companies: any[] = [];
-
   private customerService = inject(CustomerService);
   private companyService = inject(CompanyService);
 
-  constructor() {
-    this.companyService.getAll().subscribe({
-      next: (response) => {
-        this.companies = response;
-      },
-      error: (err) => {
-        console.error('Company loading error', err);
-      },
-    });
+  readonly dataSource = {
+    store: new CustomStore<Customer, number>({
+      key: 'id',
+      load: () => request(this.customerService.getAll()),
+      insert: (values) => request(this.customerService.create(values)),
+      update: (key, values) => request(this.customerService.patch(key, values)),
+      remove: (key) => request(this.customerService.delete(key)),
+    }),
+  };
 
-    this.dataSource = {
-      store: new CustomStore({
-        key: 'id',
+  // Lookup source for the Company column; loaded lazily by the grid.
+  readonly companies = {
+    store: new CustomStore({
+      key: 'id',
+      loadMode: 'raw',
+      load: () => request(this.companyService.getAll()),
+    }),
+  };
 
-        load: async () => {
-          try {
-            const response = await lastValueFrom(this.customerService.getAll());
-
-            return {
-              data: response,
-            };
-          } catch (error) {
-            throw new Error('Customer Loading Error');
-          }
-        },
-
-        insert: async (values) => {
-          return await lastValueFrom(this.customerService.create(values));
-        },
-
-        update: async (key, values) => {
-          return await lastValueFrom(this.customerService.patch(key, values));
-        },
-
-        remove: async (key) => {
-          return await lastValueFrom(this.customerService.delete(key));
-        },
-      }),
-    };
-  }
-
-  exportGrid($event: ExportingEvent) {
-    const workbook = new Workbook();
-    const worksheet = workbook.addWorksheet('Main Sheet');
-
-    exportDataGrid({
-      component: $event.component,
-      worksheet: worksheet,
-      autoFilterEnabled: true,
-      keepColumnWidths: true,
-    }).then(() => {
-      workbook.xlsx.writeBuffer().then((buffer) => {
-        saveAs(
-          new Blob([buffer], { type: 'application/octet-stream' }),
-          'DataGrid_Export_test.xlsx',
-        );
-      });
-    });
-    $event.cancel = true;
+  exportGrid(event: ExportingEvent) {
+    exportGridToExcel(event, 'Customers');
   }
 }

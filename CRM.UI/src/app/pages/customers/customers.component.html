@@ -90,10 +90,6 @@
 
   <dxi-column dataField="phoneNumber" caption="Phone Number"> </dxi-column>
 
-  <!-- <dxi-column dataField="companyId" caption="Company Id">
-    <dxi-validation-rule type="required" message="Company is required">
-    </dxi-validation-rule>
-  </dxi-column> -->
   <dxi-column dataField="companyId" caption="Company">
     <dxo-lookup [dataSource]="companies" valueExpr="id" displayExpr="companyName">
     </dxo-lookup>
