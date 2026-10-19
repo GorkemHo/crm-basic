@@ -1,0 +1,60 @@
+# Local stack: PostgreSQL + API (+ RabbitMQ with `--profile messaging`).
+#   cp .env.example .env    # then fill in the secrets
+#   docker compose up --build
+#   docker compose --profile messaging up --build    # with RabbitMQ; also set RABBITMQ_ENABLED=true
+#
+# API: http://localhost:8080   health: /health/ready
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: crm
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    profiles: ["messaging"]
+    environment:
+      RABBITMQ_DEFAULT_USER: crm
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-crm}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  api:
+    build:
+      context: .
+      dockerfile: src/Host/CRM.API/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=crm;Username=crm;Password=${POSTGRES_PASSWORD}
+      JwtSettings__SecretKey: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in .env (at least 32 characters)}
+      Database__MigrateOnStartup: "true"
+      Seed__AdminEmail: ${ADMIN_EMAIL:-}
+      Seed__AdminPassword: ${ADMIN_PASSWORD:-}
+      Seed__AdminLanguage: ${ADMIN_LANGUAGE:-tr}
+      Cors__AllowedOrigins__0: http://localhost:4200
+      RabbitMq__Enabled: ${RABBITMQ_ENABLED:-false}
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__UserName: crm
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:-crm}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres-data:

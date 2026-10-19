@@ -22,6 +22,7 @@ public static class MessagingServiceCollectionExtensions
 
         services.AddSingleton<RabbitMqConnectionProvider>();
         services.AddSingleton<IMessagePublisher, RabbitMqMessagePublisher>();
+        services.AddHealthChecks().AddCheck<RabbitMqHealthCheck>("rabbitmq", tags: ["ready"]);
 
         return services;
     }

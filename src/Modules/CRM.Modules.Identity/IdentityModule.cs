@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -84,20 +83,17 @@ public sealed class IdentityModule : IModule
         var db = provider.GetRequiredService<IdentityDbContext>();
         var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger<IdentityModule>();
 
-        // Development: migrate and seed automatically. Elsewhere migrations are applied by the deployment.
-        if(provider.GetRequiredService<IHostEnvironment>().IsDevelopment())
-        {
-            await db.Database.MigrateAsync(cancellationToken);
+        await ModuleInitialization.MigrateIfEnabledAsync<IdentityDbContext>(provider, cancellationToken);
 
-            await IdentitySeeder.SeedAsync(
-                db,
-                provider.GetRequiredService<IConfiguration>(),
-                provider.GetRequiredService<IPasswordHasher>(),
-                logger,
-                cancellationToken);
-        }
+        // Idempotent: built-in roles always, the admin user only when Seed:AdminEmail/Password are set.
+        await IdentitySeeder.SeedAsync(
+            db,
+            provider.GetRequiredService<IConfiguration>(),
+            provider.GetRequiredService<IPasswordHasher>(),
+            logger,
+            cancellationToken);
 
-        // Every environment: keep the permission table in line with what the modules declare.
+        // Keep the permission table in line with what the modules declare.
         await PermissionSynchronizer.SyncAsync(db, provider.GetRequiredService<ModuleCatalog>(), logger, cancellationToken);
     }
 }

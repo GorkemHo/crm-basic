@@ -12,10 +12,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace CRM.Modules.Crm;
 
@@ -105,10 +103,7 @@ public sealed class CrmModule : IModule
     {
         await using var scope = services.CreateAsyncScope();
 
-        if(scope.ServiceProvider.GetRequiredService<IHostEnvironment>().IsDevelopment())
-        {
-            await scope.ServiceProvider.GetRequiredService<CrmDbContext>().Database.MigrateAsync(cancellationToken);
-        }
+        await ModuleInitialization.MigrateIfEnabledAsync<CrmDbContext>(scope.ServiceProvider, cancellationToken);
     }
 
     internal sealed record UpdateCompanyBody(string? CompanyName, string? TaxNumber, bool? IsActive);

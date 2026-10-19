@@ -1,11 +1,15 @@
 using CRM.API.ErrorHandling;
 using CRM.API.Extensions;
+using CRM.API.Observability;
 using CRM.BuildingBlocks.Modules;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
 using Scalar.AspNetCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddObservability();
 
 // Errors: every failure is returned as an RFC 7807 problem (application/problem+json).
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ProblemDetailsDefaults.Customize);
@@ -43,6 +47,12 @@ var app = builder.Build();
 app.UseExceptionHandler();
 // Bare status codes (401/403 from auth, 404 for unknown routes) also get a problem body.
 app.UseStatusCodePages();
+app.UseSerilogRequestLogging(options =>
+    // Probes hit health endpoints constantly; keep them out of the normal request log.
+    options.GetLevel = (context, _, exception) =>
+        exception is not null || context.Response.StatusCode >= 500 ? Serilog.Events.LogEventLevel.Error
+        : context.Request.Path.StartsWithSegments("/health") ? Serilog.Events.LogEventLevel.Verbose
+        : Serilog.Events.LogEventLevel.Information);
 
 if(app.Environment.IsDevelopment())
 {
@@ -57,6 +67,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
 
+app.MapHealthEndpoints();
 app.MapModules();
 
 await app.InitializeModulesAsync();
