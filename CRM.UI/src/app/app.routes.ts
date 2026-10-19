@@ -17,6 +17,16 @@ const FEATURE_ROUTES: Routes = [
     data: { permission: Permissions.customersRead },
     loadChildren: () => import('./features/customers/customers.routes').then((m) => m.CUSTOMER_ROUTES),
   },
+  {
+    path: 'users',
+    data: { permission: Permissions.usersRead },
+    loadChildren: () => import('./features/users/users.routes').then((m) => m.USER_ROUTES),
+  },
+  {
+    path: 'roles',
+    data: { permission: Permissions.rolesRead },
+    loadChildren: () => import('./features/roles/roles.routes').then((m) => m.ROLE_ROUTES),
+  },
 ];
 
 export const routes: Routes = [
@@ -45,7 +55,11 @@ export const routes: Routes = [
         data: { kind: 'forbidden' },
         loadComponent: () => import('./features/errors/error-page').then((m) => m.ErrorPage),
       },
-      { path: '**', loadComponent: () => import('./features/errors/error-page').then((m) => m.ErrorPage) },
+      {
+        path: '**',
+        data: { kind: 'notFound' },
+        loadComponent: () => import('./features/errors/error-page').then((m) => m.ErrorPage),
+      },
     ],
   },
 ];

@@ -10,6 +10,8 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
+  // Tests share one database and admin account; run them one at a time.
+  workers: 1,
   retries: process.env['CI'] ? 1 : 0,
   reporter: process.env['CI'] ? 'github' : 'list',
   use: {
