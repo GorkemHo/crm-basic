@@ -7,6 +7,8 @@ import { Shell } from './layout/shell';
 
 /** Feature routes inside the app shell. `data.permission` blocks pages the user may not open. */
 const FEATURE_ROUTES: Routes = [
+  { path: '', pathMatch: 'full', loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard) },
+  { path: 'profile', loadComponent: () => import('./features/profile/profile').then((m) => m.Profile) },
   {
     path: 'companies',
     data: { permission: Permissions.companiesRead },
