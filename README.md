@@ -38,7 +38,7 @@ The schema is managed with EF Core migrations (`CRM.Infrastructure/Persistence/M
 
 ```bash
 dotnet user-secrets set "Seed:AdminEmail" "admin@crm.local" --project CRM.API
-dotnet user-secrets set "Seed:AdminPassword" "<password>" --project CRM.API
+dotnet user-secrets set "Seed:AdminPassword" "dev" --project CRM.API
 ```
 
 **Other environments** (migrations are not applied automatically there):

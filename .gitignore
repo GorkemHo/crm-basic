@@ -51,3 +51,6 @@ publish/
 # Local secrets
 appsettings.*.local.json
 *.local.json
+
+# DevExtreme-generated theme files (built by `pnpm run build-themes`; must not be redistributed)
+CRM.UI/src/themes/generated/

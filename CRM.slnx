@@ -1,6 +1,11 @@
 <Solution>
-  <Project Path="CRM.API/CRM.API.csproj" />
-  <Project Path="CRM.Core/CRM.Core.csproj" />
-  <Project Path="CRM.Infrastructure/CRM.Infrastructure.csproj" />
-  <Project Path="CRM.Tests/CRM.Tests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/BuildingBlocks/CRM.BuildingBlocks/CRM.BuildingBlocks.csproj" />
+    <Project Path="src/Host/CRM.API/CRM.API.csproj" />
+    <Project Path="src/Legacy/CRM.Core/CRM.Core.csproj" />
+    <Project Path="src/Legacy/CRM.Infrastructure/CRM.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CRM.UnitTests/CRM.UnitTests.csproj" />
+  </Folder>
 </Solution>
