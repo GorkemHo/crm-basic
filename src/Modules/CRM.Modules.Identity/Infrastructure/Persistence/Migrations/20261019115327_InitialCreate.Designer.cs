@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20261019114732_InitialCreate")]
+    [Migration("20261019115327_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -73,6 +73,37 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_audit_logs_entity_name_entity_id_occurred_at");
 
                     b.ToTable("audit_logs", "identity");
+                });
+
+            modelBuilder.Entity("CRM.Modules.Identity.Domain.Permission", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Group")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("group");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("module");
+
+                    b.HasKey("Name")
+                        .HasName("pk_permissions");
+
+                    b.ToTable("permissions", "identity");
                 });
 
             modelBuilder.Entity("CRM.Modules.Identity.Domain.RefreshToken", b =>
@@ -164,6 +195,25 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_roles_name");
 
                     b.ToTable("roles", "identity");
+                });
+
+            modelBuilder.Entity("CRM.Modules.Identity.Domain.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("role_id");
+
+                    b.Property<string>("PermissionName")
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("permission_name");
+
+                    b.HasKey("RoleId", "PermissionName")
+                        .HasName("pk_role_permissions");
+
+                    b.HasIndex("PermissionName")
+                        .HasDatabaseName("ix_role_permissions_permission_name");
+
+                    b.ToTable("role_permissions", "identity");
                 });
 
             modelBuilder.Entity("CRM.Modules.Identity.Domain.User", b =>
@@ -284,6 +334,25 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CRM.Modules.Identity.Domain.RolePermission", b =>
+                {
+                    b.HasOne("CRM.Modules.Identity.Domain.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_permissions_permissions_permission_name");
+
+                    b.HasOne("CRM.Modules.Identity.Domain.Role", "Role")
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_permissions_roles_role_id");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("CRM.Modules.Identity.Domain.UserRole", b =>
                 {
                     b.HasOne("CRM.Modules.Identity.Domain.Role", "Role")
@@ -307,6 +376,8 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CRM.Modules.Identity.Domain.Role", b =>
                 {
+                    b.Navigation("Permissions");
+
                     b.Navigation("UserRoles");
                 });
 

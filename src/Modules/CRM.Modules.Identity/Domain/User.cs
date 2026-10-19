@@ -32,6 +32,29 @@ internal sealed class Role : AuditableEntity
     public bool IsActive { get; set; } = true;
 
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+    public ICollection<RolePermission> Permissions { get; set; } = new List<RolePermission>();
+}
+
+/// <summary>A permission declared by some module, kept in sync with the module catalog at startup.</summary>
+internal sealed class Permission
+{
+    public string Name { get; set; } = string.Empty;
+
+    public string Module { get; set; } = string.Empty;
+
+    public string Group { get; set; } = string.Empty;
+
+    public string Description { get; set; } = string.Empty;
+}
+
+internal sealed class RolePermission
+{
+    public int RoleId { get; set; }
+
+    public string PermissionName { get; set; } = string.Empty;
+
+    public Role Role { get; set; } = null!;
 }
 
 internal sealed class UserRole

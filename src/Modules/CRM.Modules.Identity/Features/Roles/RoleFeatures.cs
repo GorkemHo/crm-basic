@@ -2,7 +2,9 @@ using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
 using CRM.Modules.Identity.Domain;
 using CRM.Modules.Identity.Infrastructure.Persistence;
+using CRM.Modules.Identity.Infrastructure.Security;
 using FluentValidation;
+using ValidationException = CRM.BuildingBlocks.Exceptions.ValidationException;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM.Modules.Identity.Features.Roles;
@@ -12,11 +14,19 @@ internal sealed record GetRoles : IQuery<IReadOnlyList<RoleDto>>;
 internal sealed class GetRolesHandler : IRequestHandler<GetRoles, IReadOnlyList<RoleDto>>
 {
     private readonly IdentityDbContext _db;
+    private readonly PermissionResolver _permissions;
 
-    public GetRolesHandler(IdentityDbContext db) => _db = db;
+    public GetRolesHandler(IdentityDbContext db, PermissionResolver permissions)
+    {
+        _db = db;
+        _permissions = permissions;
+    }
 
-    public async Task<IReadOnlyList<RoleDto>> Handle(GetRoles request, CancellationToken cancellationToken) =>
-        await _db.Roles.AsNoTracking().OrderBy(x => x.Name).Select(RoleDto.Projection).ToListAsync(cancellationToken);
+    public async Task<IReadOnlyList<RoleDto>> Handle(GetRoles request, CancellationToken cancellationToken)
+    {
+        var roles = await _db.Roles.AsNoTracking().OrderBy(x => x.Name).Select(RoleDto.Projection).ToListAsync(cancellationToken);
+        return roles.Select(r => r.WithAdminPermissions(_permissions.AllPermissions)).ToList();
+    }
 }
 
 internal sealed record GetRole(int Id) : IQuery<RoleDto>;
@@ -24,12 +34,83 @@ internal sealed record GetRole(int Id) : IQuery<RoleDto>;
 internal sealed class GetRoleHandler : IRequestHandler<GetRole, RoleDto>
 {
     private readonly IdentityDbContext _db;
+    private readonly PermissionResolver _permissions;
 
-    public GetRoleHandler(IdentityDbContext db) => _db = db;
+    public GetRoleHandler(IdentityDbContext db, PermissionResolver permissions)
+    {
+        _db = db;
+        _permissions = permissions;
+    }
 
     public async Task<RoleDto> Handle(GetRole request, CancellationToken cancellationToken) =>
-        await _db.Roles.Where(x => x.Id == request.Id).Select(RoleDto.Projection).FirstOrDefaultAsync(cancellationToken)
-        ?? throw new NotFoundException("Role", request.Id);
+        await RoleRules.GetDtoAsync(_db, _permissions, request.Id, cancellationToken);
+}
+
+// ---------------------------------------------------------------- Permissions
+
+internal sealed record GetPermissions : IQuery<IReadOnlyList<PermissionDto>>;
+
+internal sealed class GetPermissionsHandler : IRequestHandler<GetPermissions, IReadOnlyList<PermissionDto>>
+{
+    private readonly IdentityDbContext _db;
+
+    public GetPermissionsHandler(IdentityDbContext db) => _db = db;
+
+    public async Task<IReadOnlyList<PermissionDto>> Handle(GetPermissions request, CancellationToken cancellationToken) =>
+        await _db.Permissions.AsNoTracking()
+            .OrderBy(x => x.Module).ThenBy(x => x.Group).ThenBy(x => x.Name)
+            .Select(x => new PermissionDto(x.Name, x.Module, x.Group, x.Description))
+            .ToListAsync(cancellationToken);
+}
+
+/// <summary>Replaces the role's permissions. Takes effect for users at their next sign-in or token refresh.</summary>
+internal sealed record SetRolePermissions(int RoleId, IReadOnlyList<string> Permissions) : ICommand<RoleDto>;
+
+internal sealed class SetRolePermissionsValidator : AbstractValidator<SetRolePermissions>
+{
+    public SetRolePermissionsValidator() => RuleFor(x => x.Permissions).NotNull();
+}
+
+internal sealed class SetRolePermissionsHandler : IRequestHandler<SetRolePermissions, RoleDto>
+{
+    private readonly IdentityDbContext _db;
+    private readonly PermissionResolver _permissions;
+
+    public SetRolePermissionsHandler(IdentityDbContext db, PermissionResolver permissions)
+    {
+        _db = db;
+        _permissions = permissions;
+    }
+
+    public async Task<RoleDto> Handle(SetRolePermissions request, CancellationToken cancellationToken)
+    {
+        var role = await _db.Roles.Include(x => x.Permissions).FirstOrDefaultAsync(x => x.Id == request.RoleId, cancellationToken)
+            ?? throw new NotFoundException("Role", request.RoleId);
+
+        if(role.Name == SystemRoles.Admin)
+        {
+            throw new BusinessRuleException("The Admin role always has every permission.", "role.admin_permissions_fixed");
+        }
+
+        var requested = request.Permissions.Distinct().ToList();
+        var known = await _db.Permissions.Where(x => requested.Contains(x.Name)).Select(x => x.Name).ToListAsync(cancellationToken);
+        var unknown = requested.Except(known).ToList();
+
+        if(unknown.Count > 0)
+        {
+            throw new ValidationException("permissions", $"Unknown permission(s): {string.Join(", ", unknown)}.", "permission.unknown");
+        }
+
+        role.Permissions.Clear();
+        foreach(var name in requested)
+        {
+            role.Permissions.Add(new RolePermission { RoleId = role.Id, PermissionName = name });
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+
+        return await RoleRules.GetDtoAsync(_db, _permissions, role.Id, cancellationToken);
+    }
 }
 
 internal sealed record CreateRole(string Name) : ICommand<RoleDto>;
@@ -42,8 +123,13 @@ internal sealed class CreateRoleValidator : AbstractValidator<CreateRole>
 internal sealed class CreateRoleHandler : IRequestHandler<CreateRole, RoleDto>
 {
     private readonly IdentityDbContext _db;
+    private readonly PermissionResolver _permissions;
 
-    public CreateRoleHandler(IdentityDbContext db) => _db = db;
+    public CreateRoleHandler(IdentityDbContext db, PermissionResolver permissions)
+    {
+        _db = db;
+        _permissions = permissions;
+    }
 
     public async Task<RoleDto> Handle(CreateRole request, CancellationToken cancellationToken)
     {
@@ -53,7 +139,7 @@ internal sealed class CreateRoleHandler : IRequestHandler<CreateRole, RoleDto>
         _db.Roles.Add(role);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return await _db.Roles.Where(x => x.Id == role.Id).Select(RoleDto.Projection).SingleAsync(cancellationToken);
+        return await RoleRules.GetDtoAsync(_db, _permissions, role.Id, cancellationToken);
     }
 }
 
@@ -68,8 +154,13 @@ internal sealed class UpdateRoleValidator : AbstractValidator<UpdateRole>
 internal sealed class UpdateRoleHandler : IRequestHandler<UpdateRole, RoleDto>
 {
     private readonly IdentityDbContext _db;
+    private readonly PermissionResolver _permissions;
 
-    public UpdateRoleHandler(IdentityDbContext db) => _db = db;
+    public UpdateRoleHandler(IdentityDbContext db, PermissionResolver permissions)
+    {
+        _db = db;
+        _permissions = permissions;
+    }
 
     public async Task<RoleDto> Handle(UpdateRole request, CancellationToken cancellationToken)
     {
@@ -93,7 +184,7 @@ internal sealed class UpdateRoleHandler : IRequestHandler<UpdateRole, RoleDto>
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return await _db.Roles.Where(x => x.Id == role.Id).Select(RoleDto.Projection).SingleAsync(cancellationToken);
+        return await RoleRules.GetDtoAsync(_db, _permissions, role.Id, cancellationToken);
     }
 }
 
@@ -129,6 +220,14 @@ internal sealed class DeleteRoleHandler : IRequestHandler<DeleteRole, Unit>
 
 internal static class RoleRules
 {
+    public static async Task<RoleDto> GetDtoAsync(IdentityDbContext db, PermissionResolver permissions, int id, CancellationToken cancellationToken)
+    {
+        var role = await db.Roles.AsNoTracking().Where(x => x.Id == id).Select(RoleDto.Projection).FirstOrDefaultAsync(cancellationToken)
+            ?? throw new NotFoundException("Role", id);
+
+        return role.WithAdminPermissions(permissions.AllPermissions);
+    }
+
     public static async Task EnsureNameIsFreeAsync(IdentityDbContext db, string name, int? excludeRoleId, CancellationToken cancellationToken)
     {
         var normalized = name.Trim().ToLower();

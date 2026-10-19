@@ -32,7 +32,33 @@ internal sealed record UserDto(
     public static UserDto From(User user) => Compiled(user);
 }
 
-internal sealed record RoleDto(int Id, string Name, bool IsActive, bool IsSystem, int UserCount, DateTime CreatedAt)
+/// <summary>The signed-in user plus their effective permissions (what the UI uses to show/hide features).</summary>
+internal sealed record CurrentUserDto(
+    int Id,
+    string FirstName,
+    string LastName,
+    string Email,
+    bool IsActive,
+    string PreferredLanguage,
+    IReadOnlyList<string> Roles,
+    IReadOnlyList<string> Permissions,
+    DateTime CreatedAt,
+    DateTime UpdatedAt)
+{
+    public static CurrentUserDto From(UserDto user, IReadOnlyList<string> permissions) => new(
+        user.Id, user.FirstName, user.LastName, user.Email, user.IsActive, user.PreferredLanguage,
+        user.Roles, permissions, user.CreatedAt, user.UpdatedAt);
+}
+
+/// <param name="Permissions">For Admin every permission; the role's own assignments are not editable.</param>
+internal sealed record RoleDto(
+    int Id,
+    string Name,
+    bool IsActive,
+    bool IsSystem,
+    int UserCount,
+    IReadOnlyList<string> Permissions,
+    DateTime CreatedAt)
 {
     public static readonly Expression<Func<Role, RoleDto>> Projection = r => new RoleDto(
         r.Id,
@@ -40,12 +66,18 @@ internal sealed record RoleDto(int Id, string Name, bool IsActive, bool IsSystem
         r.IsActive,
         r.Name == SystemRoles.Admin || r.Name == SystemRoles.User,
         r.UserRoles.Count,
+        r.Permissions.Select(p => p.PermissionName).OrderBy(p => p).ToList(),
         r.CreatedAt);
+
+    public RoleDto WithAdminPermissions(IReadOnlyList<string> all) =>
+        Name == SystemRoles.Admin ? this with { Permissions = all } : this;
 }
+
+internal sealed record PermissionDto(string Name, string Module, string Group, string Description);
 
 internal sealed record AuthResponse(
     string AccessToken,
     DateTime ExpiresAt,
     string RefreshToken,
     DateTime RefreshTokenExpiresAt,
-    UserDto User);
+    CurrentUserDto User);

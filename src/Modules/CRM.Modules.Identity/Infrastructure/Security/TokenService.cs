@@ -18,7 +18,7 @@ internal sealed record IssuedTokens(
 internal interface ITokenService
 {
     /// <summary>Creates an access token and a new refresh token (not yet persisted).</summary>
-    IssuedTokens Issue(User user, IReadOnlyCollection<string> roles);
+    IssuedTokens Issue(User user, IReadOnlyCollection<string> roles, IReadOnlyCollection<string> permissions);
 
     string HashRefreshToken(string refreshToken);
 }
@@ -34,7 +34,7 @@ internal sealed class TokenService : ITokenService
         _timeProvider = timeProvider;
     }
 
-    public IssuedTokens Issue(User user, IReadOnlyCollection<string> roles)
+    public IssuedTokens Issue(User user, IReadOnlyCollection<string> roles, IReadOnlyCollection<string> permissions)
     {
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         var accessExpiresAt = now.AddMinutes(_options.ExpirationMinutes);
@@ -51,6 +51,7 @@ internal sealed class TokenService : ITokenService
         };
 
         claims.AddRange(roles.Select(role => new Claim(CrmClaimTypes.Role, role)));
+        claims.AddRange(permissions.Select(permission => new Claim(CrmClaimTypes.Permission, permission)));
 
         var credentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)),

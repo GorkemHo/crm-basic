@@ -15,5 +15,10 @@ public interface ICurrentUser
 
     IReadOnlyList<string> Roles { get; }
 
+    /// <summary>Permissions granted by the access token (<c>perm</c> claims).</summary>
+    IReadOnlyCollection<string> Permissions { get; }
+
     bool IsInRole(string role);
+
+    bool HasPermission(string permission);
 }

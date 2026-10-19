@@ -35,6 +35,21 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "permissions",
+                schema: "identity",
+                columns: table => new
+                {
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    module = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    group = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_permissions", x => x.name);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 schema: "identity",
                 columns: table => new
@@ -77,6 +92,33 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_users", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "role_permissions",
+                schema: "identity",
+                columns: table => new
+                {
+                    role_id = table.Column<int>(type: "integer", nullable: false),
+                    permission_name = table.Column<string>(type: "character varying(100)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_role_permissions", x => new { x.role_id, x.permission_name });
+                    table.ForeignKey(
+                        name: "fk_role_permissions_permissions_permission_name",
+                        column: x => x.permission_name,
+                        principalSchema: "identity",
+                        principalTable: "permissions",
+                        principalColumn: "name",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_role_permissions_roles_role_id",
+                        column: x => x.role_id,
+                        principalSchema: "identity",
+                        principalTable: "roles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -151,6 +193,12 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_role_permissions_permission_name",
+                schema: "identity",
+                table: "role_permissions",
+                column: "permission_name");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_roles_name",
                 schema: "identity",
                 table: "roles",
@@ -184,7 +232,15 @@ namespace CRM.Modules.Identity.Infrastructure.Persistence.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
+                name: "role_permissions",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
                 name: "user_roles",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "permissions",
                 schema: "identity");
 
             migrationBuilder.DropTable(

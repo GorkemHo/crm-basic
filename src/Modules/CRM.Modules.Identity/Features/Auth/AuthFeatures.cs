@@ -201,28 +201,35 @@ internal sealed class LogoutHandler : IRequestHandler<Logout, Unit>
 
 // ---------------------------------------------------------------- Me
 
-internal sealed record GetCurrentUser : IQuery<UserDto>;
+internal sealed record GetCurrentUser : IQuery<CurrentUserDto>;
 
-internal sealed class GetCurrentUserHandler : IRequestHandler<GetCurrentUser, UserDto>
+internal sealed class GetCurrentUserHandler : IRequestHandler<GetCurrentUser, CurrentUserDto>
 {
     private readonly IdentityDbContext _db;
     private readonly ICurrentUser _currentUser;
+    private readonly PermissionResolver _permissions;
 
-    public GetCurrentUserHandler(IdentityDbContext db, ICurrentUser currentUser)
+    public GetCurrentUserHandler(IdentityDbContext db, ICurrentUser currentUser, PermissionResolver permissions)
     {
         _db = db;
         _currentUser = currentUser;
+        _permissions = permissions;
     }
 
-    public async Task<UserDto> Handle(GetCurrentUser request, CancellationToken cancellationToken)
+    public async Task<CurrentUserDto> Handle(GetCurrentUser request, CancellationToken cancellationToken)
     {
         var userId = _currentUser.Id ?? throw new UnauthorizedException();
 
-        return await _db.Users
-            .Where(x => x.Id == userId)
-            .Select(UserDto.Projection)
-            .FirstOrDefaultAsync(cancellationToken)
+        var user = await _db.Users
+            .AsNoTracking()
+            .Include(x => x.UserRoles).ThenInclude(x => x.Role)
+            .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken)
             ?? throw new NotFoundException("User", userId);
+
+        // Fresh from the database, so it reflects role changes made after the token was issued.
+        var permissions = await _permissions.GetPermissionsAsync(user.UserRoles.Select(x => x.Role).ToList(), cancellationToken);
+
+        return CurrentUserDto.From(UserDto.From(user), permissions);
     }
 }
 

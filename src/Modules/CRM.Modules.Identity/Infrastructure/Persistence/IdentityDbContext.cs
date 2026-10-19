@@ -20,6 +20,39 @@ internal sealed class IdentityDbContext : ModuleDbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+}
+
+internal sealed class PermissionConfiguration : IEntityTypeConfiguration<Permission>
+{
+    public void Configure(EntityTypeBuilder<Permission> builder)
+    {
+        builder.HasKey(x => x.Name);
+        builder.Property(x => x.Name).HasMaxLength(100);
+        builder.Property(x => x.Module).HasMaxLength(50).IsRequired();
+        builder.Property(x => x.Group).HasMaxLength(50).IsRequired();
+        builder.Property(x => x.Description).HasMaxLength(200).IsRequired();
+    }
+}
+
+internal sealed class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
+{
+    public void Configure(EntityTypeBuilder<RolePermission> builder)
+    {
+        builder.HasKey(x => new { x.RoleId, x.PermissionName });
+
+        builder.HasOne(x => x.Role)
+            .WithMany(x => x.Permissions)
+            .HasForeignKey(x => x.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Permissions removed from the catalog disappear from every role.
+        builder.HasOne<Permission>()
+            .WithMany()
+            .HasForeignKey(x => x.PermissionName)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>

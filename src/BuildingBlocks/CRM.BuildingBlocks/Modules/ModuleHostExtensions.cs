@@ -17,6 +17,8 @@ public static class ModuleHostExtensions
         builder.Services.AddDispatcher();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
+        builder.Services.AddAuthorization();
+        builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         builder.Services.TryAddSingleton(TimeProvider.System);
         builder.Services.AddScoped<IInterceptor, AuditingInterceptor>();
 

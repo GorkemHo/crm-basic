@@ -4,7 +4,7 @@ using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Modules;
 using CRM.BuildingBlocks.Persistence;
 using CRM.BuildingBlocks.Security;
-using CRM.Modules.Identity.Domain;
+using CRM.Modules.Identity.Contracts;
 using CRM.Modules.Identity.Endpoints;
 using CRM.Modules.Identity.Features.Auth;
 using CRM.Modules.Identity.Infrastructure.Persistence;
@@ -26,9 +26,9 @@ namespace CRM.Modules.Identity;
 /// <summary>Users, roles and authentication (JWT access tokens + rotating refresh tokens).</summary>
 public sealed class IdentityModule : IModule
 {
-    internal const string AdminPolicy = "identity.admin";
-
     public string Name => IdentityDbContext.SchemaName;
+
+    public IEnumerable<PermissionDefinition> Permissions => IdentityPermissions.All;
 
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
@@ -44,6 +44,7 @@ public sealed class IdentityModule : IModule
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddScoped<AuthSessionFactory>();
+        services.AddScoped<PermissionResolver>();
 
         // This module issues the tokens, so it also configures how they are validated.
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
@@ -63,9 +64,6 @@ public sealed class IdentityModule : IModule
                 };
             });
 
-        services.AddAuthorizationBuilder()
-            .AddPolicy(AdminPolicy, policy => policy.RequireRole(SystemRoles.Admin));
-
         // Brute-force protection for anonymous auth endpoints: per client IP.
         services.AddRateLimiter(options =>
         {
@@ -83,20 +81,23 @@ public sealed class IdentityModule : IModule
     {
         await using var scope = services.CreateAsyncScope();
         var provider = scope.ServiceProvider;
+        var db = provider.GetRequiredService<IdentityDbContext>();
+        var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger<IdentityModule>();
 
-        if(!provider.GetRequiredService<IHostEnvironment>().IsDevelopment())
+        // Development: migrate and seed automatically. Elsewhere migrations are applied by the deployment.
+        if(provider.GetRequiredService<IHostEnvironment>().IsDevelopment())
         {
-            return;
+            await db.Database.MigrateAsync(cancellationToken);
+
+            await IdentitySeeder.SeedAsync(
+                db,
+                provider.GetRequiredService<IConfiguration>(),
+                provider.GetRequiredService<IPasswordHasher>(),
+                logger,
+                cancellationToken);
         }
 
-        var db = provider.GetRequiredService<IdentityDbContext>();
-        await db.Database.MigrateAsync(cancellationToken);
-
-        await IdentitySeeder.SeedAsync(
-            db,
-            provider.GetRequiredService<IConfiguration>(),
-            provider.GetRequiredService<IPasswordHasher>(),
-            provider.GetRequiredService<ILoggerFactory>().CreateLogger<IdentityModule>(),
-            cancellationToken);
+        // Every environment: keep the permission table in line with what the modules declare.
+        await PermissionSynchronizer.SyncAsync(db, provider.GetRequiredService<ModuleCatalog>(), logger, cancellationToken);
     }
 }

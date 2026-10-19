@@ -9,24 +9,24 @@ internal sealed class AuthSessionFactory
 {
     private readonly IdentityDbContext _db;
     private readonly ITokenService _tokenService;
+    private readonly PermissionResolver _permissions;
     private readonly TimeProvider _timeProvider;
 
-    public AuthSessionFactory(IdentityDbContext db, ITokenService tokenService, TimeProvider timeProvider)
+    public AuthSessionFactory(IdentityDbContext db, ITokenService tokenService, PermissionResolver permissions, TimeProvider timeProvider)
     {
         _db = db;
         _tokenService = tokenService;
+        _permissions = permissions;
         _timeProvider = timeProvider;
     }
 
     /// <param name="user">Must have <c>UserRoles.Role</c> loaded.</param>
     public async Task<AuthResponse> CreateAsync(User user, CancellationToken cancellationToken)
     {
-        var roles = user.UserRoles
-            .Where(x => x.Role.IsActive)
-            .Select(x => x.Role.Name)
-            .ToList();
+        var roles = user.UserRoles.Select(x => x.Role).Where(r => r.IsActive).ToList();
+        var permissions = await _permissions.GetPermissionsAsync(roles, cancellationToken);
 
-        var tokens = _tokenService.Issue(user, roles);
+        var tokens = _tokenService.Issue(user, roles.Select(r => r.Name).ToList(), permissions);
 
         _db.RefreshTokens.Add(new RefreshToken
         {
@@ -43,6 +43,6 @@ internal sealed class AuthSessionFactory
             tokens.AccessTokenExpiresAt,
             tokens.RefreshToken,
             tokens.RefreshTokenExpiresAt,
-            UserDto.From(user));
+            CurrentUserDto.From(UserDto.From(user), permissions));
     }
 }

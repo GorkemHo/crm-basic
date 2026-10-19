@@ -24,5 +24,11 @@ internal sealed class HttpContextCurrentUser : ICurrentUser
     public IReadOnlyList<string> Roles =>
         Principal?.FindAll(CrmClaimTypes.Role).Select(x => x.Value).ToList() ?? [];
 
+    public IReadOnlyCollection<string> Permissions =>
+        Principal?.FindAll(CrmClaimTypes.Permission).Select(x => x.Value).ToHashSet() ?? [];
+
     public bool IsInRole(string role) => Principal?.IsInRole(role) == true;
+
+    public bool HasPermission(string permission) =>
+        Principal?.HasClaim(CrmClaimTypes.Permission, permission) == true;
 }
