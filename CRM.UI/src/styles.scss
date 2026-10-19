@@ -1,0 +1,156 @@
+/* Global styles. Colors come from PrimeNG design tokens (--p-*) so light/dark mode just works. */
+
+:root {
+  --app-sidebar-width: 15.5rem;
+  --app-topbar-height: 3.75rem;
+  --app-radius: 0.75rem;
+  --app-gap: 1.25rem;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--p-surface-50);
+  color: var(--p-text-color);
+  font-size: 0.9375rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-dark body {
+  background: var(--p-surface-950);
+}
+
+a {
+  color: var(--p-primary-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* Surface card used by pages. */
+.card {
+  background: var(--p-content-background);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--app-radius);
+  padding: var(--app-gap);
+}
+
+.muted {
+  color: var(--p-text-muted-color);
+}
+
+/* Forms */
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 640px) {
+    &.two-columns {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  label {
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  .p-inputtext,
+  .p-select,
+  .p-multiselect,
+  .p-password,
+  .p-password input {
+    width: 100%;
+  }
+
+  &.span-2 {
+    grid-column: 1 / -1;
+  }
+}
+
+.field-error {
+  color: var(--p-red-500);
+  font-size: 0.8125rem;
+}
+
+/* Toolbar above tables: search + filters + actions. */
+.table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .grow {
+    flex: 1 1 16rem;
+  }
+
+  .p-iconfield,
+  .p-iconfield input {
+    width: 100%;
+  }
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.dialog-footer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Definition list for detail pages. */
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+
+  dt {
+    color: var(--p-text-muted-color);
+    font-size: 0.8125rem;
+    margin-bottom: 0.25rem;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 500;
+    word-break: break-word;
+  }
+}
+
+.p-datatable .p-datatable-tbody > tr.clickable {
+  cursor: pointer;
+}

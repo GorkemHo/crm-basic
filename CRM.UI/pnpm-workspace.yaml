@@ -1,0 +1,6 @@
+# Dependencies whose install scripts may run (native binaries used by the Angular build).
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true

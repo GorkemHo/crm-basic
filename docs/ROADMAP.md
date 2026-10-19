@@ -20,14 +20,41 @@ Decisions (2026-10-19):
 | 7 | Serilog, OpenTelemetry, health checks, rate limiting, Dockerfile + docker-compose | ✅ |
 | 8 | Unit, architecture (module boundaries) and integration tests; GitHub Actions CI | ✅ |
 
-## Phase 2 – UI rewrite (Angular + PrimeNG)
+## Phase 2 – UI rewrite (Angular 22 + PrimeNG 22)
 
-1. New Angular app with PrimeNG + PrimeIcons, theme (light/dark), Transloco (tr/en, user preference).
-2. Typed API client generated from OpenAPI.
-3. Shared UI kit: page header/breadcrumb, data table (server-side paging/filter/sort), form fields, empty/loading states, confirm dialog, toasts, problem-details error mapping.
-4. App shell: collapsible sidebar driven by permissions, topbar with user menu and language switch.
-5. Screens: login / register, dashboard, companies (list + detail with tabs), customers (list + detail), users & roles (role + permission assignment), profile (preferences, change password).
-6. Playwright e2e tests, UI build in CI.
+`CRM.UI/`: standalone components, signals, zoneless; PrimeNG Aura theme (light/dark); Transloco (tr default, en).
+The dev server proxies `/api` to the API, so the browser talks to one origin.
+
+### Foundation
+
+| # | Step | Status |
+|---|---|---|
+| 1 | Core: auth store (claims from the access token), interceptor (bearer, `Accept-Language`, refresh + retry), guards (auth, guest, permission), problem-details → toast / form-field errors, i18n with per-user language, theme | ✅ |
+| 2 | Layout: auth layout (login/register), app shell with permission-driven sidebar, topbar (language, theme, user menu), 404 / 403 pages | ✅ |
+| 3 | Shared UI: page header, server-side table helpers (lazy paging/sort, debounced search, filters), confirm-delete, history timeline (audit log), status tag, date formatting by language | ⬜ |
+
+### Screens
+
+| Route | Screen | Permission | Contents |
+|---|---|---|---|
+| `/login`, `/register` | Sign in / sign up | anonymous | Validation, API errors in the user's language |
+| `/` | Dashboard | signed in | KPI cards (companies, customers, active counts), latest companies and customers, quick actions |
+| `/companies` | Company list | `crm.companies.read` | Search, active filter, sortable paged table, create/edit dialog, delete with confirmation |
+| `/companies/:id` | Company detail | `crm.companies.read` | Tabs: overview (edit, activate/deactivate), customers of the company (add customer here), history |
+| `/customers` | Customer list | `crm.customers.read` | Search, company and active filters, table, create/edit dialog, delete |
+| `/customers/:id` | Customer detail | `crm.customers.read` | Overview with company link, edit, history |
+| `/users` | User list | `identity.users.read` | Search, role and active filters, create dialog (with roles), edit, delete |
+| `/users/:id` | User detail | `identity.users.read` | Overview, role assignment, activate/deactivate, history |
+| `/roles` | Role list | `identity.roles.read` | User/permission counts, create, rename, activate, delete |
+| `/roles/:id` | Role permissions | `identity.roles.read` | Permission matrix grouped by module and resource; Admin shown read-only |
+| `/profile` | My profile | signed in | Account info, roles and permissions, language, theme, change password |
+
+Buttons for actions the user is not allowed to do are hidden (the API enforces the same rules).
+
+### Later
+
+- Playwright e2e tests; UI build in CI.
+- Generated API client from OpenAPI (currently hand-written typed services).
 
 ## Phase 3 – New CRM modules
 

@@ -1,0 +1,66 @@
+<div class="layout" [class.sidebar-open]="sidebarOpen()">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/"><i class="pi pi-briefcase"></i> {{ 'common.appName' | transloco }}</a>
+
+    <nav>
+      @for (section of sections(); track $index) {
+        @if (section.label) {
+          <div class="section-label">{{ section.label | transloco }}</div>
+        }
+        @for (item of section.items; track item.route) {
+          <a
+            class="nav-link"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: !!item.exact }"
+            (click)="sidebarOpen.set(false)"
+          >
+            <i [class]="item.icon"></i>
+            <span>{{ item.label | transloco }}</span>
+          </a>
+        }
+      }
+    </nav>
+  </aside>
+
+  <div class="backdrop" (click)="sidebarOpen.set(false)"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <p-button
+        class="menu-button"
+        icon="pi pi-bars"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        [ariaLabel]="'nav.toggleMenu' | transloco"
+        (onClick)="sidebarOpen.set(!sidebarOpen())"
+      />
+
+      <div class="spacer"></div>
+
+      <app-language-switcher />
+
+      <p-button
+        [icon]="theme.dark() ? 'pi pi-sun' : 'pi pi-moon'"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        [pTooltip]="(theme.dark() ? 'nav.lightMode' : 'nav.darkMode') | transloco"
+        tooltipPosition="bottom"
+        (onClick)="theme.toggle()"
+      />
+
+      <button type="button" class="user-button" (click)="menu.toggle($event)">
+        <p-avatar [label]="initials()" shape="circle" />
+        <span class="user-name">{{ store.user()?.name }}</span>
+        <i class="pi pi-chevron-down"></i>
+      </button>
+      <p-menu #menu [model]="userMenu()" [popup]="true" appendTo="body" />
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
