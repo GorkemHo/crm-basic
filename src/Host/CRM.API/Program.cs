@@ -1,13 +1,9 @@
-using System.Text;
 using CRM.API.ErrorHandling;
 using CRM.API.Extensions;
-using CRM.API.Security;
-using CRM.Core.Common;
-using CRM.Core.Security;
-using CRM.Infrastructure.DependencyInjection;
-using CRM.Infrastructure.Persistence.Seeding;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using CRM.BuildingBlocks.Messaging.RabbitMq;
+using CRM.BuildingBlocks.Modules;
+using CRM.Modules.Crm;
+using CRM.Modules.Identity;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,74 +12,34 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = ProblemDetailsDefaults.Customize);
 builder.Services.AddExceptionHandler<AppExceptionHandler>();
 
-builder.Services.AddControllers();
+// Modules: add new ones here.
+builder.AddModules(
+    new IdentityModule(),
+    new CrmModule());
 
-builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
-
-var jwtSettings = builder.Configuration
-    .GetSection(JwtSettings.SectionName)
-    .Get<JwtSettings>()
-    ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
-
-if(string.IsNullOrWhiteSpace(jwtSettings.SecretKey) || Encoding.UTF8.GetByteCount(jwtSettings.SecretKey) < 32)
-{
-    throw new InvalidOperationException(
-        "JwtSettings:SecretKey must be set (at least 32 bytes). Use user-secrets or the JwtSettings__SecretKey environment variable.");
-}
-
-var allowedOrigins = builder.Configuration
-    .GetSection("Cors:AllowedOrigins")
-    .Get<string[]>() ?? [];
+builder.Services.AddMessaging(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AngularPolicy",
-    policy =>
-    {
-        policy
-            .WithOrigins(allowedOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+    options.AddDefaultPolicy(policy => policy
+        .WithOrigins(allowedOrigins)
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 });
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        // Keep the token's short claim names (sub, role, ...) instead of mapping them to ClaimTypes URIs.
-        options.MapInboundClaims = false;
-
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtSettings.Issuer,
-
-            ValidateAudience = true,
-            ValidAudience = jwtSettings.Audience,
-
-            ValidateLifetime = true,
-
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-
-            NameClaimType = CrmClaimTypes.Name,
-            RoleClaimType = CrmClaimTypes.Role,
-
-            ClockSkew = TimeSpan.Zero
-        };
-    });
+// Validation messages follow Accept-Language (the UI sends the user's preferred language).
+builder.Services.AddRequestLocalization(options =>
+{
+    string[] cultures = ["en", "tr"];
+    options.SetDefaultCulture(cultures[0]).AddSupportedCultures(cultures).AddSupportedUICultures(cultures);
+});
 
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
-
-builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -91,22 +47,24 @@ app.UseExceptionHandler();
 // Bare status codes (401/403 from auth, 404 for unknown routes) also get a problem body.
 app.UseStatusCodePages();
 
-// Configure the HTTP request pipeline.
 if(app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-
-    await app.Services.SeedDatabaseAsync();
 }
 
 app.UseHttpsRedirection();
-
-app.UseCors("AngularPolicy");
-
+app.UseRequestLocalization();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
-app.MapControllers();
+app.MapModules();
+
+await app.InitializeModulesAsync();
 
 app.Run();
+
+/// <summary>Entry point marker for WebApplicationFactory in integration tests.</summary>
+public partial class Program;

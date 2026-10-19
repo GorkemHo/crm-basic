@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
@@ -17,8 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Legacy\CRM.Core\CRM.Core.csproj" />
-    <ProjectReference Include="..\..\src\Legacy\CRM.Infrastructure\CRM.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\CRM.BuildingBlocks\CRM.BuildingBlocks.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CRM.Modules.Identity\CRM.Modules.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Modules\CRM.Modules.Crm\CRM.Modules.Crm.csproj" />
   </ItemGroup>
 
 </Project>

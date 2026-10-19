@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Company, CreateCompany, UpdateCompany } from '../models/company/company.model';
 
@@ -13,7 +13,8 @@ export class CompanyService {
   private readonly apiUrl = `${environment.apiUrl}/companies`;
 
   getAll(): Observable<Company[]> {
-    return this.http.get<Company[]>(this.apiUrl);
+    // Temporary until the PrimeNG rewrite: the API is paged, the old grids expect a plain array.
+    return this.http.get<{ items: Company[] }>(this.apiUrl, { params: { pageSize: 100 } }).pipe(map((r) => r.items));
   }
 
   getById(id: number): Observable<Company> {

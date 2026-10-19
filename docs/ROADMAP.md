@@ -13,7 +13,7 @@ Decisions (2026-10-19):
 |---|---|---|
 | 1 | `src/` + `tests/` layout, `CRM.BuildingBlocks` (kernel, exceptions, security, paging, module contract, dispatcher, validation, persistence base) | ✅ |
 | 2 | **Identity** module: users, roles, auth, refresh tokens, `preferred_language`, own `identity` schema | ✅ |
-| 3 | **Crm** module: companies, customers, own `crm` schema; host composes modules; legacy projects removed | ⬜ |
+| 3 | **Crm** module: companies, customers, own `crm` schema; host composes modules; legacy projects removed | ✅ |
 | 4 | Auditing (`created_by`/`updated_by`), soft delete, audit log, applied to every module automatically | ⬜ |
 | 5 | Permission-based authorization, modules declare their permissions | ⬜ |
 | 6 | Outbox + cross-module integration events (RabbitMQ when enabled) | ⬜ |

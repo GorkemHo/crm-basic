@@ -2,8 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/BuildingBlocks/CRM.BuildingBlocks/CRM.BuildingBlocks.csproj" />
     <Project Path="src/Host/CRM.API/CRM.API.csproj" />
-    <Project Path="src/Legacy/CRM.Core/CRM.Core.csproj" />
-    <Project Path="src/Legacy/CRM.Infrastructure/CRM.Infrastructure.csproj" />
+    <Project Path="src/Modules/CRM.Modules.Crm/CRM.Modules.Crm.csproj" />
     <Project Path="src/Modules/CRM.Modules.Identity/CRM.Modules.Identity.csproj" />
   </Folder>
   <Folder Name="/tests/">

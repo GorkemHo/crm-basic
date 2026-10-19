@@ -1,4 +1,4 @@
-using CRM.Core.Exceptions;
+using CRM.BuildingBlocks.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 

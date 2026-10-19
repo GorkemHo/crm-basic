@@ -62,16 +62,16 @@ public static class QueryableExtensions
 
         var items = await query
             .ApplySorting(request.SortBy, request.SortDirection)
-            .Skip((request.PageNumber - 1) * request.PageSize)
-            .Take(request.PageSize)
+            .Skip((request.Page - 1) * request.Size)
+            .Take(request.Size)
             .Select(selector)
             .ToListAsync(cancellationToken);
 
         return new PagedResponse<TResult>
         {
             Items = items,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize,
+            PageNumber = request.Page,
+            PageSize = request.Size,
             TotalCount = totalCount
         };
     }

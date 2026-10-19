@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <!-- Composition root: wires cross-cutting concerns and the modules. No business logic here. -->
+
   <PropertyGroup>
     <UserSecretsId>635ae947-c357-444d-82a9-dee4336ed46d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-	  <PackageReference Include="Microsoft.OpenApi" />
+    <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,8 +17,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Legacy\CRM.Core\CRM.Core.csproj" />
-    <ProjectReference Include="..\..\Legacy\CRM.Infrastructure\CRM.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\CRM.BuildingBlocks\CRM.BuildingBlocks.csproj" />
+    <ProjectReference Include="..\..\Modules\CRM.Modules.Identity\CRM.Modules.Identity.csproj" />
+    <ProjectReference Include="..\..\Modules\CRM.Modules.Crm\CRM.Modules.Crm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CRM.IntegrationTests" />
   </ItemGroup>
 
 </Project>

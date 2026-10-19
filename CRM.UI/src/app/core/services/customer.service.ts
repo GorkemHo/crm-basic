@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateCustomer, Customer, UpdateCustomer } from '../models/customer/customer.model';
 
@@ -13,7 +13,7 @@ export class CustomerService {
   private readonly apiUrl = `${environment.apiUrl}/customers`;
 
   getAll(): Observable<Customer[]> {
-    return this.http.get<Customer[]>(this.apiUrl);
+    return this.http.get<{ items: Customer[] }>(this.apiUrl, { params: { pageSize: 100 } }).pipe(map((r) => r.items));
   }
 
   getById(id: number): Observable<Customer> {

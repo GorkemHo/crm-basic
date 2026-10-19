@@ -3,7 +3,8 @@ export interface UserDto {
   firstName: string;
   lastName: string;
   email: string;
-  roleName: string;
+  roles: string[];
+  preferredLanguage: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

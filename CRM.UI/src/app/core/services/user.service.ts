@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateUser, UpdateUser, UserDto } from '../models/user/user.model';
 
@@ -13,7 +13,7 @@ export class UserService {
   private readonly apiUrl = `${environment.apiUrl}/users`;
 
   getAll(): Observable<UserDto[]> {
-    return this.http.get<UserDto[]>(this.apiUrl);
+    return this.http.get<{ items: UserDto[] }>(this.apiUrl, { params: { pageSize: 100 } }).pipe(map((r) => r.items));
   }
 
   getById(id: number): Observable<UserDto> {
