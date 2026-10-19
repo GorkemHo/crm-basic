@@ -26,3 +26,28 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+publish/
+*.nupkg
+
+# Visual Studio / Rider / user-specific
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.pubxml.user
+*.Backup.tmp
+*.rsuser
+
+# Local secrets
+appsettings.*.local.json
+*.local.json
