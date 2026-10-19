@@ -65,6 +65,8 @@ internal sealed class OutboxProcessor<TContext> : BackgroundService
 
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
 
+        // Only code constants and the module's schema name are interpolated (identifiers can't be SQL parameters).
+#pragma warning disable EF1002
         var messages = await db.OutboxMessages
             .FromSqlRaw($"""
                 SELECT * FROM "{db.Schema}".outbox_messages
@@ -74,6 +76,7 @@ internal sealed class OutboxProcessor<TContext> : BackgroundService
                 FOR UPDATE SKIP LOCKED
                 """)
             .ToListAsync(cancellationToken);
+#pragma warning restore EF1002
 
         foreach(var message in messages)
         {

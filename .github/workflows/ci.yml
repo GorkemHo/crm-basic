@@ -98,12 +98,16 @@ jobs:
       - name: Build UI (production)
         run: pnpm build
 
+      - name: Build API
+        working-directory: .
+        run: dotnet build src/Host/CRM.API
+
       - name: Start API
         working-directory: .
         run: |
           dotnet dev-certs https
-          nohup dotnet run --project src/Host/CRM.API --launch-profile https > api.log 2>&1 &
-          for i in $(seq 1 60); do curl -skf https://localhost:7156/health/ready && exit 0; sleep 2; done
+          nohup dotnet run --project src/Host/CRM.API --launch-profile https --no-build > api.log 2>&1 &
+          for i in $(seq 1 90); do curl -skf https://localhost:7156/health/ready && exit 0; sleep 2; done
           cat api.log; exit 1
 
       - name: Start UI dev server
