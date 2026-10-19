@@ -1,6 +1,5 @@
 ﻿using CRM.Core.Common;
-using CRM.Infrastructure.Persistence.Entities;
-using CRM.Infrastructure.Persistence.Repositories;
+using CRM.Core.Entities;
 
 namespace CRM.Core.Interfaces
 {

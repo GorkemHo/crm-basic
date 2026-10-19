@@ -1,5 +1,4 @@
 ﻿using CRM.Core.Entities;
-using CRM.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM.Infrastructure.Persistence.Context;

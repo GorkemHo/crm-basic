@@ -1,5 +1,5 @@
 ﻿using CRM.Core.DTOs.CustomerDtos;
-using CRM.Infrastructure.Persistence.Entities;
+using CRM.Core.Entities;
 
 namespace CRM.Core.Mappings
 {

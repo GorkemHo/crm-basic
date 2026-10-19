@@ -182,7 +182,7 @@ namespace CRM.Infrastructure.Persistence.Migrations
                     b.ToTable("user_roles", (string)null);
                 });
 
-            modelBuilder.Entity("CRM.Infrastructure.Persistence.Entities.Company", b =>
+            modelBuilder.Entity("CRM.Core.Entities.Company", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -230,7 +230,7 @@ namespace CRM.Infrastructure.Persistence.Migrations
                     b.ToTable("companies", (string)null);
                 });
 
-            modelBuilder.Entity("CRM.Infrastructure.Persistence.Entities.Customer", b =>
+            modelBuilder.Entity("CRM.Core.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

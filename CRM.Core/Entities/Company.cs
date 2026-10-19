@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CRM.Infrastructure.Persistence.Entities;
+namespace CRM.Core.Entities;
 
 public class Company
 {

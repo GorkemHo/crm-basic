@@ -1,7 +1,7 @@
 ﻿using CRM.Core.Common;
 using CRM.Core.Interfaces;
 using CRM.Infrastructure.Persistence.Context;
-using CRM.Infrastructure.Persistence.Entities;
+using CRM.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM.Infrastructure.Persistence.Repositories

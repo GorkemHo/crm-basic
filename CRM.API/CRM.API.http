@@ -1,6 +1,38 @@
-@CRM.API_HostAddress = http://localhost:5084
+@host = http://localhost:5084
+@email = admin@example.com
+@password = changeme
 
-GET {{CRM.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### Login (copy accessToken / refreshToken from the response)
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
 
 ###
+@accessToken = {{login.response.body.accessToken}}
+@refreshToken = {{login.response.body.refreshToken}}
+
+### Current user
+GET {{host}}/api/auth/me
+Authorization: Bearer {{accessToken}}
+
+### Refresh tokens
+POST {{host}}/api/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "{{refreshToken}}" }
+
+### Companies (filtered, paged, sorted)
+GET {{host}}/api/companies/filtered?search=&pageNumber=1&pageSize=10&sortBy=companyName&sortDirection=asc
+Authorization: Bearer {{accessToken}}
+
+### Customers of a company
+GET {{host}}/api/customers/filtered?companyId=1
+Authorization: Bearer {{accessToken}}
+
+### Logout (revokes the refresh token)
+POST {{host}}/api/auth/logout
+Content-Type: application/json
+
+{ "refreshToken": "{{refreshToken}}" }

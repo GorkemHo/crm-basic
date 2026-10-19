@@ -1,14 +1,13 @@
 ﻿using CRM.Core.Common;
 using CRM.Core.Interfaces;
 using CRM.Core.Services;
-using CRM.Infrastructure.Authentication;
+using CRM.Infrastructure.Messaging;
 using CRM.Infrastructure.Persistence.Context;
 using CRM.Infrastructure.Persistence.Repositories;
 using CRM.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client;
 
 namespace CRM.Infrastructure.DependencyInjection
 {
@@ -20,38 +19,25 @@ namespace CRM.Infrastructure.DependencyInjection
             options.UseNpgsql(
             configuration.GetConnectionString("DefaultConnection")));
 
+            services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
             services.AddScoped<ICompanyRepository, CompanyRepository>();
-            services.AddScoped<ICompanyService, CompanyService>();
-
             services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<ICustomerService, CustomerService>();
-
-            services.AddScoped<IJwtTokenService, JwtTokenService>();
-            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserService, UserService>();
-
-            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
-            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<ICompanyService, CompanyService>();
+            services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
-
-            services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-            services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
-            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-
-            services.AddSingleton(sp => new ConnectionFactory
-            {
-                HostName = "rabbitmq url",
-                UserName = "username",
-                Password = "password",
-            });
+            services.AddMessaging(configuration);
 
             return services;
         }

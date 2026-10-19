@@ -2,9 +2,10 @@
 using CRM.Core.DTOs.CompanyDtos;
 using CRM.Core.Interfaces;
 using CRM.Core.Mappings;
-using CRM.Infrastructure.Persistence.Entities;
+using CRM.Core.Services;
+using CRM.Core.Entities;
 
-namespace CRM.Core.Services
+namespace CRM.Infrastructure.Services
 {
     public class CompanyService : ICompanyService
     {

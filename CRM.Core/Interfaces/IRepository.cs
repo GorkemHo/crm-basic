@@ -1,7 +1,7 @@
 ﻿using CRM.Core.Common;
 using System.Linq.Expressions;
 
-namespace CRM.Infrastructure.Persistence.Repositories
+namespace CRM.Core.Interfaces
 {
     public interface IRepository<TEntity>
     {

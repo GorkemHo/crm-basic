@@ -34,7 +34,7 @@ builder.Services.AddControllers()
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var jwtSettings = builder.Configuration
-    .GetSection("JwtSettings")
+    .GetSection(JwtSettings.SectionName)
     .Get<JwtSettings>()
     ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
 

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
+namespace CRM.API.Extensions;
+
 public sealed class BearerSecuritySchemeTransformer(
     IAuthenticationSchemeProvider authenticationSchemeProvider)
     : IOpenApiDocumentTransformer
@@ -38,7 +40,8 @@ public sealed class BearerSecuritySchemeTransformer(
             };
 
         foreach (var operation in document.Paths.Values
-                     .SelectMany(x => x.Operations))
+                     .Where(x => x.Operations is not null)
+                     .SelectMany(x => x.Operations!))
         {
             operation.Value.Security ??= [];
 

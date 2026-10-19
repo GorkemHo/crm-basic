@@ -17,21 +17,17 @@ namespace CRM.API.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            Console.WriteLine(
-        $"METHOD: {context.Request.Method} PATH: {context.Request.Path}"
-    );
             try
             {
                 await _next(context);
             }
             catch(Exception exception)
             {
-                _logger.LogError(exception, exception.Message);
                 await HandleExceptionAsync(context, exception);
             }
         }
 
-        private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var statusCode = exception switch
             {
@@ -41,13 +37,24 @@ namespace CRM.API.Middleware
                 _ => (int)HttpStatusCode.InternalServerError
             };
 
+            // Client errors are expected outcomes; only unhandled failures are logged as errors.
+            if(statusCode >= 500)
+            {
+                _logger.LogError(exception, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);
+            }
+            else
+            {
+                _logger.LogWarning("{StatusCode} for {Method} {Path}: {Message}", statusCode, context.Request.Method, context.Request.Path, exception.Message);
+            }
+
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
 
             var response = new ExceptionResponse
             {
                 StatusCode = statusCode,
-                Message = exception.Message,
+                // Never leak internal exception details to clients.
+                Message = statusCode >= 500 ? "An unexpected error occurred." : exception.Message,
                 Timestamp = DateTime.UtcNow
             };
 

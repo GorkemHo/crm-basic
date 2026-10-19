@@ -3,7 +3,7 @@ using CRM.Core.DTOs.CustomerDtos;
 using CRM.Core.Interfaces;
 using CRM.Core.Mappings;
 using CRM.Core.Services;
-using CRM.Infrastructure.Persistence.Entities;
+using CRM.Core.Entities;
 
 namespace CRM.Infrastructure.Services
 {

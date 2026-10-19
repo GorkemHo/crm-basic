@@ -2,4 +2,5 @@
   <Project Path="CRM.API/CRM.API.csproj" />
   <Project Path="CRM.Core/CRM.Core.csproj" />
   <Project Path="CRM.Infrastructure/CRM.Infrastructure.csproj" />
+  <Project Path="CRM.Tests/CRM.Tests.csproj" />
 </Solution>

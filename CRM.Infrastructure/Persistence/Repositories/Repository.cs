@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using CRM.Core.Common;
+using CRM.Core.Interfaces;
 using CRM.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
