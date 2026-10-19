@@ -45,3 +45,84 @@ jobs:
 
       - name: Build image
         run: docker build -f src/Host/CRM.API/Dockerfile -t crm-api:ci .
+
+  ui:
+    name: UI build & e2e (Playwright)
+    runs-on: ubuntu-latest
+    needs: backend
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: crm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # Development: the API migrates and seeds at startup.
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=crm;Username=postgres;Password=postgres
+      JwtSettings__SecretKey: ci-only-secret-key-0123456789abcdefghijklmnop
+      Seed__AdminEmail: admin@crm.local
+      Seed__AdminPassword: dev12345
+      Seed__AdminLanguage: en
+      RateLimiting__AuthPermitsPerMinute: "1000"
+    defaults:
+      run:
+        working-directory: CRM.UI
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: CRM.UI/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: CRM.UI/pnpm-lock.yaml
+
+      - name: Install UI dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build UI (production)
+        run: pnpm build
+
+      - name: Start API
+        working-directory: .
+        run: |
+          dotnet dev-certs https
+          nohup dotnet run --project src/Host/CRM.API --launch-profile https > api.log 2>&1 &
+          for i in $(seq 1 60); do curl -skf https://localhost:7156/health/ready && exit 0; sleep 2; done
+          cat api.log; exit 1
+
+      - name: Start UI dev server
+        run: |
+          nohup pnpm start > ui.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:4200 > /dev/null && exit 0; sleep 2; done
+          cat ui.log; exit 1
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            CRM.UI/test-results
+            api.log

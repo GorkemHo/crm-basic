@@ -1,6 +1,6 @@
 # crm-basic
 
-A CRM built as a **modular monolith**: ASP.NET Core (.NET 10) + PostgreSQL. A new Angular + PrimeNG UI is planned (see [docs/ROADMAP.md](docs/ROADMAP.md)); `CRM.UI/` holds the old DevExtreme UI until then.
+A CRM built as a **modular monolith**: ASP.NET Core (.NET 10) + PostgreSQL, with an Angular 22 + Angular Material UI in `CRM.UI/` (see [CRM.UI/README.md](CRM.UI/README.md) and [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 ## Layout
 
@@ -85,7 +85,7 @@ Integration tests start PostgreSQL with Testcontainers (Docker required). Withou
 CRM_TEST_CONNECTION="Host=localhost;Username=postgres;Password=<password>" dotnet test
 ```
 
-CI (`.github/workflows/ci.yml`) builds, runs all tests and builds the API image.
+CI (`.github/workflows/ci.yml`) builds, runs all .NET tests, builds the API image, and builds the UI and runs its Playwright e2e tests against a real API + PostgreSQL.
 
 ## Configuration
 

@@ -51,10 +51,12 @@ The dev server proxies `/api` to the API, so the browser talks to one origin.
 
 Buttons for actions the user is not allowed to do are hidden (the API enforces the same rules).
 
+All screens above are implemented (✅) and covered by Playwright e2e tests, which also run in CI against a real API and PostgreSQL.
+
 ### Later
 
-- UI build and e2e tests in CI.
 - Generated API client from OpenAPI (currently hand-written typed services).
+- Dockerfile for the UI (static build behind nginx, proxying `/api`).
 
 ## Phase 3 – New CRM modules
 
