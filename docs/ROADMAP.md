@@ -7,6 +7,23 @@ Decisions (2026-10-19):
 - **UI: Angular Material** (MIT) replaces DevExtreme. PrimeNG was tried but since v19+ it requires a PrimeUI license key (commercial, with a conditional free tier), so it was dropped too.
 - **Language**: default `tr`, configurable per user (`preferred_language`).
 
+Decisions (2026-10-20):
+
+- **Single tenant.** Every customer runs their own deployment on their own server, so there is no tenant id, tenant filter or tenant resolution anywhere, and none should be added.
+- **Deal stages are manageable**: admins add, rename and reorder stages and set a win probability per stage (no hard-coded enum).
+- **Multi-currency** amounts: TRY, USD, EUR (amount + currency code on each money value).
+- **Deferred**: record owner / "my records" scoping, role-scoped data visibility, Dockerfile for the UI.
+
+## Definition of done (every feature)
+
+A feature is finished only when all of these are in the same change set:
+
+1. Backend: slice (request, validator, handler), endpoint with `RequirePermission`, migration if the schema changed.
+2. Tests: unit tests for domain rules, integration tests for the endpoints (success, validation, permission, not found).
+3. UI screen(s) and Playwright e2e tests for the main flow.
+4. **Demo data**: the module's `SeedDemoDataAsync` creates realistic sample records for the feature through the module's own commands, idempotently, and `DemoDataTests` asserts them.
+5. Docs: this roadmap and the README (configuration, API overview) updated.
+
 ## Phase 1 – Modular backend
 
 | # | Step | Status |
@@ -56,12 +73,13 @@ All screens above are implemented (✅) and covered by Playwright e2e tests, whi
 ### Later
 
 - Generated API client from OpenAPI (currently hand-written typed services).
-- Dockerfile for the UI (static build behind nginx, proxying `/api`).
+- Dockerfile for the UI (static build behind nginx, proxying `/api`) – deferred.
+- Record owner field and "my records" filters – deferred.
 
 ## Phase 3 – New CRM modules
 
 Activities (calls, meetings, notes), deals / pipeline (kanban), tasks, notifications, attachments, reporting.
-Each one is a new `src/Modules/CRM.Modules.<Name>` project registered in the host.
+Each one is a new `src/Modules/CRM.Modules.<Name>` project registered in the host, built to the definition of done above (including demo data).
 
 ## Adding a module
 
@@ -69,4 +87,5 @@ Each one is a new `src/Modules/CRM.Modules.<Name>` project registered in the hos
 2. Implement `IModule` (services, endpoints, permissions) and a `ModuleDbContext` with its own schema.
 3. Put anything other modules may use under the `Contracts` namespace (integration events, public queries).
 4. Register it in `CRM.API/Program.cs` (`builder.AddModules(...)`).
-5. Architecture tests fail if a module references another module's internals.
+5. Implement `SeedDemoDataAsync` with demo records and cover them in `DemoDataTests`.
+6. Architecture tests fail if a module references another module's internals.

@@ -43,7 +43,8 @@ tests/
    `dotnet ef migrations add InitialCreate --project src/Modules/CRM.Modules.<Name> --output-dir Infrastructure/Persistence/Migrations`
 3. Implement `IModule` (`Register`, `MapEndpoints`, `Permissions`, `InitializeAsync` → `ModuleInitialization.MigrateIfEnabledAsync`).
 4. Reference it from `CRM.API` and add it to `builder.AddModules(...)` in `Program.cs`.
-5. Run `dotnet test`: the architecture tests pick the new module up automatically.
+5. Implement `SeedDemoDataAsync` (demo records created through the module's commands, idempotent) and assert them in `tests/CRM.IntegrationTests/DemoDataTests.cs`.
+6. Run `dotnet test`: the architecture tests pick the new module up automatically.
 
 ## Running locally
 
@@ -61,6 +62,19 @@ dotnet run --project src/Host/CRM.API --launch-profile https
 ```
 
 In Development the API applies migrations at startup (`Database:MigrateOnStartup`). It always creates the built-in roles (`Admin`, `User`) and syncs the permission catalog.
+
+### Demo data
+
+With `Seed:DemoData=true` (on in Development and in the CI e2e job) every module seeds sample data once at startup: fictional companies and contacts, a *Sales Manager* role and these users (password `Demo1234!`, override with `Seed:DemoPassword`):
+
+| User | Role | Language |
+|---|---|---|
+| ayse.yilmaz@demo.local | User + Sales Manager (all CRM permissions, can view users) | tr |
+| mehmet.kaya@demo.local | User | tr |
+| elif.demir@demo.local | User | en |
+| can.ozturk@demo.local | User (inactive, cannot sign in) | tr |
+
+Seeding is idempotent and skipped when the demo records already exist. Keep it off for real deployments.
 
 - API reference: `https://localhost:7156/scalar`; sample requests: `src/Host/CRM.API/CRM.API.http`
 - Health: `/health/live`, `/health/ready`
@@ -96,6 +110,7 @@ CI (`.github/workflows/ci.yml`) builds, runs all .NET tests, builds the API imag
 | `JwtSettings:ExpirationMinutes`, `RefreshTokenExpirationDays` | Token lifetimes |
 | `Database:MigrateOnStartup` | Apply migrations at startup (default: Development only) |
 | `Seed:AdminEmail`, `Seed:AdminPassword`, `Seed:AdminLanguage` | Optional initial admin |
+| `Seed:DemoData`, `Seed:DemoPassword` | Seed demo data at startup (Development: on) and the demo users' password |
 | `Cors:AllowedOrigins` | Allowed browser origins |
 | `RateLimiting:AuthPermitsPerMinute` | Per-IP limit on login/register/refresh (default 10) |
 | `Outbox:PollingIntervalSeconds` | Outbox delivery interval (default 5) |
