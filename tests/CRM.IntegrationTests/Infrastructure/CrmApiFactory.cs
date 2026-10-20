@@ -32,6 +32,12 @@ public class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     /// <summary>Whether modules seed their demo data at startup (off for the shared fixture).</summary>
     protected virtual bool SeedDemoData => false;
 
+    /// <summary>Temporary folder for uploaded files, removed with the factory.</summary>
+    public string AttachmentsPath { get; } = Path.Combine(Path.GetTempPath(), $"crm-test-files-{Guid.NewGuid():N}");
+
+    /// <summary>Upload limit in the tests (small, so the size check is cheap to exercise).</summary>
+    public const int MaxFileSizeMb = 1;
+
     /// <summary>Integration events delivered in-process by the outbox, for assertions.</summary>
     public ConcurrentQueue<IIntegrationEvent> DeliveredEvents { get; } = new();
 
@@ -70,6 +76,8 @@ public class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Outbox:PollingIntervalSeconds", "0.2");
         builder.UseSetting("RateLimiting:AuthPermitsPerMinute", "10000");
         builder.UseSetting("Seed:DemoData", SeedDemoData ? "true" : "false");
+        builder.UseSetting("Attachments:StoragePath", AttachmentsPath);
+        builder.UseSetting("Attachments:MaxFileSizeMb", MaxFileSizeMb.ToString());
 
         builder.ConfigureTestServices(services =>
         {
@@ -86,6 +94,11 @@ public class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         if(_container is not null)
         {
             await _container.DisposeAsync();
+        }
+
+        if(Directory.Exists(AttachmentsPath))
+        {
+            Directory.Delete(AttachmentsPath, recursive: true);
         }
 
         if(_databaseName is not null)

@@ -3,6 +3,7 @@ using CRM.API.Extensions;
 using CRM.API.Observability;
 using CRM.BuildingBlocks.Modules;
 using CRM.Modules.Activities;
+using CRM.Modules.Attachments;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
 using CRM.Modules.Notifications;
@@ -26,7 +27,8 @@ builder.AddModules(
     new SalesModule(),
     new ActivitiesModule(),
     new TasksModule(),
-    new NotificationsModule());
+    new NotificationsModule(),
+    new AttachmentsModule());
 
 builder.Services.AddCors(options =>
 {

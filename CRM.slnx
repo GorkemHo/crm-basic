@@ -3,6 +3,7 @@
     <Project Path="src/BuildingBlocks/CRM.BuildingBlocks/CRM.BuildingBlocks.csproj" />
     <Project Path="src/Host/CRM.API/CRM.API.csproj" />
     <Project Path="src/Modules/CRM.Modules.Activities/CRM.Modules.Activities.csproj" />
+    <Project Path="src/Modules/CRM.Modules.Attachments/CRM.Modules.Attachments.csproj" />
     <Project Path="src/Modules/CRM.Modules.Crm/CRM.Modules.Crm.csproj" />
     <Project Path="src/Modules/CRM.Modules.Identity/CRM.Modules.Identity.csproj" />
     <Project Path="src/Modules/CRM.Modules.Notifications/CRM.Modules.Notifications.csproj" />

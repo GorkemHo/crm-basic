@@ -52,3 +52,5 @@ publish/
 appsettings.*.local.json
 *.local.json
 
+# Uploaded files (Attachments:StoragePath)
+App_Data/

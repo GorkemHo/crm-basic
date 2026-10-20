@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using CRM.BuildingBlocks.Modules;
 using CRM.Modules.Activities.Infrastructure.Persistence;
+using CRM.Modules.Attachments.Infrastructure.Persistence;
 using CRM.IntegrationTests.Infrastructure;
 using CRM.Modules.Crm.Infrastructure.Persistence;
 using CRM.Modules.Identity.Infrastructure.Persistence;
@@ -164,6 +165,21 @@ public class DemoDataTests(DemoDataApiFactory factory)
         Assert.Equal(expected, page.GetProperty("totalCount").GetInt32());
         Assert.All(page.GetProperty("items").EnumerateArray(), n => Assert.Equal("task.assigned", n.GetProperty("type").GetString()));
         Assert.Contains(page.GetProperty("items").EnumerateArray(), n => n.GetProperty("subject").GetString() == TasksDemoData.MarkerTitle);
+    }
+
+    [Fact]
+    public async Task Files_AreSeeded_OnDemoDealsAndCompanies_AndCanBeDownloaded()
+    {
+        var admin = await AsAdminAsync();
+        var deals = await admin.GetFromJsonAsync<JsonElement>($"/api/deals?search={Uri.EscapeDataString(SalesDemoData.MarkerTitle)}", Json);
+        var dealId = deals.GetProperty("items")[0].GetProperty("id").GetInt32();
+
+        var files = await admin.GetFromJsonAsync<JsonElement>($"/api/attachments?recordType=deal&recordId={dealId}", Json);
+        Assert.Equal(AttachmentsDemoData.Files.Count(f => f.Deal == SalesDemoData.MarkerTitle), files.GetArrayLength());
+
+        var marker = files.EnumerateArray().Single(f => f.GetProperty("fileName").GetString() == AttachmentsDemoData.MarkerFileName);
+        var content = await admin.GetStringAsync($"/api/attachments/{marker.GetProperty("id").GetInt32()}/download");
+        Assert.StartsWith("Teklif notları", content);
     }
 
     [Fact]
