@@ -33,13 +33,22 @@ test('a role with a granted permission changes what its users can do', async ({ 
   await page.locator('mat-option', { hasText: /^\s*User\s*$/ }).click();
   await page.locator('mat-option', { hasText: roleName }).click();
   await page.keyboard.press('Escape');
+  await expect(dialog(page).locator('#roleIds')).toContainText(roleName);
   await dialog(page).locator('button[type="submit"]').click();
   await expect(page.locator('app-page-header h1')).toHaveText('E2E User');
+
+  // The user page shows both roles assigned.
+  await expect(page.locator('mat-checkbox', { hasText: roleName }).locator('input')).toBeChecked();
+  await expect(page.locator('mat-checkbox', { hasText: /^\s*User\s*$/ }).locator('input')).toBeChecked();
 
   // The new user: CRM pages yes, administration no, and may delete companies.
   const context = await browser.newContext();
   const userPage = await context.newPage();
   await login(userPage, email, password);
+
+  // Their effective permissions include the granted one.
+  await userPage.goto('/profile');
+  await expect(userPage.locator('.permissions')).toContainText('crm.companies.delete');
 
   await expect(userPage.locator('.sidebar')).toContainText(/Companies|Şirketler/);
   await expect(userPage.locator('.sidebar')).not.toContainText(/Users|Kullanıcılar/);

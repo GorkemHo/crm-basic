@@ -72,7 +72,7 @@ test('add a customer from the company page; a company with customers cannot be d
   // The API's conflict is shown, translated.
   await headerButton(page, /Delete|Sil/).click();
   await dialog(page).locator('button.danger').click();
-  await expect(page.locator('mat-snack-bar-container')).toContainText(/cannot be deleted|silinemez/);
+  await expect(page.locator('mat-snack-bar-container', { hasText: /cannot be deleted|silinemez/ })).toBeVisible();
 });
 
 test('customer list filters by company', async ({ page }) => {
