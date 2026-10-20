@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\CRM.BuildingBlocks\CRM.BuildingBlocks.csproj" />
+    <!-- Only the other modules' Contracts namespaces may be used (enforced by the architecture tests). -->
+    <ProjectReference Include="..\CRM.Modules.Identity\CRM.Modules.Identity.csproj" />
+    <ProjectReference Include="..\CRM.Modules.Sales\CRM.Modules.Sales.csproj" />
+    <ProjectReference Include="..\CRM.Modules.Tasks\CRM.Modules.Tasks.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CRM.UnitTests" />
+    <InternalsVisibleTo Include="CRM.IntegrationTests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+</Project>

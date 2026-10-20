@@ -5,6 +5,7 @@
     <Project Path="src/Modules/CRM.Modules.Activities/CRM.Modules.Activities.csproj" />
     <Project Path="src/Modules/CRM.Modules.Crm/CRM.Modules.Crm.csproj" />
     <Project Path="src/Modules/CRM.Modules.Identity/CRM.Modules.Identity.csproj" />
+    <Project Path="src/Modules/CRM.Modules.Notifications/CRM.Modules.Notifications.csproj" />
     <Project Path="src/Modules/CRM.Modules.Sales/CRM.Modules.Sales.csproj" />
     <Project Path="src/Modules/CRM.Modules.Tasks/CRM.Modules.Tasks.csproj" />
   </Folder>

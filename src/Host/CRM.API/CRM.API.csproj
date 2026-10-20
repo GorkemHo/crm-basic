@@ -29,6 +29,7 @@
     <ProjectReference Include="..\..\Modules\CRM.Modules.Sales\CRM.Modules.Sales.csproj" />
     <ProjectReference Include="..\..\Modules\CRM.Modules.Activities\CRM.Modules.Activities.csproj" />
     <ProjectReference Include="..\..\Modules\CRM.Modules.Tasks\CRM.Modules.Tasks.csproj" />
+    <ProjectReference Include="..\..\Modules\CRM.Modules.Notifications\CRM.Modules.Notifications.csproj" />
   </ItemGroup>
 
   <ItemGroup>

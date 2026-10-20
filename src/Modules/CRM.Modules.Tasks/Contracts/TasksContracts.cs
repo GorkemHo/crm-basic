@@ -24,3 +24,6 @@ public static class TasksPermissions
 
 /// <summary>A task was given to someone other than the person who assigned it (on creation or reassignment).</summary>
 public sealed record TaskAssigned(int TaskId, int AssigneeId, int? AssignedBy, string Title) : IntegrationEvent;
+
+/// <summary>A task was marked done (<paramref name="CompletedBy"/> null = system).</summary>
+public sealed record TaskCompleted(int TaskId, string Title, int AssigneeId, int? CompletedBy, int? CreatedBy) : IntegrationEvent;

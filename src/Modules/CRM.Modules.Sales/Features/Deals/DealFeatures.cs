@@ -3,6 +3,7 @@ using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
 using CRM.BuildingBlocks.Modules;
 using CRM.BuildingBlocks.Pagination;
+using CRM.BuildingBlocks.Security;
 using CRM.Modules.Crm.Contracts;
 using CRM.Modules.Sales.Contracts;
 using CRM.Modules.Sales.Domain;
@@ -352,12 +353,14 @@ internal sealed class CloseDealHandlers :
     private readonly SalesDbContext _db;
     private readonly ISender _sender;
     private readonly TimeProvider _clock;
+    private readonly ICurrentUser _currentUser;
 
-    public CloseDealHandlers(SalesDbContext db, ISender sender, TimeProvider clock)
+    public CloseDealHandlers(SalesDbContext db, ISender sender, TimeProvider clock, ICurrentUser currentUser)
     {
         _db = db;
         _sender = sender;
         _clock = clock;
+        _currentUser = currentUser;
     }
 
     public async Task<DealDto> Handle(WinDeal request, CancellationToken cancellationToken)
@@ -367,7 +370,7 @@ internal sealed class CloseDealHandlers :
 
         deal.Status = DealStatus.Won;
         deal.ClosedAt = _clock.GetUtcNow().UtcDateTime;
-        _db.AddIntegrationEvent(new DealWon(deal.Id, deal.CompanyId, deal.Amount, deal.Currency));
+        _db.AddIntegrationEvent(new DealWon(deal.Id, deal.CompanyId, deal.Amount, deal.Currency, deal.Title, deal.CreatedBy, _currentUser.Id));
         await _db.SaveChangesAsync(cancellationToken);
 
         return await _sender.Send(new GetDeal(deal.Id), cancellationToken);
@@ -381,7 +384,7 @@ internal sealed class CloseDealHandlers :
         deal.Status = DealStatus.Lost;
         deal.ClosedAt = _clock.GetUtcNow().UtcDateTime;
         deal.LostReason = string.IsNullOrWhiteSpace(request.Reason) ? null : request.Reason.Trim();
-        _db.AddIntegrationEvent(new DealLost(deal.Id, deal.CompanyId, deal.LostReason));
+        _db.AddIntegrationEvent(new DealLost(deal.Id, deal.CompanyId, deal.LostReason, deal.Title, deal.CreatedBy, _currentUser.Id));
         await _db.SaveChangesAsync(cancellationToken);
 
         return await _sender.Send(new GetDeal(deal.Id), cancellationToken);

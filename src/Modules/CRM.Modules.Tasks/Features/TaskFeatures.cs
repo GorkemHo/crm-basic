@@ -406,6 +406,7 @@ internal sealed class TaskStateHandlers :
 
         task.CompletedAt = _clock.GetUtcNow().UtcDateTime;
         task.CompletedBy = _currentUser.Id;
+        _db.AddIntegrationEvent(new TaskCompleted(task.Id, task.Title, task.AssigneeId, task.CompletedBy, task.CreatedBy));
         await _db.SaveChangesAsync(cancellationToken);
 
         return await _sender.Send(new GetTask(task.Id), cancellationToken);

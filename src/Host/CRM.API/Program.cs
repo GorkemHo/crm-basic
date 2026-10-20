@@ -5,6 +5,7 @@ using CRM.BuildingBlocks.Modules;
 using CRM.Modules.Activities;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
+using CRM.Modules.Notifications;
 using CRM.Modules.Sales;
 using CRM.Modules.Tasks;
 using Scalar.AspNetCore;
@@ -24,7 +25,8 @@ builder.AddModules(
     new CrmModule(),
     new SalesModule(),
     new ActivitiesModule(),
-    new TasksModule());
+    new TasksModule(),
+    new NotificationsModule());
 
 builder.Services.AddCors(options =>
 {

@@ -22,6 +22,9 @@ public static class SalesPermissions
 
 public sealed record DealCreated(int DealId, int CompanyId, decimal Amount, string Currency) : IntegrationEvent;
 
-public sealed record DealWon(int DealId, int CompanyId, decimal Amount, string Currency) : IntegrationEvent;
+/// <param name="CreatedBy">Who added the deal; <paramref name="ClosedBy"/> who marked it won (null = system).</param>
+public sealed record DealWon(int DealId, int CompanyId, decimal Amount, string Currency, string Title, int? CreatedBy, int? ClosedBy)
+    : IntegrationEvent;
 
-public sealed record DealLost(int DealId, int CompanyId, string? Reason) : IntegrationEvent;
+/// <param name="CreatedBy">Who added the deal; <paramref name="ClosedBy"/> who marked it lost (null = system).</param>
+public sealed record DealLost(int DealId, int CompanyId, string? Reason, string Title, int? CreatedBy, int? ClosedBy) : IntegrationEvent;

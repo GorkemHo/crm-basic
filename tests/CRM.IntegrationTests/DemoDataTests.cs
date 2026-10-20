@@ -146,6 +146,27 @@ public class DemoDataTests(DemoDataApiFactory factory)
     }
 
     [Fact]
+    public async Task DemoUsers_AreNotifiedOfTheTasksAssignedToThem()
+    {
+        var manager = await AsAsync(IdentityDemoData.MarkerEmail, IdentityDemoData.DefaultPassword);
+        var expected = TasksDemoData.Tasks.Count(t => t.Assignee == IdentityDemoData.MarkerEmail);
+
+        // Delivered through the outbox right after startup.
+        var deadline = DateTime.UtcNow.AddSeconds(15);
+        JsonElement page;
+        do
+        {
+            page = await manager.GetFromJsonAsync<JsonElement>("/api/notifications", Json);
+            if(page.GetProperty("totalCount").GetInt32() >= expected) break;
+            await Task.Delay(200);
+        } while(DateTime.UtcNow < deadline);
+
+        Assert.Equal(expected, page.GetProperty("totalCount").GetInt32());
+        Assert.All(page.GetProperty("items").EnumerateArray(), n => Assert.Equal("task.assigned", n.GetProperty("type").GetString()));
+        Assert.Contains(page.GetProperty("items").EnumerateArray(), n => n.GetProperty("subject").GetString() == TasksDemoData.MarkerTitle);
+    }
+
+    [Fact]
     public async Task Seeding_IsIdempotent()
     {
         var admin = await AsAdminAsync();
