@@ -6,6 +6,7 @@ using CRM.Modules.Activities;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
 using CRM.Modules.Sales;
+using CRM.Modules.Tasks;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -22,7 +23,8 @@ builder.AddModules(
     new IdentityModule(),
     new CrmModule(),
     new SalesModule(),
-    new ActivitiesModule());
+    new ActivitiesModule(),
+    new TasksModule());
 
 builder.Services.AddCors(options =>
 {

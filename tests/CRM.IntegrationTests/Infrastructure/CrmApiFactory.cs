@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using CRM.BuildingBlocks.Messaging;
 using CRM.Modules.Crm.Contracts;
+using CRM.Modules.Tasks.Contracts;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -74,6 +75,7 @@ public class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         {
             services.AddSingleton(this);
             services.AddScoped<IIntegrationEventHandler<CompanyCreated>, RecordingHandler<CompanyCreated>>();
+            services.AddScoped<IIntegrationEventHandler<TaskAssigned>, RecordingHandler<TaskAssigned>>();
         });
     }
 

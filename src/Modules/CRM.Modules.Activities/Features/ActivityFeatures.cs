@@ -313,7 +313,9 @@ internal sealed class ActivityRules
         var activity = await _db.Activities.FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new NotFoundException("Activity", id);
 
-        if(activity.CreatedBy != _currentUser.Id && !_currentUser.HasPermission(ActivitiesPermissions.Manage))
+        // No signed-in user means the system itself (startup seeding); every endpoint requires a permission.
+        var system = !_currentUser.IsAuthenticated;
+        if(!system && activity.CreatedBy != _currentUser.Id && !_currentUser.HasPermission(ActivitiesPermissions.Manage))
         {
             throw new ForbiddenException("Only the author can change this activity.", "activity.not_author");
         }

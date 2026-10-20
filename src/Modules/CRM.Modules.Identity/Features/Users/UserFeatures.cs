@@ -1,5 +1,6 @@
 using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
+using CRM.BuildingBlocks.Modules;
 using CRM.BuildingBlocks.Pagination;
 using CRM.BuildingBlocks.Security;
 using CRM.Modules.Identity.Contracts;
@@ -211,11 +212,13 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Unit>
 {
     private readonly IdentityDbContext _db;
     private readonly ICurrentUser _currentUser;
+    private readonly IEnumerable<IReferenceCheck> _referenceChecks;
 
-    public DeleteUserHandler(IdentityDbContext db, ICurrentUser currentUser)
+    public DeleteUserHandler(IdentityDbContext db, ICurrentUser currentUser, IEnumerable<IReferenceCheck> referenceChecks)
     {
         _db = db;
         _currentUser = currentUser;
+        _referenceChecks = referenceChecks;
     }
 
     public async Task<Unit> Handle(DeleteUser request, CancellationToken cancellationToken)
@@ -227,6 +230,8 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Unit>
 
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException("User", request.Id);
+
+        await _referenceChecks.EnsureNotReferencedAsync(IdentityResources.User, user.Id, cancellationToken);
 
         // Soft delete (see ISoftDeletable); also end the user's sessions.
         _db.Users.Remove(user);

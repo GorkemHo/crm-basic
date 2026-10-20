@@ -7,6 +7,7 @@ using CRM.IntegrationTests.Infrastructure;
 using CRM.Modules.Crm.Infrastructure.Persistence;
 using CRM.Modules.Identity.Infrastructure.Persistence;
 using CRM.Modules.Sales.Infrastructure.Persistence;
+using CRM.Modules.Tasks.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CRM.IntegrationTests;
@@ -75,6 +76,7 @@ public class DemoDataTests(DemoDataApiFactory factory)
         Assert.Contains("identity.users.read", permissions);
         Assert.Contains("sales.stages.manage", permissions);
         Assert.Contains("activities.activities.manage", permissions);
+        Assert.Contains("tasks.tasks.manage", permissions);
         Assert.DoesNotContain("identity.users.manage", permissions);
 
         var elif = await (await AsAsync("elif.demir@demo.local", IdentityDemoData.DefaultPassword)).GetFromJsonAsync<JsonElement>("/api/auth/me", Json);
@@ -125,6 +127,25 @@ public class DemoDataTests(DemoDataApiFactory factory)
     }
 
     [Fact]
+    public async Task Tasks_AreSeeded_ForDemoUsers()
+    {
+        Assert.Equal(TasksDemoData.Tasks.Count, await TotalAsync(await AsAdminAsync(), "/api/tasks"));
+
+        var manager = await AsAsync(IdentityDemoData.MarkerEmail, IdentityDemoData.DefaultPassword);
+        var mine = await manager.GetFromJsonAsync<JsonElement>("/api/tasks?mine=true", Json);
+        var first = mine.GetProperty("items")[0];
+        Assert.Equal(TasksDemoData.MarkerTitle, first.GetProperty("title").GetString()); // overdue, so first
+        Assert.Equal("Filo takip yazılımı lisansı", first.GetProperty("dealTitle").GetString());
+        Assert.Equal("Ayşe Yılmaz", first.GetProperty("assigneeName").GetString());
+
+        var summary = await manager.GetFromJsonAsync<JsonElement>("/api/tasks/my-summary", Json);
+        Assert.Equal(TasksDemoData.Tasks.Count(t => t.Assignee == IdentityDemoData.MarkerEmail && !t.Done), summary.GetProperty("open").GetInt32());
+        Assert.Equal(1, summary.GetProperty("overdue").GetInt32());
+        Assert.Equal(1, summary.GetProperty("dueToday").GetInt32());
+        Assert.Equal(TasksDemoData.Tasks.Count(t => t.Done), await TotalAsync(await AsAdminAsync(), "/api/tasks?status=done"));
+    }
+
+    [Fact]
     public async Task Seeding_IsIdempotent()
     {
         var admin = await AsAdminAsync();
@@ -132,6 +153,7 @@ public class DemoDataTests(DemoDataApiFactory factory)
         var usersBefore = await TotalAsync(admin, "/api/users");
         var dealsBefore = await TotalAsync(admin, "/api/deals");
         var activitiesBefore = await TotalAsync(admin, "/api/activities");
+        var tasksBefore = await TotalAsync(admin, "/api/tasks");
 
         await ModuleHostExtensions.SeedDemoDataAsync(factory.Services);
 
@@ -139,6 +161,7 @@ public class DemoDataTests(DemoDataApiFactory factory)
         Assert.Equal(usersBefore, await TotalAsync(admin, "/api/users"));
         Assert.Equal(dealsBefore, await TotalAsync(admin, "/api/deals"));
         Assert.Equal(activitiesBefore, await TotalAsync(admin, "/api/activities"));
+        Assert.Equal(tasksBefore, await TotalAsync(admin, "/api/tasks"));
     }
 
     [Fact]
