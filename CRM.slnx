@@ -4,6 +4,7 @@
     <Project Path="src/Host/CRM.API/CRM.API.csproj" />
     <Project Path="src/Modules/CRM.Modules.Crm/CRM.Modules.Crm.csproj" />
     <Project Path="src/Modules/CRM.Modules.Identity/CRM.Modules.Identity.csproj" />
+    <Project Path="src/Modules/CRM.Modules.Sales/CRM.Modules.Sales.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/CRM.ArchitectureTests/CRM.ArchitectureTests.csproj" />

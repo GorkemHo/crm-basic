@@ -5,6 +5,7 @@ using CRM.BuildingBlocks.Modules;
 using CRM.IntegrationTests.Infrastructure;
 using CRM.Modules.Crm.Infrastructure.Persistence;
 using CRM.Modules.Identity.Infrastructure.Persistence;
+using CRM.Modules.Sales.Infrastructure.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CRM.IntegrationTests;
@@ -71,6 +72,7 @@ public class DemoDataTests(DemoDataApiFactory factory)
         var permissions = me.GetProperty("permissions").EnumerateArray().Select(p => p.GetString()).ToList();
         Assert.Contains("crm.companies.delete", permissions);
         Assert.Contains("identity.users.read", permissions);
+        Assert.Contains("sales.stages.manage", permissions);
         Assert.DoesNotContain("identity.users.manage", permissions);
 
         var elif = await (await AsAsync("elif.demir@demo.local", IdentityDemoData.DefaultPassword)).GetFromJsonAsync<JsonElement>("/api/auth/me", Json);
@@ -83,16 +85,37 @@ public class DemoDataTests(DemoDataApiFactory factory)
     }
 
     [Fact]
+    public async Task Deals_AreSeeded_AcrossThePipeline_InEveryCurrency()
+    {
+        var admin = await AsAdminAsync();
+
+        Assert.Equal(SalesDemoData.Deals.Count, await TotalAsync(admin, "/api/deals"));
+        Assert.Equal(SalesDemoData.Deals.Count(d => d.Status == "won"), await TotalAsync(admin, "/api/deals?status=won"));
+        Assert.Equal(SalesDemoData.Deals.Count(d => d.Status == "lost"), await TotalAsync(admin, "/api/deals?status=lost"));
+
+        var summary = await admin.GetFromJsonAsync<JsonElement>("/api/deals/summary", Json);
+        Assert.Equal(["EUR", "TRY", "USD"], summary.GetProperty("open").EnumerateArray().Select(t => t.GetProperty("currency").GetString()));
+        Assert.Contains(summary.GetProperty("wonThisMonth").EnumerateArray(), t => t.GetProperty("currency").GetString() == "TRY");
+
+        var marker = await admin.GetFromJsonAsync<JsonElement>($"/api/deals?search={Uri.EscapeDataString(SalesDemoData.MarkerTitle)}", Json);
+        var deal = Assert.Single(marker.GetProperty("items").EnumerateArray());
+        Assert.Equal("Anadolu Lojistik A.Ş.", deal.GetProperty("companyName").GetString());
+        Assert.Equal("Hakan Arslan", deal.GetProperty("customerName").GetString());
+    }
+
+    [Fact]
     public async Task Seeding_IsIdempotent()
     {
         var admin = await AsAdminAsync();
         var companiesBefore = await TotalAsync(admin, "/api/companies");
         var usersBefore = await TotalAsync(admin, "/api/users");
+        var dealsBefore = await TotalAsync(admin, "/api/deals");
 
         await ModuleHostExtensions.SeedDemoDataAsync(factory.Services);
 
         Assert.Equal(companiesBefore, await TotalAsync(admin, "/api/companies"));
         Assert.Equal(usersBefore, await TotalAsync(admin, "/api/users"));
+        Assert.Equal(dealsBefore, await TotalAsync(admin, "/api/deals"));
     }
 
     [Fact]

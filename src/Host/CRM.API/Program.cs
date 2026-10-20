@@ -4,6 +4,7 @@ using CRM.API.Observability;
 using CRM.BuildingBlocks.Modules;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
+using CRM.Modules.Sales;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -18,7 +19,8 @@ builder.Services.AddExceptionHandler<AppExceptionHandler>();
 // Modules: add new ones here.
 builder.AddModules(
     new IdentityModule(),
-    new CrmModule());
+    new CrmModule(),
+    new SalesModule());
 
 builder.Services.AddCors(options =>
 {

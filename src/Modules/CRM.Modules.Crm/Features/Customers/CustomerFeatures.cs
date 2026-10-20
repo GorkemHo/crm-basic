@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
+using CRM.BuildingBlocks.Modules;
 using CRM.BuildingBlocks.Pagination;
 using CRM.Modules.Crm.Contracts;
 using CRM.Modules.Crm.Domain;
@@ -200,13 +201,20 @@ internal sealed record DeleteCustomer(int Id) : ICommand;
 internal sealed class DeleteCustomerHandler : IRequestHandler<DeleteCustomer, Unit>
 {
     private readonly CrmDbContext _db;
+    private readonly IEnumerable<IReferenceCheck> _referenceChecks;
 
-    public DeleteCustomerHandler(CrmDbContext db) => _db = db;
+    public DeleteCustomerHandler(CrmDbContext db, IEnumerable<IReferenceCheck> referenceChecks)
+    {
+        _db = db;
+        _referenceChecks = referenceChecks;
+    }
 
     public async Task<Unit> Handle(DeleteCustomer request, CancellationToken cancellationToken)
     {
         var customer = await _db.Customers.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken)
             ?? throw new NotFoundException("Customer", request.Id);
+
+        await _referenceChecks.EnsureNotReferencedAsync(CrmResources.Customer, customer.Id, cancellationToken);
 
         _db.Customers.Remove(customer);
         _db.AddIntegrationEvent(new CustomerDeleted(customer.Id, customer.CompanyId));

@@ -19,7 +19,6 @@ internal static class IdentityDemoData
 {
     public const string DefaultPassword = "Demo1234!";
     public const string SalesManagerRole = "Sales Manager";
-    private const string CrmModuleName = "crm";
 
     /// <summary>Marker: when this user exists the demo data is already in place.</summary>
     public const string MarkerEmail = "ayse.yilmaz@demo.local";
@@ -40,17 +39,11 @@ internal static class IdentityDemoData
         var sender = services.GetRequiredService<ISender>();
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(IdentityDemoData));
 
-        if(await db.Users.AnyAsync(x => x.Email == MarkerEmail, cancellationToken))
-        {
-            return;
-        }
-
-        var password = services.GetRequiredService<IConfiguration>()["Seed:DemoPassword"] ?? DefaultPassword;
-
-        // A custom role that can do everything in the CRM module and see (not manage) users.
-        // CRM permissions come from the module catalog, so Identity doesn't reference the Crm module.
-        var crmPermissions = services.GetRequiredService<ModuleCatalog>().Modules
-            .Where(m => m.Name == CrmModuleName)
+        // A custom role that can do everything in the business modules and see (not manage) users.
+        // Their permissions come from the module catalog, so Identity doesn't reference other modules.
+        // Refreshed on every start, so modules added later are included.
+        var businessPermissions = services.GetRequiredService<ModuleCatalog>().Modules
+            .Where(m => m is not IdentityModule)
             .SelectMany(m => m.Permissions)
             .Select(p => p.Name);
 
@@ -60,8 +53,15 @@ internal static class IdentityDemoData
             : (await sender.Send(new CreateRole(SalesManagerRole), cancellationToken)).Id;
 
         await sender.Send(
-            new SetRolePermissions(managerRole, [.. crmPermissions, IdentityPermissions.UsersRead]),
+            new SetRolePermissions(managerRole, [.. businessPermissions, IdentityPermissions.UsersRead]),
             cancellationToken);
+
+        if(await db.Users.AnyAsync(x => x.Email == MarkerEmail, cancellationToken))
+        {
+            return;
+        }
+
+        var password = services.GetRequiredService<IConfiguration>()["Seed:DemoPassword"] ?? DefaultPassword;
 
         var userRole = await db.Roles.Where(x => x.Name == SystemRoles.User).Select(x => x.Id).SingleAsync(cancellationToken);
 

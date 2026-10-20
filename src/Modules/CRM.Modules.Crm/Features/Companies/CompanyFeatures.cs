@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
+using CRM.BuildingBlocks.Modules;
 using CRM.BuildingBlocks.Pagination;
 using CRM.Modules.Crm.Contracts;
 using CRM.Modules.Crm.Domain;
@@ -154,8 +155,13 @@ internal sealed record DeleteCompany(int Id) : ICommand;
 internal sealed class DeleteCompanyHandler : IRequestHandler<DeleteCompany, Unit>
 {
     private readonly CrmDbContext _db;
+    private readonly IEnumerable<IReferenceCheck> _referenceChecks;
 
-    public DeleteCompanyHandler(CrmDbContext db) => _db = db;
+    public DeleteCompanyHandler(CrmDbContext db, IEnumerable<IReferenceCheck> referenceChecks)
+    {
+        _db = db;
+        _referenceChecks = referenceChecks;
+    }
 
     public async Task<Unit> Handle(DeleteCompany request, CancellationToken cancellationToken)
     {
@@ -166,6 +172,8 @@ internal sealed class DeleteCompanyHandler : IRequestHandler<DeleteCompany, Unit
         {
             throw new ConflictException("The company has customers and cannot be deleted.", "company.has_customers");
         }
+
+        await _referenceChecks.EnsureNotReferencedAsync(CrmResources.Company, company.Id, cancellationToken);
 
         _db.Companies.Remove(company);
         _db.AddIntegrationEvent(new CompanyDeleted(company.Id));

@@ -7,6 +7,7 @@ using CRM.Modules.Crm.Contracts;
 using CRM.Modules.Crm.Features;
 using CRM.Modules.Crm.Features.Companies;
 using CRM.Modules.Crm.Features.Customers;
+using CRM.Modules.Crm.Infrastructure;
 using CRM.Modules.Crm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -28,7 +29,7 @@ public sealed class CrmModule : IModule
     {
         services.AddModuleDbContext<CrmDbContext>(configuration, CrmDbContext.SchemaName);
         services.AddRequestHandlersFromAssembly(typeof(CrmModule).Assembly);
-
+        services.AddScoped<ICrmDirectory, CrmDirectory>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder api)
