@@ -7,7 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Observable, catchError, filter, forkJoin, map, of } from 'rxjs';
 
-import { CompanyDto, CustomerDto, PipelineSummary } from '../../core/api/models';
+import { ActivityDto, CompanyDto, CustomerDto, PipelineSummary } from '../../core/api/models';
 import { AuthStore } from '../../core/auth/auth.store';
 import { Permissions } from '../../core/auth/permissions';
 import { AppDatePipe } from '../../core/i18n/date.pipe';
@@ -18,6 +18,7 @@ import { CompanyFormDialog } from '../companies/company-form-dialog';
 import { CustomerFormDialog } from '../customers/customer-form-dialog';
 import { CustomersApi } from '../customers/customers.api';
 import { DealsApi } from '../deals/deals.api';
+import { ACTIVITY_ICONS, ActivitiesApi } from '../activities/activities.api';
 
 interface Kpi {
   label: string;
@@ -32,6 +33,7 @@ interface Overview {
   latestCompanies: CompanyDto[] | null;
   latestCustomers: CustomerDto[] | null;
   pipeline: PipelineSummary | null;
+  latestActivities: ActivityDto[] | null;
 }
 
 /** Counts and latest records; each block only appears if the user may read that data. */
@@ -108,6 +110,26 @@ interface Overview {
                   <span class="muted">{{ 'companies.customerCount' | transloco }}: {{ company.customerCount }}</span>
                 </span>
                 <span class="muted date">{{ company.createdAt | appDate }}</span>
+              </a>
+            } @empty {
+              <p class="muted">{{ 'dashboard.nothingYet' | transloco }}</p>
+            }
+          </div>
+        }
+        @if (o.latestActivities; as activities) {
+          <div class="card recent-activities">
+            <header>
+              <h2>{{ 'dashboard.latestActivities' | transloco }}</h2>
+              <a routerLink="/activities">{{ 'common.viewAll' | transloco }}</a>
+            </header>
+            @for (activity of activities; track activity.id) {
+              <a class="row" [routerLink]="['/companies', activity.companyId]">
+                <span class="avatar"><span class="material-symbols-outlined">{{ icons[activity.type] }}</span></span>
+                <span class="grow">
+                  <strong>{{ activity.subject }}</strong>
+                  <span class="muted">{{ activity.companyName }}</span>
+                </span>
+                <span class="muted date">{{ activity.occurredAt | appDate }}</span>
               </a>
             } @empty {
               <p class="muted">{{ 'dashboard.nothingYet' | transloco }}</p>
@@ -266,6 +288,7 @@ export class Dashboard {
   private readonly companies = inject(CompaniesApi);
   private readonly customers = inject(CustomersApi);
   private readonly deals = inject(DealsApi);
+  private readonly activities = inject(ActivitiesApi);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly store = inject(AuthStore);
@@ -276,6 +299,9 @@ export class Dashboard {
   private readonly canReadCompanies = this.store.can(Permissions.companiesRead);
   private readonly canReadCustomers = this.store.can(Permissions.customersRead);
   private readonly canReadDeals = this.store.can(Permissions.dealsRead);
+  private readonly canReadActivities = this.store.can(Permissions.activitiesRead);
+
+  readonly icons = ACTIVITY_ICONS;
 
   readonly overview = toSignal(this.load());
 
@@ -305,6 +331,7 @@ export class Dashboard {
       latestCompanies: this.canReadCompanies ? latest(this.companies.list({ pageSize: 5, sortBy: 'createdAt', sortDirection: 'desc' })) : none,
       latestCustomers: this.canReadCustomers ? latest(this.customers.list({ pageSize: 5, sortBy: 'createdAt', sortDirection: 'desc' })) : none,
       pipeline: this.canReadDeals ? this.deals.summary().pipe(catchError(() => none)) : none,
+      latestActivities: this.canReadActivities ? latest(this.activities.list({ pageSize: 5 })) : none,
     }).pipe(
       map((r) => ({
         kpis: [
@@ -316,6 +343,7 @@ export class Dashboard {
         latestCompanies: r.latestCompanies,
         latestCustomers: r.latestCustomers,
         pipeline: r.pipeline,
+        latestActivities: r.latestActivities,
       })),
     );
   }

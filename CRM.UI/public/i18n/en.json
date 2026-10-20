@@ -52,7 +52,8 @@
     "toggleMenu": "Toggle menu",
     "sales": "Sales",
     "pipeline": "Pipeline",
-    "deals": "Deals"
+    "deals": "Deals",
+    "activities": "Activities"
   },
   "languages": {
     "tr": "Türkçe",
@@ -94,7 +95,8 @@
     "wonThisMonth": "Won this month",
     "dealCount": "{{n}} deals",
     "weighted": "weighted {{value}}",
-    "lostThisMonth": "{{n}} lost this month"
+    "lostThisMonth": "{{n}} lost this month",
+    "latestActivities": "Latest activities"
   },
   "companies": {
     "title": "Companies",
@@ -165,7 +167,8 @@
     "modules": {
       "crm": "CRM",
       "identity": "Identity & access",
-      "sales": "Sales"
+      "sales": "Sales",
+      "activities": "Activities"
     },
     "groups": {
       "Companies": "Companies",
@@ -173,7 +176,8 @@
       "Users": "Users",
       "Roles": "Roles",
       "Deals": "Deals",
-      "Pipeline stages": "Pipeline stages"
+      "Pipeline stages": "Pipeline stages",
+      "Activities": "Activities"
     }
   },
   "profile": {
@@ -221,12 +225,14 @@
       "tax_number_taken": "A company with this tax number already exists.",
       "has_customers": "A company that has customers cannot be deleted.",
       "not_found": "Company not found.",
-      "has_deals": "A company that has deals cannot be deleted."
+      "has_deals": "A company that has deals cannot be deleted.",
+      "has_activities": "A company that has activities cannot be deleted."
     },
     "customer": {
       "email_taken": "A customer with this email already exists.",
       "not_found": "Customer not found.",
-      "has_deals": "A customer who is the contact of deals cannot be deleted."
+      "has_deals": "A customer who is the contact of deals cannot be deleted.",
+      "has_activities": "A customer who has activities cannot be deleted."
     },
     "user": {
       "email_taken": "A user with this email already exists.",
@@ -255,7 +261,14 @@
       "closed": "The deal is closed. Reopen it first.",
       "already_open": "The deal is already open.",
       "company_inactive": "Deals cannot be added for an inactive company.",
-      "contact_not_in_company": "The contact must work at the deal's company."
+      "contact_not_in_company": "The contact must work at the deal's company.",
+      "has_activities": "A deal that has activities cannot be deleted."
+    },
+    "activity": {
+      "not_found": "Activity not found.",
+      "not_author": "Only the person who logged this activity can change it.",
+      "contact_not_in_company": "The contact must work at the selected company.",
+      "deal_not_in_company": "The deal must belong to the selected company."
     }
   },
   "paginator": {
@@ -312,5 +325,29 @@
     "dragToReorder": "Drag to reorder",
     "openDeals": "{{n}} open deals",
     "stagesHint": "Drag stages to change their order on the board. A stage can be deleted once it has no deals. Win probabilities give the weighted pipeline value."
+  },
+  "activities": {
+    "title": "Activities",
+    "subtitle": "Notes, calls, meetings and emails with your customers",
+    "new": "Log activity",
+    "edit": "Edit activity",
+    "logged": "Activity logged",
+    "type": "Type",
+    "types": {
+      "note": "Note",
+      "call": "Call",
+      "meeting": "Meeting",
+      "email": "Email"
+    },
+    "subject": "Subject",
+    "notes": "Notes",
+    "when": "When",
+    "duration": "Duration",
+    "minutes": "min",
+    "deal": "Deal",
+    "planned": "Planned",
+    "empty": "No activities yet",
+    "loadMore": "Show more",
+    "searchPlaceholder": "Search subject or notes"
   }
 }

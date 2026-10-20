@@ -17,6 +17,7 @@ import { ConfirmService } from '../../core/ui/confirm.service';
 import { NotifyService } from '../../core/ui/notify.service';
 import { HistoryTimeline } from '../../shared/history-timeline';
 import { PageHeader } from '../../shared/page-header';
+import { ActivityTimeline } from '../activities/activity-timeline';
 import { DealFormDialog } from './deal-form-dialog';
 import { DealStatusTag, LoseDealDialog, dateOnly, isOverdue } from './deal-status';
 import { DealsApi, StagesApi } from './deals.api';
@@ -25,7 +26,7 @@ import { DealsApi, StagesApi } from './deals.api';
   selector: 'app-deal-detail',
   imports: [
     RouterLink, TranslocoPipe, MatButtonModule, MatMenuModule, MatTabsModule, MatProgressBarModule,
-    PageHeader, AppDatePipe, AppMoneyPipe, HistoryTimeline, DealStatusTag,
+    PageHeader, AppDatePipe, AppMoneyPipe, HistoryTimeline, DealStatusTag, ActivityTimeline,
   ],
   template: `
     @if (deal(); as d) {
@@ -93,6 +94,19 @@ import { DealsApi, StagesApi } from './deals.api';
               <div><dt>{{ 'common.updatedAt' | transloco }}</dt><dd>{{ d.updatedAt | appDate: 'datetime' }}</dd></div>
             </dl>
           </mat-tab>
+          @if (canReadActivities) {
+            <mat-tab [label]="'activities.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body">
+                  <app-activity-timeline
+                    [dealId]="d.id"
+                    [context]="{ company: { id: d.companyId, name: d.companyName ?? '' }, customerId: d.customerId, dealId: d.id }"
+                    hide="deal"
+                  />
+                </div>
+              </ng-template>
+            </mat-tab>
+          }
           <mat-tab [label]="'companies.history' | transloco">
             <ng-template matTabContent>
               <div class="tab-body"><app-history-timeline #history [url]="api.historyUrl(d.id)" /></div>
@@ -141,6 +155,7 @@ export class DealDetail implements OnInit {
   private readonly store = inject(AuthStore);
   readonly canWrite = this.store.can(Permissions.dealsWrite);
   readonly canDelete = this.store.can(Permissions.dealsDelete);
+  readonly canReadActivities = this.store.can(Permissions.activitiesRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

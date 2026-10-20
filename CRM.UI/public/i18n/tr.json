@@ -52,7 +52,8 @@
     "toggleMenu": "Menüyü aç/kapat",
     "sales": "Satış",
     "pipeline": "Satış hunisi",
-    "deals": "Fırsatlar"
+    "deals": "Fırsatlar",
+    "activities": "Aktiviteler"
   },
   "languages": {
     "tr": "Türkçe",
@@ -94,7 +95,8 @@
     "wonThisMonth": "Bu ay kazanılan",
     "dealCount": "{{n}} fırsat",
     "weighted": "ağırlıklı {{value}}",
-    "lostThisMonth": "Bu ay {{n}} kaybedildi"
+    "lostThisMonth": "Bu ay {{n}} kaybedildi",
+    "latestActivities": "Son aktiviteler"
   },
   "companies": {
     "title": "Şirketler",
@@ -165,7 +167,8 @@
     "modules": {
       "crm": "CRM",
       "identity": "Kimlik ve erişim",
-      "sales": "Satış"
+      "sales": "Satış",
+      "activities": "Aktiviteler"
     },
     "groups": {
       "Companies": "Şirketler",
@@ -173,7 +176,8 @@
       "Users": "Kullanıcılar",
       "Roles": "Roller",
       "Deals": "Fırsatlar",
-      "Pipeline stages": "Huni aşamaları"
+      "Pipeline stages": "Huni aşamaları",
+      "Activities": "Aktiviteler"
     }
   },
   "profile": {
@@ -221,12 +225,14 @@
       "tax_number_taken": "Bu vergi numarasıyla kayıtlı bir şirket zaten var.",
       "has_customers": "Müşterisi olan bir şirket silinemez.",
       "not_found": "Şirket bulunamadı.",
-      "has_deals": "Fırsatı olan bir şirket silinemez."
+      "has_deals": "Fırsatı olan bir şirket silinemez.",
+      "has_activities": "Aktivitesi olan bir şirket silinemez."
     },
     "customer": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir müşteri zaten var.",
       "not_found": "Müşteri bulunamadı.",
-      "has_deals": "Fırsatlarda ilgili kişi olan bir müşteri silinemez."
+      "has_deals": "Fırsatlarda ilgili kişi olan bir müşteri silinemez.",
+      "has_activities": "Aktivitesi olan bir müşteri silinemez."
     },
     "user": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir kullanıcı zaten var.",
@@ -255,7 +261,14 @@
       "closed": "Fırsat kapalı. Önce yeniden açın.",
       "already_open": "Fırsat zaten açık.",
       "company_inactive": "Pasif bir şirkete fırsat eklenemez.",
-      "contact_not_in_company": "İlgili kişi, fırsatın şirketinde çalışıyor olmalı."
+      "contact_not_in_company": "İlgili kişi, fırsatın şirketinde çalışıyor olmalı.",
+      "has_activities": "Aktivitesi olan bir fırsat silinemez."
+    },
+    "activity": {
+      "not_found": "Aktivite bulunamadı.",
+      "not_author": "Bu aktiviteyi sadece kaydeden kişi değiştirebilir.",
+      "contact_not_in_company": "İlgili kişi, seçilen şirkette çalışıyor olmalı.",
+      "deal_not_in_company": "Fırsat, seçilen şirkete ait olmalı."
     }
   },
   "paginator": {
@@ -312,5 +325,29 @@
     "dragToReorder": "Sıralamak için sürükleyin",
     "openDeals": "{{n}} açık fırsat",
     "stagesHint": "Panodaki sırayı değiştirmek için aşamaları sürükleyin. Fırsatı kalmayan aşama silinebilir. Kazanma olasılıkları ağırlıklı huni değerini belirler."
+  },
+  "activities": {
+    "title": "Aktiviteler",
+    "subtitle": "Müşterilerinizle notlar, aramalar, toplantılar ve e-postalar",
+    "new": "Aktivite ekle",
+    "edit": "Aktiviteyi düzenle",
+    "logged": "Aktivite kaydedildi",
+    "type": "Tür",
+    "types": {
+      "note": "Not",
+      "call": "Arama",
+      "meeting": "Toplantı",
+      "email": "E-posta"
+    },
+    "subject": "Konu",
+    "notes": "Notlar",
+    "when": "Zaman",
+    "duration": "Süre",
+    "minutes": "dk",
+    "deal": "Fırsat",
+    "planned": "Planlandı",
+    "empty": "Henüz aktivite yok",
+    "loadMore": "Daha fazla göster",
+    "searchPlaceholder": "Konu veya notlarda ara"
   }
 }

@@ -18,12 +18,13 @@ import { PageHeader } from '../../shared/page-header';
 import { StatusTag } from '../../shared/status-tag';
 import { CustomerTable } from '../customers/customer-table';
 import { DealTable } from '../deals/deal-table';
+import { ActivityTimeline } from '../activities/activity-timeline';
 import { CompaniesApi } from './companies.api';
 import { CompanyFormDialog } from './company-form-dialog';
 
 @Component({
   selector: 'app-company-detail',
-  imports: [TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, CustomerTable, DealTable],
+  imports: [TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, CustomerTable, DealTable, ActivityTimeline],
   template: `
     @if (company(); as c) {
       <app-page-header [title]="c.companyName" [subtitle]="c.taxNumber ?? ''" backLink="/companies">
@@ -51,6 +52,15 @@ import { CompanyFormDialog } from './company-form-dialog';
               <div><dt>{{ 'common.updatedAt' | transloco }}</dt><dd>{{ c.updatedAt | appDate: 'datetime' }}</dd></div>
             </dl>
           </mat-tab>
+          @if (canReadActivities) {
+            <mat-tab [label]="'activities.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body">
+                  <app-activity-timeline [companyId]="c.id" [context]="{ company: companyRef() }" hide="company" />
+                </div>
+              </ng-template>
+            </mat-tab>
+          }
           @if (canReadCustomers) {
             <mat-tab [label]="('companies.customersTab' | transloco) + ' (' + c.customerCount + ')'">
               <ng-template matTabContent>
@@ -104,6 +114,7 @@ export class CompanyDetail implements OnInit {
   readonly canDelete = this.store.can(Permissions.companiesDelete);
   readonly canReadCustomers = this.store.can(Permissions.customersRead);
   readonly canReadDeals = this.store.can(Permissions.dealsRead);
+  readonly canReadActivities = this.store.can(Permissions.activitiesRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

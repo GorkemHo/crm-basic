@@ -39,6 +39,7 @@ const NAVIGATION: NavSection[] = [
     items: [
       { label: 'nav.companies', icon: 'apartment', route: '/companies', permission: Permissions.companiesRead },
       { label: 'nav.customers', icon: 'groups', route: '/customers', permission: Permissions.customersRead },
+      { label: 'nav.activities', icon: 'event_note', route: '/activities', permission: Permissions.activitiesRead },
     ],
   },
   {

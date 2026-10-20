@@ -24,7 +24,8 @@ test('dashboard shows counts and latest records', async ({ page }) => {
 
   await expect(page.locator('app-page-header h1')).toContainText(/Welcome|Hoş geldin/);
   await expect(page.locator('.kpi')).toHaveCount(4);
-  await expect(page.locator('.lists .card')).toHaveCount(2);
+  // Latest activities, companies and customers.
+  await expect(page.locator('.lists .card')).toHaveCount(3);
 });
 
 test('language preference is saved and survives a reload', async ({ page }) => {

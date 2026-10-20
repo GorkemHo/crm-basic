@@ -17,11 +17,12 @@ import { HistoryTimeline } from '../../shared/history-timeline';
 import { PageHeader } from '../../shared/page-header';
 import { StatusTag } from '../../shared/status-tag';
 import { CustomerFormDialog } from './customer-form-dialog';
+import { ActivityTimeline } from '../activities/activity-timeline';
 import { CustomersApi } from './customers.api';
 
 @Component({
   selector: 'app-customer-detail',
-  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline],
+  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, ActivityTimeline],
   template: `
     @if (customer(); as c) {
       <app-page-header [title]="c.firstName + ' ' + c.lastName" [subtitle]="c.email" backLink="/customers">
@@ -46,6 +47,19 @@ import { CustomersApi } from './customers.api';
               <div><dt>{{ 'common.updatedAt' | transloco }}</dt><dd>{{ c.updatedAt | appDate: 'datetime' }}</dd></div>
             </dl>
           </mat-tab>
+          @if (canReadActivities) {
+            <mat-tab [label]="'activities.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body">
+                  <app-activity-timeline
+                    [customerId]="c.id"
+                    [context]="{ company: { id: c.companyId, name: c.companyName }, customerId: c.id }"
+                    hide="customer"
+                  />
+                </div>
+              </ng-template>
+            </mat-tab>
+          }
           <mat-tab [label]="'companies.history' | transloco">
             <ng-template matTabContent>
               <div class="tab-body"><app-history-timeline #history [url]="api.historyUrl(c.id)" /></div>
@@ -83,6 +97,7 @@ export class CustomerDetail implements OnInit {
   private readonly store = inject(AuthStore);
   readonly canWrite = this.store.can(Permissions.customersWrite);
   readonly canDelete = this.store.can(Permissions.customersDelete);
+  readonly canReadActivities = this.store.can(Permissions.activitiesRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

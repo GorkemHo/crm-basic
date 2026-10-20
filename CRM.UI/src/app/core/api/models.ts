@@ -129,6 +129,29 @@ export interface PipelineSummary {
   lostThisMonth: number;
 }
 
+export type ActivityType = 'note' | 'call' | 'meeting' | 'email';
+export const ACTIVITY_TYPES: ActivityType[] = ['note', 'call', 'meeting', 'email'];
+
+export interface ActivityDto {
+  id: number;
+  type: ActivityType;
+  subject: string;
+  notes: string | null;
+  occurredAt: string;
+  durationMinutes: number | null;
+  companyId: number;
+  companyName: string | null;
+  customerId: number | null;
+  customerName: string | null;
+  dealId: number | null;
+  dealTitle: string | null;
+  /** Author; null for records created by the system (demo data). */
+  createdBy: number | null;
+  createdByName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuditLogDto {
   id: number;
   action: 'Updated' | 'Deleted';
