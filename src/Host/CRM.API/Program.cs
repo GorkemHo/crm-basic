@@ -46,15 +46,17 @@ builder.Services.AddOpenApi(options =>
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
-// Bare status codes (401/403 from auth, 404 for unknown routes) also get a problem body.
-app.UseStatusCodePages();
+// Outermost, so it logs the status the client actually receives: expected errors (401, 404, 409...)
+// are turned into problem responses by the exception handler below before this sees them.
 app.UseSerilogRequestLogging(options =>
     // Probes hit health endpoints constantly; keep them out of the normal request log.
     options.GetLevel = (context, _, exception) =>
         exception is not null || context.Response.StatusCode >= 500 ? Serilog.Events.LogEventLevel.Error
         : context.Request.Path.StartsWithSegments("/health") ? Serilog.Events.LogEventLevel.Verbose
         : Serilog.Events.LogEventLevel.Information);
+app.UseExceptionHandler();
+// Bare status codes (401/403 from auth, 404 for unknown routes) also get a problem body.
+app.UseStatusCodePages();
 
 if(app.Environment.IsDevelopment())
 {
