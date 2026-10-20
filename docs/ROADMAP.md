@@ -12,7 +12,7 @@ Decisions (2026-10-20):
 - **Single tenant.** Every customer runs their own deployment on their own server, so there is no tenant id, tenant filter or tenant resolution anywhere, and none should be added.
 - **Deal stages are manageable**: admins add, rename and reorder stages and set a win probability per stage (no hard-coded enum).
 - **Multi-currency** amounts: TRY, USD, EUR (amount + currency code on each money value).
-- **Deferred**: record owner / "my records" scoping, role-scoped data visibility, Dockerfile for the UI.
+- **Deferred**: record owner / "my records" scoping, role-scoped data visibility, Dockerfile for the UI. (Task assignees came with the Tasks module; a general owner field on companies and deals is still open.)
 
 ## Definition of done (every feature)
 
@@ -84,7 +84,7 @@ Each one is a new `src/Modules/CRM.Modules.<Name>` project registered in the hos
 |---|---|---|---|
 | 1 | **Sales** (`sales` schema) | Manageable pipeline stages (order, win probability), deals with company + contact, amount in TRY/USD/EUR, move / win / lose / reopen, kanban board with per-currency totals and weighted value, deal list, company "Deals" tab, dashboard pipeline card | ✅ |
 | 2 | **Activities** (`activities` schema) | Notes, calls, meetings and emails on a company, optionally a contact and a deal; authors edit/delete their own (`activities.activities.manage` for anyone's); timeline tabs on company, customer and deal pages, activity list with filters, latest activities on the dashboard | ✅ |
-| 3 | **Tasks** | To-dos with due dates on any record, "my tasks" (needs an assignee; ties in with the deferred owner field) | planned |
+| 3 | **Tasks** (`tasks` schema) | To-dos with due date, priority and an assignee (any active user; defaults to the creator), optionally about a company / contact / deal; complete / reopen; the assignee, the creator or `tasks.tasks.manage` may change a task; "my tasks" page with Mine / Everyone, tabs on company, customer and deal pages, "my tasks" card on the dashboard (overdue / due today); `TaskAssigned` event for future notifications | ✅ |
 | 4 | Notifications, attachments, reporting | | later |
 
 Cross-module rules used by Sales (reuse them for the next modules):
@@ -92,6 +92,8 @@ Cross-module rules used by Sales (reuse them for the next modules):
 - Other modules' records are referenced by id; names come from the owner's Contracts (`ICrmDirectory`, `ISalesDirectory`, `IUserDirectory`), never from its tables.
 - To stop deletion of a record you reference, register an `IReferenceCheck` (e.g. a company with deals → `company.has_deals`).
 - Amounts in different currencies are never added together; totals are per currency.
+- "Today" / "overdue" are the user's calendar day: the UI sends its local date (`today`, `dueTo`) instead of the server guessing a time zone.
+- Startup seeding has no signed-in user and counts as the system for author / assignee rules; every endpoint still requires a permission.
 
 ## Adding a module
 

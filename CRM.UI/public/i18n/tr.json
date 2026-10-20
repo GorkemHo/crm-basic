@@ -53,7 +53,8 @@
     "sales": "Satış",
     "pipeline": "Satış hunisi",
     "deals": "Fırsatlar",
-    "activities": "Aktiviteler"
+    "activities": "Aktiviteler",
+    "tasks": "Görevlerim"
   },
   "languages": {
     "tr": "Türkçe",
@@ -96,7 +97,11 @@
     "dealCount": "{{n}} fırsat",
     "weighted": "ağırlıklı {{value}}",
     "lostThisMonth": "Bu ay {{n}} kaybedildi",
-    "latestActivities": "Son aktiviteler"
+    "latestActivities": "Son aktiviteler",
+    "myTasks": "Görevlerim",
+    "overdue": "{{n}} gecikmiş",
+    "dueToday": "{{n}} bugün",
+    "openTasks": "{{n}} açık"
   },
   "companies": {
     "title": "Şirketler",
@@ -168,7 +173,8 @@
       "crm": "CRM",
       "identity": "Kimlik ve erişim",
       "sales": "Satış",
-      "activities": "Aktiviteler"
+      "activities": "Aktiviteler",
+      "tasks": "Görevler"
     },
     "groups": {
       "Companies": "Şirketler",
@@ -177,7 +183,8 @@
       "Roles": "Roller",
       "Deals": "Fırsatlar",
       "Pipeline stages": "Huni aşamaları",
-      "Activities": "Aktiviteler"
+      "Activities": "Aktiviteler",
+      "Tasks": "Görevler"
     }
   },
   "profile": {
@@ -226,20 +233,23 @@
       "has_customers": "Müşterisi olan bir şirket silinemez.",
       "not_found": "Şirket bulunamadı.",
       "has_deals": "Fırsatı olan bir şirket silinemez.",
-      "has_activities": "Aktivitesi olan bir şirket silinemez."
+      "has_activities": "Aktivitesi olan bir şirket silinemez.",
+      "has_open_tasks": "Açık görevi olan bir şirket silinemez."
     },
     "customer": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir müşteri zaten var.",
       "not_found": "Müşteri bulunamadı.",
       "has_deals": "Fırsatlarda ilgili kişi olan bir müşteri silinemez.",
-      "has_activities": "Aktivitesi olan bir müşteri silinemez."
+      "has_activities": "Aktivitesi olan bir müşteri silinemez.",
+      "has_open_tasks": "Açık görevi olan bir müşteri silinemez."
     },
     "user": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir kullanıcı zaten var.",
       "cannot_delete_self": "Kendi hesabınızı silemezsiniz.",
       "cannot_deactivate_self": "Kendi hesabınızı pasifleştiremezsiniz.",
       "cannot_remove_own_admin": "Kendinizden Admin rolünü kaldıramazsınız.",
-      "not_found": "Kullanıcı bulunamadı."
+      "not_found": "Kullanıcı bulunamadı.",
+      "has_open_tasks": "Bu kullanıcının açık görevleri var. Silmeden önce başka birine atayın."
     },
     "role": {
       "name_taken": "Bu adla bir rol zaten var.",
@@ -262,11 +272,22 @@
       "already_open": "Fırsat zaten açık.",
       "company_inactive": "Pasif bir şirkete fırsat eklenemez.",
       "contact_not_in_company": "İlgili kişi, fırsatın şirketinde çalışıyor olmalı.",
-      "has_activities": "Aktivitesi olan bir fırsat silinemez."
+      "has_activities": "Aktivitesi olan bir fırsat silinemez.",
+      "has_open_tasks": "Açık görevi olan bir fırsat silinemez."
     },
     "activity": {
       "not_found": "Aktivite bulunamadı.",
       "not_author": "Bu aktiviteyi sadece kaydeden kişi değiştirebilir.",
+      "contact_not_in_company": "İlgili kişi, seçilen şirkette çalışıyor olmalı.",
+      "deal_not_in_company": "Fırsat, seçilen şirkete ait olmalı."
+    },
+    "task": {
+      "not_found": "Görev bulunamadı.",
+      "not_yours": "Görevi sadece atanan kişi veya oluşturan değiştirebilir.",
+      "already_done": "Görev zaten tamamlanmış.",
+      "already_open": "Görev zaten açık.",
+      "assignee_inactive": "Pasif bir kullanıcıya görev atanamaz.",
+      "assignee_required": "Görevin kime ait olduğunu seçin.",
       "contact_not_in_company": "İlgili kişi, seçilen şirkette çalışıyor olmalı.",
       "deal_not_in_company": "Fırsat, seçilen şirkete ait olmalı."
     }
@@ -349,5 +370,33 @@
     "empty": "Henüz aktivite yok",
     "loadMore": "Daha fazla göster",
     "searchPlaceholder": "Konu veya notlarda ara"
+  },
+  "tasks": {
+    "title": "Görevler",
+    "subtitle": "Sizin ve ekibinizin takipleri ve yapılacakları",
+    "new": "Yeni görev",
+    "edit": "Görevi düzenle",
+    "taskTitle": "Görev",
+    "description": "Açıklama",
+    "assignee": "Atanan kişi",
+    "dueDate": "Son tarih",
+    "priority": "Öncelik",
+    "priorities": {
+      "high": "Yüksek",
+      "normal": "Normal",
+      "low": "Düşük"
+    },
+    "relatedCompany": "İlgili şirket (isteğe bağlı)",
+    "mine": "Benim",
+    "everyone": "Herkes",
+    "open": "Açık",
+    "done": "Tamamlandı",
+    "today": "Bugün",
+    "complete": "Tamamlandı olarak işaretle",
+    "reopen": "Yeniden aç",
+    "completed": "Görev tamamlandı",
+    "reopened": "Görev yeniden açıldı",
+    "empty": "Burada görev yok",
+    "searchPlaceholder": "Görevlerde ara"
   }
 }

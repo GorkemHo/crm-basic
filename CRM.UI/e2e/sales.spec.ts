@@ -31,6 +31,17 @@ async function fillDeal(page: Page, title: string, company: string | null, amoun
   await expect(dialog(page)).toHaveCount(0);
 }
 
+/** Drags with small mouse steps so the CDK drag starts (it waits for a few pixels of movement). */
+async function dragCard(page: Page, title: string, toColumn: number): Promise<void> {
+  const from = await card(page, title).boundingBox();
+  const to = await column(page, toColumn).locator('.cards').boundingBox();
+  await page.mouse.move(from!.x + from!.width / 2, from!.y + from!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(from!.x + from!.width / 2 + 10, from!.y + from!.height / 2, { steps: 5 });
+  await page.mouse.move(to!.x + to!.width / 2, to!.y + 20, { steps: 20 });
+  await page.mouse.up();
+}
+
 async function filterBoard(page: Page, company: string): Promise<void> {
   await page.locator('app-deal-board app-company-select input').fill(company);
   await page.locator('mat-option', { hasText: company }).click();
@@ -52,16 +63,13 @@ test('a deal is added to a stage on the board and dragged to the next one', asyn
   await filterBoard(page, company);
   await expect(page.locator('.deal-card')).toHaveCount(1);
 
-  // Drag with small mouse steps so the CDK drag starts (it waits for a few pixels of movement).
-  const from = await card(page, title).boundingBox();
-  const to = await column(page, 2).locator('.cards').boundingBox();
-  await page.mouse.move(from!.x + from!.width / 2, from!.y + from!.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(from!.x + from!.width / 2 + 10, from!.y + from!.height / 2, { steps: 5 });
-  await page.mouse.move(to!.x + to!.width / 2, to!.y + 20, { steps: 20 });
-  await page.mouse.up();
-
-  await expect(column(page, 2).locator('.deal-card', { hasText: title })).toBeVisible();
+  // A drag that starts while the board is still settling can be missed by the CDK, so retry it;
+  // once the card is in the target column, another attempt is a no-op.
+  await expect(page.locator('app-deal-board mat-progress-bar')).toHaveCount(0);
+  await expect(async () => {
+    await dragCard(page, title, 2);
+    await expect(column(page, 2).locator('.deal-card', { hasText: title })).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 20_000 });
 
   // The move is saved: still there after a reload, and the detail page names the stage.
   await page.reload();

@@ -152,6 +152,43 @@ export interface ActivityDto {
   updatedAt: string;
 }
 
+export type TaskPriority = 'low' | 'normal' | 'high';
+export const TASK_PRIORITIES: TaskPriority[] = ['high', 'normal', 'low'];
+
+export interface TaskDto {
+  id: number;
+  title: string;
+  description: string | null;
+  /** yyyy-MM-dd */
+  dueDate: string | null;
+  priority: TaskPriority;
+  assigneeId: number;
+  assigneeName: string | null;
+  isDone: boolean;
+  completedAt: string | null;
+  companyId: number | null;
+  companyName: string | null;
+  customerId: number | null;
+  customerName: string | null;
+  dealId: number | null;
+  dealTitle: string | null;
+  createdBy: number | null;
+  createdByName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssigneeDto {
+  id: number;
+  fullName: string;
+}
+
+export interface MyTaskSummary {
+  open: number;
+  overdue: number;
+  dueToday: number;
+}
+
 export interface AuditLogDto {
   id: number;
   action: 'Updated' | 'Deleted';

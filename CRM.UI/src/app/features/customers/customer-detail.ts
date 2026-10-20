@@ -18,11 +18,12 @@ import { PageHeader } from '../../shared/page-header';
 import { StatusTag } from '../../shared/status-tag';
 import { CustomerFormDialog } from './customer-form-dialog';
 import { ActivityTimeline } from '../activities/activity-timeline';
+import { TaskList } from '../tasks/task-list';
 import { CustomersApi } from './customers.api';
 
 @Component({
   selector: 'app-customer-detail',
-  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, ActivityTimeline],
+  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, ActivityTimeline, TaskList],
   template: `
     @if (customer(); as c) {
       <app-page-header [title]="c.firstName + ' ' + c.lastName" [subtitle]="c.email" backLink="/customers">
@@ -56,6 +57,15 @@ import { CustomersApi } from './customers.api';
                     [context]="{ company: { id: c.companyId, name: c.companyName }, customerId: c.id }"
                     hide="customer"
                   />
+                </div>
+              </ng-template>
+            </mat-tab>
+          }
+          @if (canReadTasks) {
+            <mat-tab [label]="'tasks.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body">
+                  <app-task-list [customerId]="c.id" [context]="{ company: { id: c.companyId, name: c.companyName }, customerId: c.id }" hide="customer" />
                 </div>
               </ng-template>
             </mat-tab>
@@ -98,6 +108,7 @@ export class CustomerDetail implements OnInit {
   readonly canWrite = this.store.can(Permissions.customersWrite);
   readonly canDelete = this.store.can(Permissions.customersDelete);
   readonly canReadActivities = this.store.can(Permissions.activitiesRead);
+  readonly canReadTasks = this.store.can(Permissions.tasksRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

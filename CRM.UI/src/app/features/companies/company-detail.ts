@@ -19,12 +19,13 @@ import { StatusTag } from '../../shared/status-tag';
 import { CustomerTable } from '../customers/customer-table';
 import { DealTable } from '../deals/deal-table';
 import { ActivityTimeline } from '../activities/activity-timeline';
+import { TaskList } from '../tasks/task-list';
 import { CompaniesApi } from './companies.api';
 import { CompanyFormDialog } from './company-form-dialog';
 
 @Component({
   selector: 'app-company-detail',
-  imports: [TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, CustomerTable, DealTable, ActivityTimeline],
+  imports: [TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, CustomerTable, DealTable, ActivityTimeline, TaskList],
   template: `
     @if (company(); as c) {
       <app-page-header [title]="c.companyName" [subtitle]="c.taxNumber ?? ''" backLink="/companies">
@@ -75,6 +76,15 @@ import { CompanyFormDialog } from './company-form-dialog';
               </ng-template>
             </mat-tab>
           }
+          @if (canReadTasks) {
+            <mat-tab [label]="'tasks.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body">
+                  <app-task-list [companyId]="c.id" [context]="{ company: companyRef() }" hide="company" />
+                </div>
+              </ng-template>
+            </mat-tab>
+          }
           <mat-tab [label]="'companies.history' | transloco">
             <ng-template matTabContent>
               <div class="tab-body"><app-history-timeline #history [url]="api.historyUrl(c.id)" /></div>
@@ -115,6 +125,7 @@ export class CompanyDetail implements OnInit {
   readonly canReadCustomers = this.store.can(Permissions.customersRead);
   readonly canReadDeals = this.store.can(Permissions.dealsRead);
   readonly canReadActivities = this.store.can(Permissions.activitiesRead);
+  readonly canReadTasks = this.store.can(Permissions.tasksRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

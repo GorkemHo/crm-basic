@@ -62,6 +62,8 @@ test('add a customer from the company page; a company with customers cannot be d
   await page.getByRole('tab', { name: /Customers|Müşteriler/ }).click();
   await page.locator('app-customer-table .new-button').click();
   await expect(dialog(page).locator('#companyId')).toHaveValue(company);
+  // The dialog focuses its first field when it opens; typing before that can land in the wrong field.
+  await expect(dialog(page).locator('#firstName')).toBeFocused();
   await dialog(page).locator('#firstName').fill('Grace');
   await dialog(page).locator('#lastName').fill('Hopper');
   await dialog(page).locator('#email').fill(email);

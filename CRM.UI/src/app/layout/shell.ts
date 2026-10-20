@@ -33,7 +33,12 @@ interface NavSection {
 
 /** Add new modules' pages here; items the user can't access are hidden. */
 const NAVIGATION: NavSection[] = [
-  { items: [{ label: 'nav.dashboard', icon: 'space_dashboard', route: '/', exact: true }] },
+  {
+    items: [
+      { label: 'nav.dashboard', icon: 'space_dashboard', route: '/', exact: true },
+      { label: 'nav.tasks', icon: 'task_alt', route: '/tasks', permission: Permissions.tasksRead },
+    ],
+  },
   {
     label: 'nav.crm',
     items: [

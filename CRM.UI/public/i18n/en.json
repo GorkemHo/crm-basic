@@ -53,7 +53,8 @@
     "sales": "Sales",
     "pipeline": "Pipeline",
     "deals": "Deals",
-    "activities": "Activities"
+    "activities": "Activities",
+    "tasks": "My tasks"
   },
   "languages": {
     "tr": "Türkçe",
@@ -96,7 +97,11 @@
     "dealCount": "{{n}} deals",
     "weighted": "weighted {{value}}",
     "lostThisMonth": "{{n}} lost this month",
-    "latestActivities": "Latest activities"
+    "latestActivities": "Latest activities",
+    "myTasks": "My tasks",
+    "overdue": "{{n}} overdue",
+    "dueToday": "{{n}} due today",
+    "openTasks": "{{n}} open"
   },
   "companies": {
     "title": "Companies",
@@ -168,7 +173,8 @@
       "crm": "CRM",
       "identity": "Identity & access",
       "sales": "Sales",
-      "activities": "Activities"
+      "activities": "Activities",
+      "tasks": "Tasks"
     },
     "groups": {
       "Companies": "Companies",
@@ -177,7 +183,8 @@
       "Roles": "Roles",
       "Deals": "Deals",
       "Pipeline stages": "Pipeline stages",
-      "Activities": "Activities"
+      "Activities": "Activities",
+      "Tasks": "Tasks"
     }
   },
   "profile": {
@@ -226,20 +233,23 @@
       "has_customers": "A company that has customers cannot be deleted.",
       "not_found": "Company not found.",
       "has_deals": "A company that has deals cannot be deleted.",
-      "has_activities": "A company that has activities cannot be deleted."
+      "has_activities": "A company that has activities cannot be deleted.",
+      "has_open_tasks": "A company with open tasks cannot be deleted."
     },
     "customer": {
       "email_taken": "A customer with this email already exists.",
       "not_found": "Customer not found.",
       "has_deals": "A customer who is the contact of deals cannot be deleted.",
-      "has_activities": "A customer who has activities cannot be deleted."
+      "has_activities": "A customer who has activities cannot be deleted.",
+      "has_open_tasks": "A customer with open tasks cannot be deleted."
     },
     "user": {
       "email_taken": "A user with this email already exists.",
       "cannot_delete_self": "You cannot delete your own account.",
       "cannot_deactivate_self": "You cannot deactivate your own account.",
       "cannot_remove_own_admin": "You cannot remove the Admin role from yourself.",
-      "not_found": "User not found."
+      "not_found": "User not found.",
+      "has_open_tasks": "This user has open tasks. Reassign them before deleting the user."
     },
     "role": {
       "name_taken": "A role with this name already exists.",
@@ -262,11 +272,22 @@
       "already_open": "The deal is already open.",
       "company_inactive": "Deals cannot be added for an inactive company.",
       "contact_not_in_company": "The contact must work at the deal's company.",
-      "has_activities": "A deal that has activities cannot be deleted."
+      "has_activities": "A deal that has activities cannot be deleted.",
+      "has_open_tasks": "A deal with open tasks cannot be deleted."
     },
     "activity": {
       "not_found": "Activity not found.",
       "not_author": "Only the person who logged this activity can change it.",
+      "contact_not_in_company": "The contact must work at the selected company.",
+      "deal_not_in_company": "The deal must belong to the selected company."
+    },
+    "task": {
+      "not_found": "Task not found.",
+      "not_yours": "Only the assignee or the person who created the task can change it.",
+      "already_done": "The task is already done.",
+      "already_open": "The task is already open.",
+      "assignee_inactive": "Tasks cannot be assigned to an inactive user.",
+      "assignee_required": "Choose who the task is for.",
       "contact_not_in_company": "The contact must work at the selected company.",
       "deal_not_in_company": "The deal must belong to the selected company."
     }
@@ -349,5 +370,33 @@
     "empty": "No activities yet",
     "loadMore": "Show more",
     "searchPlaceholder": "Search subject or notes"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "subtitle": "Follow-ups and to-dos, for you and your team",
+    "new": "New task",
+    "edit": "Edit task",
+    "taskTitle": "Task",
+    "description": "Description",
+    "assignee": "Assigned to",
+    "dueDate": "Due date",
+    "priority": "Priority",
+    "priorities": {
+      "high": "High",
+      "normal": "Normal",
+      "low": "Low"
+    },
+    "relatedCompany": "Related company (optional)",
+    "mine": "Mine",
+    "everyone": "Everyone",
+    "open": "Open",
+    "done": "Done",
+    "today": "Today",
+    "complete": "Mark as done",
+    "reopen": "Reopen",
+    "completed": "Task done",
+    "reopened": "Task reopened",
+    "empty": "No tasks here",
+    "searchPlaceholder": "Search tasks"
   }
 }

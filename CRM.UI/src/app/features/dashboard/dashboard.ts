@@ -7,7 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Observable, catchError, filter, forkJoin, map, of } from 'rxjs';
 
-import { ActivityDto, CompanyDto, CustomerDto, PipelineSummary } from '../../core/api/models';
+import { ActivityDto, CompanyDto, CustomerDto, MyTaskSummary, PipelineSummary } from '../../core/api/models';
 import { AuthStore } from '../../core/auth/auth.store';
 import { Permissions } from '../../core/auth/permissions';
 import { AppDatePipe } from '../../core/i18n/date.pipe';
@@ -19,6 +19,8 @@ import { CustomerFormDialog } from '../customers/customer-form-dialog';
 import { CustomersApi } from '../customers/customers.api';
 import { DealsApi } from '../deals/deals.api';
 import { ACTIVITY_ICONS, ActivitiesApi } from '../activities/activities.api';
+import { TaskList } from '../tasks/task-list';
+import { TasksApi } from '../tasks/tasks.api';
 
 interface Kpi {
   label: string;
@@ -34,12 +36,13 @@ interface Overview {
   latestCustomers: CustomerDto[] | null;
   pipeline: PipelineSummary | null;
   latestActivities: ActivityDto[] | null;
+  myTasks: MyTaskSummary | null;
 }
 
 /** Counts and latest records; each block only appears if the user may read that data. */
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatProgressBarModule, PageHeader, AppDatePipe, AppMoneyPipe],
+  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatProgressBarModule, PageHeader, AppDatePipe, AppMoneyPipe, TaskList],
   template: `
     <app-page-header [title]="'dashboard.welcome' | transloco: { name: firstName }" [subtitle]="'dashboard.subtitle' | transloco">
       @if (canWriteCompanies) {
@@ -60,6 +63,21 @@ interface Overview {
           </a>
         }
       </section>
+
+      @if (o.myTasks; as t) {
+        <section class="card my-tasks">
+          <header>
+            <h2>{{ 'dashboard.myTasks' | transloco }}</h2>
+            <div class="task-counts">
+              <span class="count overdue" [class.zero]="!t.overdue">{{ 'dashboard.overdue' | transloco: { n: t.overdue } }}</span>
+              <span class="count today" [class.zero]="!t.dueToday">{{ 'dashboard.dueToday' | transloco: { n: t.dueToday } }}</span>
+              <span class="count">{{ 'dashboard.openTasks' | transloco: { n: t.open } }}</span>
+            </div>
+            <a routerLink="/tasks">{{ 'common.viewAll' | transloco }}</a>
+          </header>
+          <app-task-list [onlyMine]="true" [toolbar]="false" [pageSize]="5" />
+        </section>
+      }
 
       @if (o.pipeline; as p) {
         <section class="card pipeline">
@@ -203,8 +221,39 @@ interface Overview {
       grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
       gap: var(--app-gap);
     }
-    .pipeline {
+    .pipeline,
+    .my-tasks {
       margin-bottom: var(--app-gap);
+    }
+    .my-tasks header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .my-tasks h2 {
+      flex: 0 0 auto;
+    }
+    .task-counts {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .count {
+      font: var(--mat-sys-label-medium);
+      padding: 0.1rem 0.6rem;
+      border-radius: 1rem;
+      background: var(--mat-sys-surface-container-highest);
+    }
+    .count.overdue:not(.zero) {
+      background: var(--mat-sys-error-container);
+      color: var(--mat-sys-on-error-container);
+    }
+    .count.today:not(.zero) {
+      background: var(--mat-sys-primary-container);
+      color: var(--mat-sys-on-primary-container);
     }
     .pipeline header {
       display: flex;
@@ -289,6 +338,7 @@ export class Dashboard {
   private readonly customers = inject(CustomersApi);
   private readonly deals = inject(DealsApi);
   private readonly activities = inject(ActivitiesApi);
+  private readonly tasks = inject(TasksApi);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly store = inject(AuthStore);
@@ -300,6 +350,7 @@ export class Dashboard {
   private readonly canReadCustomers = this.store.can(Permissions.customersRead);
   private readonly canReadDeals = this.store.can(Permissions.dealsRead);
   private readonly canReadActivities = this.store.can(Permissions.activitiesRead);
+  private readonly canReadTasks = this.store.can(Permissions.tasksRead);
 
   readonly icons = ACTIVITY_ICONS;
 
@@ -332,6 +383,7 @@ export class Dashboard {
       latestCustomers: this.canReadCustomers ? latest(this.customers.list({ pageSize: 5, sortBy: 'createdAt', sortDirection: 'desc' })) : none,
       pipeline: this.canReadDeals ? this.deals.summary().pipe(catchError(() => none)) : none,
       latestActivities: this.canReadActivities ? latest(this.activities.list({ pageSize: 5 })) : none,
+      myTasks: this.canReadTasks ? this.tasks.mySummary().pipe(catchError(() => none)) : none,
     }).pipe(
       map((r) => ({
         kpis: [
@@ -344,6 +396,7 @@ export class Dashboard {
         latestCustomers: r.latestCustomers,
         pipeline: r.pipeline,
         latestActivities: r.latestActivities,
+        myTasks: r.myTasks,
       })),
     );
   }

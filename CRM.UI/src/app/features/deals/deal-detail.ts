@@ -18,6 +18,7 @@ import { NotifyService } from '../../core/ui/notify.service';
 import { HistoryTimeline } from '../../shared/history-timeline';
 import { PageHeader } from '../../shared/page-header';
 import { ActivityTimeline } from '../activities/activity-timeline';
+import { TaskList } from '../tasks/task-list';
 import { DealFormDialog } from './deal-form-dialog';
 import { DealStatusTag, LoseDealDialog, dateOnly, isOverdue } from './deal-status';
 import { DealsApi, StagesApi } from './deals.api';
@@ -26,7 +27,7 @@ import { DealsApi, StagesApi } from './deals.api';
   selector: 'app-deal-detail',
   imports: [
     RouterLink, TranslocoPipe, MatButtonModule, MatMenuModule, MatTabsModule, MatProgressBarModule,
-    PageHeader, AppDatePipe, AppMoneyPipe, HistoryTimeline, DealStatusTag, ActivityTimeline,
+    PageHeader, AppDatePipe, AppMoneyPipe, HistoryTimeline, DealStatusTag, ActivityTimeline, TaskList,
   ],
   template: `
     @if (deal(); as d) {
@@ -107,6 +108,15 @@ import { DealsApi, StagesApi } from './deals.api';
               </ng-template>
             </mat-tab>
           }
+          @if (canReadTasks) {
+            <mat-tab [label]="'tasks.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body">
+                  <app-task-list [dealId]="d.id" [context]="{ company: { id: d.companyId, name: d.companyName ?? '' }, customerId: d.customerId, dealId: d.id }" hide="deal" />
+                </div>
+              </ng-template>
+            </mat-tab>
+          }
           <mat-tab [label]="'companies.history' | transloco">
             <ng-template matTabContent>
               <div class="tab-body"><app-history-timeline #history [url]="api.historyUrl(d.id)" /></div>
@@ -156,6 +166,7 @@ export class DealDetail implements OnInit {
   readonly canWrite = this.store.can(Permissions.dealsWrite);
   readonly canDelete = this.store.can(Permissions.dealsDelete);
   readonly canReadActivities = this.store.can(Permissions.activitiesRead);
+  readonly canReadTasks = this.store.can(Permissions.tasksRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

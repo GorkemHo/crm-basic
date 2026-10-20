@@ -20,6 +20,11 @@ const FEATURE_ROUTES: Routes = [
     loadChildren: () => import('./features/customers/customers.routes').then((m) => m.CUSTOMER_ROUTES),
   },
   {
+    path: 'tasks',
+    data: { permission: Permissions.tasksRead },
+    loadComponent: () => import('./features/tasks/task-page').then((m) => m.TaskPage),
+  },
+  {
     path: 'activities',
     data: { permission: Permissions.activitiesRead },
     loadComponent: () => import('./features/activities/activity-list').then((m) => m.ActivityList),
