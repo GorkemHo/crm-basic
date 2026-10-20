@@ -72,6 +72,63 @@ export interface CustomerDto {
   updatedAt: string;
 }
 
+export type Currency = 'TRY' | 'USD' | 'EUR';
+export const CURRENCIES: Currency[] = ['TRY', 'USD', 'EUR'];
+
+export type DealStatus = 'open' | 'won' | 'lost';
+
+export interface StageDto {
+  id: number;
+  name: string;
+  position: number;
+  /** Win probability, 0–100. */
+  probability: number;
+  openDealCount: number;
+}
+
+export interface DealDto {
+  id: number;
+  title: string;
+  companyId: number;
+  companyName: string | null;
+  customerId: number | null;
+  customerName: string | null;
+  amount: number;
+  currency: Currency;
+  stageId: number;
+  stageName: string;
+  probability: number;
+  status: DealStatus;
+  /** yyyy-MM-dd */
+  expectedCloseDate: string | null;
+  closedAt: string | null;
+  lostReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Deals in one currency; amounts in different currencies are never added together. */
+export interface CurrencyTotal {
+  currency: Currency;
+  count: number;
+  amount: number;
+  weightedAmount: number;
+}
+
+export interface BoardColumn {
+  stageId: number;
+  name: string;
+  probability: number;
+  deals: DealDto[];
+  totals: CurrencyTotal[];
+}
+
+export interface PipelineSummary {
+  open: CurrencyTotal[];
+  wonThisMonth: CurrencyTotal[];
+  lostThisMonth: number;
+}
+
 export interface AuditLogDto {
   id: number;
   action: 'Updated' | 'Deleted';

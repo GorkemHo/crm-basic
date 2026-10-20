@@ -17,12 +17,13 @@ import { HistoryTimeline } from '../../shared/history-timeline';
 import { PageHeader } from '../../shared/page-header';
 import { StatusTag } from '../../shared/status-tag';
 import { CustomerTable } from '../customers/customer-table';
+import { DealTable } from '../deals/deal-table';
 import { CompaniesApi } from './companies.api';
 import { CompanyFormDialog } from './company-form-dialog';
 
 @Component({
   selector: 'app-company-detail',
-  imports: [TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, CustomerTable],
+  imports: [TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, CustomerTable, DealTable],
   template: `
     @if (company(); as c) {
       <app-page-header [title]="c.companyName" [subtitle]="c.taxNumber ?? ''" backLink="/companies">
@@ -54,6 +55,13 @@ import { CompanyFormDialog } from './company-form-dialog';
             <mat-tab [label]="('companies.customersTab' | transloco) + ' (' + c.customerCount + ')'">
               <ng-template matTabContent>
                 <div class="tab-body"><app-customer-table [company]="companyRef()" /></div>
+              </ng-template>
+            </mat-tab>
+          }
+          @if (canReadDeals) {
+            <mat-tab [label]="'companies.dealsTab' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body"><app-deal-table [company]="companyRef()" /></div>
               </ng-template>
             </mat-tab>
           }
@@ -95,6 +103,7 @@ export class CompanyDetail implements OnInit {
   readonly canWrite = this.store.can(Permissions.companiesWrite);
   readonly canDelete = this.store.can(Permissions.companiesDelete);
   readonly canReadCustomers = this.store.can(Permissions.customersRead);
+  readonly canReadDeals = this.store.can(Permissions.dealsRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

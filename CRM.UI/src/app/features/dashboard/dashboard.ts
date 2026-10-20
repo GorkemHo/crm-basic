@@ -7,15 +7,17 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Observable, catchError, filter, forkJoin, map, of } from 'rxjs';
 
-import { CompanyDto, CustomerDto } from '../../core/api/models';
+import { CompanyDto, CustomerDto, PipelineSummary } from '../../core/api/models';
 import { AuthStore } from '../../core/auth/auth.store';
 import { Permissions } from '../../core/auth/permissions';
 import { AppDatePipe } from '../../core/i18n/date.pipe';
+import { AppMoneyPipe } from '../../core/i18n/money.pipe';
 import { PageHeader } from '../../shared/page-header';
 import { CompaniesApi } from '../companies/companies.api';
 import { CompanyFormDialog } from '../companies/company-form-dialog';
 import { CustomerFormDialog } from '../customers/customer-form-dialog';
 import { CustomersApi } from '../customers/customers.api';
+import { DealsApi } from '../deals/deals.api';
 
 interface Kpi {
   label: string;
@@ -29,12 +31,13 @@ interface Overview {
   kpis: Kpi[];
   latestCompanies: CompanyDto[] | null;
   latestCustomers: CustomerDto[] | null;
+  pipeline: PipelineSummary | null;
 }
 
 /** Counts and latest records; each block only appears if the user may read that data. */
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatProgressBarModule, PageHeader, AppDatePipe],
+  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatProgressBarModule, PageHeader, AppDatePipe, AppMoneyPipe],
   template: `
     <app-page-header [title]="'dashboard.welcome' | transloco: { name: firstName }" [subtitle]="'dashboard.subtitle' | transloco">
       @if (canWriteCompanies) {
@@ -55,6 +58,40 @@ interface Overview {
           </a>
         }
       </section>
+
+      @if (o.pipeline; as p) {
+        <section class="card pipeline">
+          <header>
+            <h2>{{ 'dashboard.pipeline' | transloco }}</h2>
+            <a routerLink="/pipeline">{{ 'dashboard.openBoard' | transloco }}</a>
+          </header>
+          <div class="pipeline-grid">
+            <div>
+              <span class="muted label">{{ 'dashboard.openPipeline' | transloco }}</span>
+              @for (t of p.open; track t.currency) {
+                <div class="money">
+                  <strong>{{ t.amount | appMoney: t.currency }}</strong>
+                  <span class="muted">{{ 'dashboard.dealCount' | transloco: { n: t.count } }} · {{ 'dashboard.weighted' | transloco: { value: (t.weightedAmount | appMoney: t.currency) } }}</span>
+                </div>
+              } @empty {
+                <p class="muted">{{ 'dashboard.nothingYet' | transloco }}</p>
+              }
+            </div>
+            <div>
+              <span class="muted label">{{ 'dashboard.wonThisMonth' | transloco }}</span>
+              @for (t of p.wonThisMonth; track t.currency) {
+                <div class="money won">
+                  <strong>{{ t.amount | appMoney: t.currency }}</strong>
+                  <span class="muted">{{ 'dashboard.dealCount' | transloco: { n: t.count } }}</span>
+                </div>
+              } @empty {
+                <p class="muted">{{ 'dashboard.nothingYet' | transloco }}</p>
+              }
+              <p class="muted lost">{{ 'dashboard.lostThisMonth' | transloco: { n: p.lostThisMonth } }}</p>
+            </div>
+          </div>
+        </section>
+      }
 
       <section class="lists">
         @if (o.latestCompanies; as companies) {
@@ -144,6 +181,39 @@ interface Overview {
       grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
       gap: var(--app-gap);
     }
+    .pipeline {
+      margin-bottom: var(--app-gap);
+    }
+    .pipeline header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.75rem;
+    }
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+      gap: var(--app-gap);
+    }
+    .label {
+      display: block;
+      font: var(--mat-sys-label-large);
+      margin-bottom: 0.5rem;
+    }
+    .money {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.5rem;
+    }
+    .money strong {
+      font: var(--mat-sys-title-large);
+    }
+    .money.won strong {
+      color: var(--app-success);
+    }
+    .lost {
+      margin: 0;
+    }
     .lists header {
       display: flex;
       justify-content: space-between;
@@ -195,6 +265,7 @@ interface Overview {
 export class Dashboard {
   private readonly companies = inject(CompaniesApi);
   private readonly customers = inject(CustomersApi);
+  private readonly deals = inject(DealsApi);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly store = inject(AuthStore);
@@ -204,6 +275,7 @@ export class Dashboard {
   readonly canWriteCustomers = this.store.can(Permissions.customersWrite);
   private readonly canReadCompanies = this.store.can(Permissions.companiesRead);
   private readonly canReadCustomers = this.store.can(Permissions.customersRead);
+  private readonly canReadDeals = this.store.can(Permissions.dealsRead);
 
   readonly overview = toSignal(this.load());
 
@@ -232,6 +304,7 @@ export class Dashboard {
       activeCustomers: this.canReadCustomers ? count(this.customers.list({ pageSize: 1, isActive: true })) : none,
       latestCompanies: this.canReadCompanies ? latest(this.companies.list({ pageSize: 5, sortBy: 'createdAt', sortDirection: 'desc' })) : none,
       latestCustomers: this.canReadCustomers ? latest(this.customers.list({ pageSize: 5, sortBy: 'createdAt', sortDirection: 'desc' })) : none,
+      pipeline: this.canReadDeals ? this.deals.summary().pipe(catchError(() => none)) : none,
     }).pipe(
       map((r) => ({
         kpis: [
@@ -242,6 +315,7 @@ export class Dashboard {
         ].filter((k): k is Kpi => k.value !== null),
         latestCompanies: r.latestCompanies,
         latestCustomers: r.latestCustomers,
+        pipeline: r.pipeline,
       })),
     );
   }

@@ -78,8 +78,20 @@ All screens above are implemented (✅) and covered by Playwright e2e tests, whi
 
 ## Phase 3 – New CRM modules
 
-Activities (calls, meetings, notes), deals / pipeline (kanban), tasks, notifications, attachments, reporting.
 Each one is a new `src/Modules/CRM.Modules.<Name>` project registered in the host, built to the definition of done above (including demo data).
+
+| # | Module | Contents | Status |
+|---|---|---|---|
+| 1 | **Sales** (`sales` schema) | Manageable pipeline stages (order, win probability), deals with company + contact, amount in TRY/USD/EUR, move / win / lose / reopen, kanban board with per-currency totals and weighted value, deal list, company "Deals" tab, dashboard pipeline card | ✅ |
+| 2 | **Activities** | Notes, calls, meetings logged on companies, customers and deals; timeline on detail pages | planned |
+| 3 | **Tasks** | To-dos with due dates on any record, "my tasks" (needs an assignee; ties in with the deferred owner field) | planned |
+| 4 | Notifications, attachments, reporting | | later |
+
+Cross-module rules used by Sales (reuse them for the next modules):
+
+- Other modules' records are referenced by id; names come from the owner's Contracts (`ICrmDirectory`), never from its tables.
+- To stop deletion of a record you reference, register an `IReferenceCheck` (e.g. a company with deals → `company.has_deals`).
+- Amounts in different currencies are never added together; totals are per currency.
 
 ## Adding a module
 

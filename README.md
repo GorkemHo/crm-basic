@@ -74,7 +74,7 @@ With `Seed:DemoData=true` (on in Development and in the CI e2e job) every module
 | elif.demir@demo.local | User | en |
 | can.ozturk@demo.local | User (inactive, cannot sign in) | tr |
 
-Seeding is idempotent and skipped when the demo records already exist. Keep it off for real deployments.
+Sales demo deals are spread over the pipeline in TRY, USD and EUR, with some won and lost in the current month. Seeding is idempotent and skipped when the demo records already exist. Keep it off for real deployments.
 
 - API reference: `https://localhost:7156/scalar`; sample requests: `src/Host/CRM.API/CRM.API.http`
 - Health: `/health/live`, `/health/ready`
@@ -127,6 +127,8 @@ CI (`.github/workflows/ci.yml`) builds, runs all .NET tests, builds the API imag
 | Roles | `GET/POST /api/roles`, `GET/PATCH/DELETE /api/roles/{id}`, `PUT /api/roles/{id}/permissions`, `GET /api/permissions` | `identity.roles.read` / `.manage` |
 | Companies | `GET/POST /api/companies`, `GET/PATCH/DELETE /api/companies/{id}`, `GET /api/companies/{id}/history` | `crm.companies.read` / `.write` / `.delete` |
 | Customers | `GET/POST /api/customers`, `GET/PATCH/DELETE /api/customers/{id}`, `GET /api/customers/{id}/history` | `crm.customers.read` / `.write` / `.delete` |
+| Pipeline stages | `GET/POST /api/pipeline-stages`, `PATCH/DELETE /api/pipeline-stages/{id}`, `PUT /api/pipeline-stages/order` | `sales.deals.read` / `sales.stages.manage` |
+| Deals | `GET/POST /api/deals`, `GET/PUT/DELETE /api/deals/{id}`, `POST /api/deals/{id}/move`, `win`, `lose`, `reopen`; `GET /api/deals/board`, `summary`, `/{id}/history` | `sales.deals.read` / `.write` / `.delete` |
 
 Lists accept `pageNumber`, `pageSize` (≤ 100), `sortBy`, `sortDirection` and module-specific filters (`search`, `isActive`, `companyId`, …) and return `{ items, pageNumber, pageSize, totalCount, totalPages }`.
 

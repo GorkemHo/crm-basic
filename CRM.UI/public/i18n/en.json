@@ -49,7 +49,10 @@
     "language": "Language",
     "darkMode": "Dark mode",
     "lightMode": "Light mode",
-    "toggleMenu": "Toggle menu"
+    "toggleMenu": "Toggle menu",
+    "sales": "Sales",
+    "pipeline": "Pipeline",
+    "deals": "Deals"
   },
   "languages": {
     "tr": "Türkçe",
@@ -84,7 +87,14 @@
     "latestCustomers": "Latest customers",
     "newCompany": "New company",
     "newCustomer": "New customer",
-    "nothingYet": "Nothing here yet"
+    "nothingYet": "Nothing here yet",
+    "pipeline": "Sales pipeline",
+    "openBoard": "Open board",
+    "openPipeline": "Open deals",
+    "wonThisMonth": "Won this month",
+    "dealCount": "{{n}} deals",
+    "weighted": "weighted {{value}}",
+    "lostThisMonth": "{{n}} lost this month"
   },
   "companies": {
     "title": "Companies",
@@ -101,7 +111,8 @@
     "activate": "Activate",
     "deactivate": "Deactivate",
     "empty": "No companies yet",
-    "addCustomer": "Add customer"
+    "addCustomer": "Add customer",
+    "dealsTab": "Deals"
   },
   "customers": {
     "title": "Customers",
@@ -153,13 +164,16 @@
     "selectAll": "Select all",
     "modules": {
       "crm": "CRM",
-      "identity": "Identity & access"
+      "identity": "Identity & access",
+      "sales": "Sales"
     },
     "groups": {
       "Companies": "Companies",
       "Customers": "Customers",
       "Users": "Users",
-      "Roles": "Roles"
+      "Roles": "Roles",
+      "Deals": "Deals",
+      "Pipeline stages": "Pipeline stages"
     }
   },
   "profile": {
@@ -206,11 +220,13 @@
     "company": {
       "tax_number_taken": "A company with this tax number already exists.",
       "has_customers": "A company that has customers cannot be deleted.",
-      "not_found": "Company not found."
+      "not_found": "Company not found.",
+      "has_deals": "A company that has deals cannot be deleted."
     },
     "customer": {
       "email_taken": "A customer with this email already exists.",
-      "not_found": "Customer not found."
+      "not_found": "Customer not found.",
+      "has_deals": "A customer who is the contact of deals cannot be deleted."
     },
     "user": {
       "email_taken": "A user with this email already exists.",
@@ -225,6 +241,21 @@
       "system_role": "Built-in roles cannot be changed or deleted.",
       "admin_permissions_fixed": "The Admin role's permissions cannot be changed.",
       "not_found": "Role not found."
+    },
+    "stage": {
+      "name_taken": "A stage with this name already exists.",
+      "has_deals": "A stage that has deals cannot be deleted. Move them to another stage first.",
+      "last_stage": "The pipeline needs at least one stage.",
+      "reorder_incomplete": "The stage list changed, refresh the page and try again.",
+      "none": "Add a pipeline stage first.",
+      "not_found": "Stage not found."
+    },
+    "deal": {
+      "not_found": "Deal not found.",
+      "closed": "The deal is closed. Reopen it first.",
+      "already_open": "The deal is already open.",
+      "company_inactive": "Deals cannot be added for an inactive company.",
+      "contact_not_in_company": "The contact must work at the deal's company."
     }
   },
   "paginator": {
@@ -235,5 +266,51 @@
     "last": "Last page",
     "empty": "0 items",
     "range": "{{start}}–{{end}} of {{length}}"
+  },
+  "deals": {
+    "title": "Deals",
+    "subtitle": "Every opportunity, open or closed",
+    "new": "New deal",
+    "edit": "Edit deal",
+    "dealTitle": "Deal",
+    "company": "Company",
+    "contact": "Contact",
+    "amount": "Amount",
+    "currency": "Currency",
+    "stage": "Stage",
+    "expectedClose": "Expected close",
+    "closedAt": "Closed",
+    "lostReason": "Reason for losing",
+    "searchPlaceholder": "Search by deal name",
+    "empty": "No deals yet",
+    "moveTo": "Move to",
+    "markWon": "Won",
+    "markLost": "Lost",
+    "reopen": "Reopen",
+    "status": {
+      "open": "Open",
+      "won": "Won",
+      "lost": "Lost"
+    }
+  },
+  "pipeline": {
+    "title": "Pipeline",
+    "subtitle": "Drag deals between stages as they progress",
+    "listView": "List",
+    "boardView": "Board",
+    "manageStages": "Stages",
+    "probability": "{{n}}% win probability",
+    "weighted": "Weighted: {{value}}",
+    "emptyColumn": "No deals in this stage",
+    "addHere": "Add deal",
+    "stagesTitle": "Pipeline stages",
+    "stagesSubtitle": "The steps a deal goes through",
+    "newStage": "New stage",
+    "editStage": "Edit stage",
+    "stageName": "Stage name",
+    "winProbability": "Win probability",
+    "dragToReorder": "Drag to reorder",
+    "openDeals": "{{n}} open deals",
+    "stagesHint": "Drag stages to change their order on the board. A stage can be deleted once it has no deals. Win probabilities give the weighted pipeline value."
   }
 }

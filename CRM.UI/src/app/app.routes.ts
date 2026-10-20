@@ -20,6 +20,16 @@ const FEATURE_ROUTES: Routes = [
     loadChildren: () => import('./features/customers/customers.routes').then((m) => m.CUSTOMER_ROUTES),
   },
   {
+    path: 'pipeline',
+    data: { permission: Permissions.dealsRead },
+    loadChildren: () => import('./features/deals/deals.routes').then((m) => m.PIPELINE_ROUTES),
+  },
+  {
+    path: 'deals',
+    data: { permission: Permissions.dealsRead },
+    loadChildren: () => import('./features/deals/deals.routes').then((m) => m.DEAL_ROUTES),
+  },
+  {
     path: 'users',
     data: { permission: Permissions.usersRead },
     loadChildren: () => import('./features/users/users.routes').then((m) => m.USER_ROUTES),

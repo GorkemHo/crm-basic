@@ -42,6 +42,13 @@ const NAVIGATION: NavSection[] = [
     ],
   },
   {
+    label: 'nav.sales',
+    items: [
+      { label: 'nav.pipeline', icon: 'view_kanban', route: '/pipeline', permission: Permissions.dealsRead },
+      { label: 'nav.deals', icon: 'handshake', route: '/deals', permission: Permissions.dealsRead },
+    ],
+  },
+  {
     label: 'nav.administration',
     items: [
       { label: 'nav.users', icon: 'manage_accounts', route: '/users', permission: Permissions.usersRead },

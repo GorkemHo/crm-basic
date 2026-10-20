@@ -49,7 +49,10 @@
     "language": "Dil",
     "darkMode": "Koyu tema",
     "lightMode": "Açık tema",
-    "toggleMenu": "Menüyü aç/kapat"
+    "toggleMenu": "Menüyü aç/kapat",
+    "sales": "Satış",
+    "pipeline": "Satış hunisi",
+    "deals": "Fırsatlar"
   },
   "languages": {
     "tr": "Türkçe",
@@ -84,7 +87,14 @@
     "latestCustomers": "Son eklenen müşteriler",
     "newCompany": "Yeni şirket",
     "newCustomer": "Yeni müşteri",
-    "nothingYet": "Henüz kayıt yok"
+    "nothingYet": "Henüz kayıt yok",
+    "pipeline": "Satış hunisi",
+    "openBoard": "Panoyu aç",
+    "openPipeline": "Açık fırsatlar",
+    "wonThisMonth": "Bu ay kazanılan",
+    "dealCount": "{{n}} fırsat",
+    "weighted": "ağırlıklı {{value}}",
+    "lostThisMonth": "Bu ay {{n}} kaybedildi"
   },
   "companies": {
     "title": "Şirketler",
@@ -101,7 +111,8 @@
     "activate": "Aktifleştir",
     "deactivate": "Pasifleştir",
     "empty": "Henüz şirket yok",
-    "addCustomer": "Müşteri ekle"
+    "addCustomer": "Müşteri ekle",
+    "dealsTab": "Fırsatlar"
   },
   "customers": {
     "title": "Müşteriler",
@@ -153,13 +164,16 @@
     "selectAll": "Tümünü seç",
     "modules": {
       "crm": "CRM",
-      "identity": "Kimlik ve erişim"
+      "identity": "Kimlik ve erişim",
+      "sales": "Satış"
     },
     "groups": {
       "Companies": "Şirketler",
       "Customers": "Müşteriler",
       "Users": "Kullanıcılar",
-      "Roles": "Roller"
+      "Roles": "Roller",
+      "Deals": "Fırsatlar",
+      "Pipeline stages": "Huni aşamaları"
     }
   },
   "profile": {
@@ -206,11 +220,13 @@
     "company": {
       "tax_number_taken": "Bu vergi numarasıyla kayıtlı bir şirket zaten var.",
       "has_customers": "Müşterisi olan bir şirket silinemez.",
-      "not_found": "Şirket bulunamadı."
+      "not_found": "Şirket bulunamadı.",
+      "has_deals": "Fırsatı olan bir şirket silinemez."
     },
     "customer": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir müşteri zaten var.",
-      "not_found": "Müşteri bulunamadı."
+      "not_found": "Müşteri bulunamadı.",
+      "has_deals": "Fırsatlarda ilgili kişi olan bir müşteri silinemez."
     },
     "user": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir kullanıcı zaten var.",
@@ -225,6 +241,21 @@
       "system_role": "Yerleşik roller değiştirilemez veya silinemez.",
       "admin_permissions_fixed": "Admin rolünün izinleri değiştirilemez.",
       "not_found": "Rol bulunamadı."
+    },
+    "stage": {
+      "name_taken": "Bu isimde bir aşama zaten var.",
+      "has_deals": "Fırsatı olan bir aşama silinemez. Önce fırsatları başka bir aşamaya taşıyın.",
+      "last_stage": "Hunide en az bir aşama olmalı.",
+      "reorder_incomplete": "Aşama listesi değişti, sayfayı yenileyip tekrar deneyin.",
+      "none": "Önce bir huni aşaması ekleyin.",
+      "not_found": "Aşama bulunamadı."
+    },
+    "deal": {
+      "not_found": "Fırsat bulunamadı.",
+      "closed": "Fırsat kapalı. Önce yeniden açın.",
+      "already_open": "Fırsat zaten açık.",
+      "company_inactive": "Pasif bir şirkete fırsat eklenemez.",
+      "contact_not_in_company": "İlgili kişi, fırsatın şirketinde çalışıyor olmalı."
     }
   },
   "paginator": {
@@ -235,5 +266,51 @@
     "last": "Son sayfa",
     "empty": "0 kayıt",
     "range": "{{start}}–{{end}} / {{length}}"
+  },
+  "deals": {
+    "title": "Fırsatlar",
+    "subtitle": "Açık ve kapanmış tüm satış fırsatları",
+    "new": "Yeni fırsat",
+    "edit": "Fırsatı düzenle",
+    "dealTitle": "Fırsat",
+    "company": "Şirket",
+    "contact": "İlgili kişi",
+    "amount": "Tutar",
+    "currency": "Para birimi",
+    "stage": "Aşama",
+    "expectedClose": "Beklenen kapanış",
+    "closedAt": "Kapanış",
+    "lostReason": "Kaybetme nedeni",
+    "searchPlaceholder": "Fırsat adına göre ara",
+    "empty": "Henüz fırsat yok",
+    "moveTo": "Taşı",
+    "markWon": "Kazanıldı",
+    "markLost": "Kaybedildi",
+    "reopen": "Yeniden aç",
+    "status": {
+      "open": "Açık",
+      "won": "Kazanıldı",
+      "lost": "Kaybedildi"
+    }
+  },
+  "pipeline": {
+    "title": "Satış hunisi",
+    "subtitle": "Fırsatları ilerledikçe aşamalar arasında sürükleyin",
+    "listView": "Liste",
+    "boardView": "Pano",
+    "manageStages": "Aşamalar",
+    "probability": "%{{n}} kazanma olasılığı",
+    "weighted": "Ağırlıklı: {{value}}",
+    "emptyColumn": "Bu aşamada fırsat yok",
+    "addHere": "Fırsat ekle",
+    "stagesTitle": "Huni aşamaları",
+    "stagesSubtitle": "Bir fırsatın geçtiği adımlar",
+    "newStage": "Yeni aşama",
+    "editStage": "Aşamayı düzenle",
+    "stageName": "Aşama adı",
+    "winProbability": "Kazanma olasılığı",
+    "dragToReorder": "Sıralamak için sürükleyin",
+    "openDeals": "{{n}} açık fırsat",
+    "stagesHint": "Panodaki sırayı değiştirmek için aşamaları sürükleyin. Fırsatı kalmayan aşama silinebilir. Kazanma olasılıkları ağırlıklı huni değerini belirler."
   }
 }
