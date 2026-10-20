@@ -205,6 +205,22 @@ export interface NotificationDto {
   readAt: string | null;
 }
 
+export type AttachmentRecordType = 'company' | 'customer' | 'deal';
+
+export interface AttachmentDto {
+  id: number;
+  recordType: AttachmentRecordType;
+  recordId: number;
+  fileName: string;
+  contentType: string;
+  /** Bytes */
+  size: number;
+  /** Uploader; null for files added by the system (demo data). */
+  createdBy: number | null;
+  createdByName: string | null;
+  createdAt: string;
+}
+
 export interface AuditLogDto {
   id: number;
   action: 'Updated' | 'Deleted';

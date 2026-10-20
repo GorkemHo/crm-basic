@@ -19,11 +19,12 @@ import { StatusTag } from '../../shared/status-tag';
 import { CustomerFormDialog } from './customer-form-dialog';
 import { ActivityTimeline } from '../activities/activity-timeline';
 import { TaskList } from '../tasks/task-list';
+import { AttachmentsPanel } from '../attachments/attachments-panel';
 import { CustomersApi } from './customers.api';
 
 @Component({
   selector: 'app-customer-detail',
-  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, ActivityTimeline, TaskList],
+  imports: [RouterLink, TranslocoPipe, MatButtonModule, MatTabsModule, MatProgressBarModule, PageHeader, StatusTag, AppDatePipe, HistoryTimeline, ActivityTimeline, TaskList, AttachmentsPanel],
   template: `
     @if (customer(); as c) {
       <app-page-header [title]="c.firstName + ' ' + c.lastName" [subtitle]="c.email" backLink="/customers">
@@ -70,6 +71,13 @@ import { CustomersApi } from './customers.api';
               </ng-template>
             </mat-tab>
           }
+          @if (canReadFiles) {
+            <mat-tab [label]="'attachments.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body"><app-attachments-panel recordType="customer" [recordId]="c.id" /></div>
+              </ng-template>
+            </mat-tab>
+          }
           <mat-tab [label]="'companies.history' | transloco">
             <ng-template matTabContent>
               <div class="tab-body"><app-history-timeline #history [url]="api.historyUrl(c.id)" /></div>
@@ -109,6 +117,7 @@ export class CustomerDetail implements OnInit {
   readonly canDelete = this.store.can(Permissions.customersDelete);
   readonly canReadActivities = this.store.can(Permissions.activitiesRead);
   readonly canReadTasks = this.store.can(Permissions.tasksRead);
+  readonly canReadFiles = this.store.can(Permissions.attachmentsRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

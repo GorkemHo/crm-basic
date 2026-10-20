@@ -19,6 +19,7 @@ import { HistoryTimeline } from '../../shared/history-timeline';
 import { PageHeader } from '../../shared/page-header';
 import { ActivityTimeline } from '../activities/activity-timeline';
 import { TaskList } from '../tasks/task-list';
+import { AttachmentsPanel } from '../attachments/attachments-panel';
 import { DealFormDialog } from './deal-form-dialog';
 import { DealStatusTag, LoseDealDialog, dateOnly, isOverdue } from './deal-status';
 import { DealsApi, StagesApi } from './deals.api';
@@ -27,7 +28,7 @@ import { DealsApi, StagesApi } from './deals.api';
   selector: 'app-deal-detail',
   imports: [
     RouterLink, TranslocoPipe, MatButtonModule, MatMenuModule, MatTabsModule, MatProgressBarModule,
-    PageHeader, AppDatePipe, AppMoneyPipe, HistoryTimeline, DealStatusTag, ActivityTimeline, TaskList,
+    PageHeader, AppDatePipe, AppMoneyPipe, HistoryTimeline, DealStatusTag, ActivityTimeline, TaskList, AttachmentsPanel,
   ],
   template: `
     @if (deal(); as d) {
@@ -117,6 +118,13 @@ import { DealsApi, StagesApi } from './deals.api';
               </ng-template>
             </mat-tab>
           }
+          @if (canReadFiles) {
+            <mat-tab [label]="'attachments.title' | transloco">
+              <ng-template matTabContent>
+                <div class="tab-body"><app-attachments-panel recordType="deal" [recordId]="d.id" /></div>
+              </ng-template>
+            </mat-tab>
+          }
           <mat-tab [label]="'companies.history' | transloco">
             <ng-template matTabContent>
               <div class="tab-body"><app-history-timeline #history [url]="api.historyUrl(d.id)" /></div>
@@ -167,6 +175,7 @@ export class DealDetail implements OnInit {
   readonly canDelete = this.store.can(Permissions.dealsDelete);
   readonly canReadActivities = this.store.can(Permissions.activitiesRead);
   readonly canReadTasks = this.store.can(Permissions.tasksRead);
+  readonly canReadFiles = this.store.can(Permissions.attachmentsRead);
 
   /** Route parameter. */
   readonly id = input.required({ transform: numberAttribute });

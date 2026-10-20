@@ -175,7 +175,8 @@
       "identity": "Kimlik ve erişim",
       "sales": "Satış",
       "activities": "Aktiviteler",
-      "tasks": "Görevler"
+      "tasks": "Görevler",
+      "attachments": "Dosyalar"
     },
     "groups": {
       "Companies": "Şirketler",
@@ -185,7 +186,8 @@
       "Deals": "Fırsatlar",
       "Pipeline stages": "Huni aşamaları",
       "Activities": "Aktiviteler",
-      "Tasks": "Görevler"
+      "Tasks": "Görevler",
+      "Files": "Dosyalar"
     }
   },
   "profile": {
@@ -235,14 +237,16 @@
       "not_found": "Şirket bulunamadı.",
       "has_deals": "Fırsatı olan bir şirket silinemez.",
       "has_activities": "Aktivitesi olan bir şirket silinemez.",
-      "has_open_tasks": "Açık görevi olan bir şirket silinemez."
+      "has_open_tasks": "Açık görevi olan bir şirket silinemez.",
+      "has_attachments": "Dosyası olan bir şirket silinemez. Önce dosyaları silin."
     },
     "customer": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir müşteri zaten var.",
       "not_found": "Müşteri bulunamadı.",
       "has_deals": "Fırsatlarda ilgili kişi olan bir müşteri silinemez.",
       "has_activities": "Aktivitesi olan bir müşteri silinemez.",
-      "has_open_tasks": "Açık görevi olan bir müşteri silinemez."
+      "has_open_tasks": "Açık görevi olan bir müşteri silinemez.",
+      "has_attachments": "Dosyası olan bir müşteri silinemez. Önce dosyaları silin."
     },
     "user": {
       "email_taken": "Bu e-posta adresiyle kayıtlı bir kullanıcı zaten var.",
@@ -274,7 +278,8 @@
       "company_inactive": "Pasif bir şirkete fırsat eklenemez.",
       "contact_not_in_company": "İlgili kişi, fırsatın şirketinde çalışıyor olmalı.",
       "has_activities": "Aktivitesi olan bir fırsat silinemez.",
-      "has_open_tasks": "Açık görevi olan bir fırsat silinemez."
+      "has_open_tasks": "Açık görevi olan bir fırsat silinemez.",
+      "has_attachments": "Dosyası olan bir fırsat silinemez. Önce dosyaları silin."
     },
     "activity": {
       "not_found": "Aktivite bulunamadı.",
@@ -294,6 +299,15 @@
     },
     "notification": {
       "not_found": "Bildirim bulunamadı."
+    },
+    "attachment": {
+      "not_found": "Dosya bulunamadı.",
+      "file_missing": "Dosya depolamada bulunamadı.",
+      "type_not_allowed": "Bu türde dosya yüklenemez.",
+      "too_large": "Dosya çok büyük.",
+      "empty": "Dosya boş.",
+      "no_name": "Dosyanın adı yok.",
+      "not_uploader": "Bu dosyayı sadece yükleyen kişi silebilir."
     }
   },
   "paginator": {
@@ -416,5 +430,13 @@
       "deal.won": "{{actor}} fırsatınızı kazanıldı olarak işaretledi: {{subject}}",
       "deal.lost": "{{actor}} fırsatınızı kaybedildi olarak işaretledi: {{subject}}"
     }
+  },
+  "attachments": {
+    "title": "Dosyalar",
+    "dropHere": "Dosyaları buraya bırakın ya da",
+    "choose": "Dosya seçin",
+    "download": "İndir",
+    "empty": "Henüz dosya yok",
+    "uploaded": "{{name}} yüklendi"
   }
 }

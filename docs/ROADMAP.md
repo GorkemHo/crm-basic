@@ -86,7 +86,8 @@ Each one is a new `src/Modules/CRM.Modules.<Name>` project registered in the hos
 | 2 | **Activities** (`activities` schema) | Notes, calls, meetings and emails on a company, optionally a contact and a deal; authors edit/delete their own (`activities.activities.manage` for anyone's); timeline tabs on company, customer and deal pages, activity list with filters, latest activities on the dashboard | ✅ |
 | 3 | **Tasks** (`tasks` schema) | To-dos with due date, priority and an assignee (any active user; defaults to the creator), optionally about a company / contact / deal; complete / reopen; the assignee, the creator or `tasks.tasks.manage` may change a task; "my tasks" page with Mine / Everyone, tabs on company, customer and deal pages, "my tasks" card on the dashboard (overdue / due today); `TaskAssigned` event for future notifications | ✅ |
 | 4 | **Notifications** (`notifications` schema) | In-app notifications from other modules' events: task assigned (assignee), task completed (creator), deal won / lost (creator); never for your own action, idempotent per event; text built by the UI in the reader's language; bell with unread count (polled every 30 s and on tab focus) and a notifications page | ✅ |
-| 5 | Attachments, reporting | | later |
+| 5 | **Attachments** (`attachments` schema) | Files on companies, customers and deals: upload (button or drag and drop, with progress), download, delete by the uploader or `attachments.files.manage`; bytes in a file store (local disk, `Attachments:StoragePath`), allow-listed types, size limit, always downloaded as attachments | ✅ |
+| 6 | Reporting | | later |
 
 Notification follow-ups (not built yet): real-time push (SignalR) instead of polling, email delivery, per-user preferences, clean-up of old read notifications, due-date reminders.
 

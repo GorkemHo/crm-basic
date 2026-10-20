@@ -1,4 +1,4 @@
-/** Permission names declared by the API modules (CrmPermissions, SalesPermissions, ActivitiesPermissions, TasksPermissions, IdentityPermissions). */
+/** Permission names declared by the API modules (CrmPermissions, SalesPermissions, ActivitiesPermissions, TasksPermissions, AttachmentsPermissions, IdentityPermissions). */
 export const Permissions = {
   companiesRead: 'crm.companies.read',
   companiesWrite: 'crm.companies.write',
@@ -16,6 +16,9 @@ export const Permissions = {
   tasksRead: 'tasks.tasks.read',
   tasksWrite: 'tasks.tasks.write',
   tasksManage: 'tasks.tasks.manage',
+  attachmentsRead: 'attachments.files.read',
+  attachmentsWrite: 'attachments.files.write',
+  attachmentsManage: 'attachments.files.manage',
   usersRead: 'identity.users.read',
   usersManage: 'identity.users.manage',
   rolesRead: 'identity.roles.read',

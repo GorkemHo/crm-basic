@@ -175,7 +175,8 @@
       "identity": "Identity & access",
       "sales": "Sales",
       "activities": "Activities",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "attachments": "Files"
     },
     "groups": {
       "Companies": "Companies",
@@ -185,7 +186,8 @@
       "Deals": "Deals",
       "Pipeline stages": "Pipeline stages",
       "Activities": "Activities",
-      "Tasks": "Tasks"
+      "Tasks": "Tasks",
+      "Files": "Files"
     }
   },
   "profile": {
@@ -235,14 +237,16 @@
       "not_found": "Company not found.",
       "has_deals": "A company that has deals cannot be deleted.",
       "has_activities": "A company that has activities cannot be deleted.",
-      "has_open_tasks": "A company with open tasks cannot be deleted."
+      "has_open_tasks": "A company with open tasks cannot be deleted.",
+      "has_attachments": "A company that has files cannot be deleted. Delete the files first."
     },
     "customer": {
       "email_taken": "A customer with this email already exists.",
       "not_found": "Customer not found.",
       "has_deals": "A customer who is the contact of deals cannot be deleted.",
       "has_activities": "A customer who has activities cannot be deleted.",
-      "has_open_tasks": "A customer with open tasks cannot be deleted."
+      "has_open_tasks": "A customer with open tasks cannot be deleted.",
+      "has_attachments": "A customer who has files cannot be deleted. Delete the files first."
     },
     "user": {
       "email_taken": "A user with this email already exists.",
@@ -274,7 +278,8 @@
       "company_inactive": "Deals cannot be added for an inactive company.",
       "contact_not_in_company": "The contact must work at the deal's company.",
       "has_activities": "A deal that has activities cannot be deleted.",
-      "has_open_tasks": "A deal with open tasks cannot be deleted."
+      "has_open_tasks": "A deal with open tasks cannot be deleted.",
+      "has_attachments": "A deal that has files cannot be deleted. Delete the files first."
     },
     "activity": {
       "not_found": "Activity not found.",
@@ -294,6 +299,15 @@
     },
     "notification": {
       "not_found": "Notification not found."
+    },
+    "attachment": {
+      "not_found": "File not found.",
+      "file_missing": "The file is missing from storage.",
+      "type_not_allowed": "This type of file cannot be uploaded.",
+      "too_large": "The file is too large.",
+      "empty": "The file is empty.",
+      "no_name": "The file has no name.",
+      "not_uploader": "Only the person who uploaded this file can delete it."
     }
   },
   "paginator": {
@@ -416,5 +430,13 @@
       "deal.won": "{{actor}} marked your deal as won: {{subject}}",
       "deal.lost": "{{actor}} marked your deal as lost: {{subject}}"
     }
+  },
+  "attachments": {
+    "title": "Files",
+    "dropHere": "Drop files here or",
+    "choose": "Choose files",
+    "download": "Download",
+    "empty": "No files yet",
+    "uploaded": "{{name}} uploaded"
   }
 }
