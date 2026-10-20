@@ -4,6 +4,7 @@ using CRM.BuildingBlocks.Persistence;
 using CRM.BuildingBlocks.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -54,10 +55,32 @@ public static class ModuleHostExtensions
     {
         var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(ModuleHostExtensions));
 
-        foreach(var module in app.Services.GetRequiredService<ModuleCatalog>().Modules)
+        var modules = app.Services.GetRequiredService<ModuleCatalog>().Modules;
+
+        foreach(var module in modules)
         {
             logger.LogInformation("Initializing module {Module}", module.Name);
             await module.InitializeAsync(app.Services, cancellationToken);
+        }
+
+        if(app.Configuration.GetValue<bool>(DemoDataSettingKey))
+        {
+            await SeedDemoDataAsync(app.Services, cancellationToken);
+        }
+    }
+
+    public const string DemoDataSettingKey = "Seed:DemoData";
+
+    /// <summary>Runs every module's demo-data seeder in registration order (idempotent).</summary>
+    public static async Task SeedDemoDataAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(ModuleHostExtensions));
+
+        foreach(var module in services.GetRequiredService<ModuleCatalog>().Modules)
+        {
+            await using var scope = services.CreateAsyncScope();
+            logger.LogInformation("Seeding demo data for module {Module}", module.Name);
+            await module.SeedDemoDataAsync(scope.ServiceProvider, cancellationToken);
         }
     }
 }

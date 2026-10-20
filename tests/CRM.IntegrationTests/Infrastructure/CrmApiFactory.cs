@@ -18,7 +18,7 @@ namespace CRM.IntegrationTests.Infrastructure;
 /// </list>
 /// Migrations and seeding run through the normal module initialization.
 /// </summary>
-public sealed class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string AdminEmail = "admin@test.local";
     public const string AdminPassword = "Admin-Passw0rd!";
@@ -27,6 +27,9 @@ public sealed class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
     private string? _serverConnectionString;
     private string? _databaseName;
     private string _connectionString = string.Empty;
+
+    /// <summary>Whether modules seed their demo data at startup (off for the shared fixture).</summary>
+    protected virtual bool SeedDemoData => false;
 
     /// <summary>Integration events delivered in-process by the outbox, for assertions.</summary>
     public ConcurrentQueue<IIntegrationEvent> DeliveredEvents { get; } = new();
@@ -65,6 +68,7 @@ public sealed class CrmApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
         builder.UseSetting("Seed:AdminPassword", AdminPassword);
         builder.UseSetting("Outbox:PollingIntervalSeconds", "0.2");
         builder.UseSetting("RateLimiting:AuthPermitsPerMinute", "10000");
+        builder.UseSetting("Seed:DemoData", SeedDemoData ? "true" : "false");
 
         builder.ConfigureTestServices(services =>
         {

@@ -24,6 +24,14 @@ public interface IModule
     IEnumerable<PermissionDefinition> Permissions => [];
 
     Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>
+    /// Creates realistic demo records for this module when <c>Seed:DemoData</c> is on (default in Development).
+    /// Runs after every module is initialized, in registration order, in its own DI scope.
+    /// Must be idempotent and should go through the module's own commands (validation, rules and events apply).
+    /// Every module ships demo data for its features.
+    /// </summary>
+    Task SeedDemoDataAsync(IServiceProvider scopedServices, CancellationToken cancellationToken) => Task.CompletedTask;
 }
 
 /// <summary>The modules composed into the host, available from DI.</summary>

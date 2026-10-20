@@ -1,6 +1,6 @@
 import { Page, expect, test } from '@playwright/test';
 
-import { login, unique } from './helpers';
+import { ADMIN_EMAIL, login, unique } from './helpers';
 
 const dialog = (page: Page) => page.locator('mat-dialog-container');
 
@@ -46,9 +46,17 @@ test('a role with a granted permission changes what its users can do', async ({ 
   const userPage = await context.newPage();
   await login(userPage, email, password);
 
-  // Their effective permissions include the granted one.
+  // Their effective permissions include the granted one: in the database (profile)…
   await userPage.goto('/profile');
   await expect(userPage.locator('.permissions')).toContainText('crm.companies.delete');
+
+  // …and in the access token the UI uses to show buttons.
+  const tokenPermissions = await userPage.evaluate(() => {
+    const token = localStorage.getItem('crm.accessToken') ?? '';
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return ([] as string[]).concat(payload.perm ?? []);
+  });
+  expect(tokenPermissions).toContain('crm.companies.delete');
 
   await expect(userPage.locator('.sidebar')).toContainText(/Companies|Şirketler/);
   await expect(userPage.locator('.sidebar')).not.toContainText(/Users|Kullanıcılar/);
@@ -77,7 +85,8 @@ test('the Admin role is shown read-only', async ({ page }) => {
 test('you cannot delete yourself', async ({ page }) => {
   await login(page);
   await page.goto('/users');
-  const me = page.locator('tr.mat-mdc-row', { has: page.locator('.you') });
+  await page.locator('input[type="search"]').fill(ADMIN_EMAIL);
+  const me =page.locator('tr.mat-mdc-row', { has: page.locator('.you') });
   await expect(me).toHaveCount(1);
   await expect(me.locator('button[aria-label="Delete"], button[aria-label="Sil"]')).toHaveCount(0);
 });

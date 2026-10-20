@@ -99,6 +99,9 @@ public sealed class CrmModule : IModule
             .RequirePermission(CrmPermissions.CustomersRead);
     }
 
+    public Task SeedDemoDataAsync(IServiceProvider scopedServices, CancellationToken cancellationToken) =>
+        CrmDemoData.SeedAsync(scopedServices, cancellationToken);
+
     public async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
         await using var scope = services.CreateAsyncScope();

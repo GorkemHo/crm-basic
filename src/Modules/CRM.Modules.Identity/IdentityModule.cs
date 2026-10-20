@@ -78,6 +78,9 @@ public sealed class IdentityModule : IModule
 
     public void MapEndpoints(IEndpointRouteBuilder api) => IdentityEndpoints.Map(api);
 
+    public Task SeedDemoDataAsync(IServiceProvider scopedServices, CancellationToken cancellationToken) =>
+        IdentityDemoData.SeedAsync(scopedServices, cancellationToken);
+
     public async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
         await using var scope = services.CreateAsyncScope();

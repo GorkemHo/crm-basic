@@ -71,6 +71,7 @@ jobs:
       Seed__AdminEmail: admin@crm.local
       Seed__AdminPassword: dev12345
       Seed__AdminLanguage: en
+      Seed__DemoData: "true"
       RateLimiting__AuthPermitsPerMinute: "1000"
     defaults:
       run:
