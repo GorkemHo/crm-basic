@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CRM.BuildingBlocks.Application;
 using CRM.BuildingBlocks.Exceptions;
+using CRM.BuildingBlocks.Modules;
 using CRM.BuildingBlocks.Pagination;
 using CRM.Modules.Crm.Contracts;
 using CRM.Modules.Sales.Contracts;
@@ -280,12 +281,18 @@ internal sealed record DeleteDeal(int Id) : ICommand;
 internal sealed class DeleteDealHandler : IRequestHandler<DeleteDeal, Unit>
 {
     private readonly SalesDbContext _db;
+    private readonly IEnumerable<IReferenceCheck> _referenceChecks;
 
-    public DeleteDealHandler(SalesDbContext db) => _db = db;
+    public DeleteDealHandler(SalesDbContext db, IEnumerable<IReferenceCheck> referenceChecks)
+    {
+        _db = db;
+        _referenceChecks = referenceChecks;
+    }
 
     public async Task<Unit> Handle(DeleteDeal request, CancellationToken cancellationToken)
     {
         var deal = await DealRules.FindAsync(_db, request.Id, cancellationToken);
+        await _referenceChecks.EnsureNotReferencedAsync(SalesResources.Deal, deal.Id, cancellationToken);
 
         _db.Deals.Remove(deal);
         await _db.SaveChangesAsync(cancellationToken);

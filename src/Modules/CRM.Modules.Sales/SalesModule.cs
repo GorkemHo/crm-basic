@@ -30,6 +30,7 @@ public sealed class SalesModule : IModule
         services.AddRequestHandlersFromAssembly(typeof(SalesModule).Assembly);
         services.AddScoped<DealNames>();
         services.AddScoped<IReferenceCheck, SalesReferenceCheck>();
+        services.AddScoped<ISalesDirectory, SalesDirectory>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder api)

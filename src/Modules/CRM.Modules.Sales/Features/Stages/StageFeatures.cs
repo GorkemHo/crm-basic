@@ -70,7 +70,7 @@ internal sealed class UpdateStageValidator : AbstractValidator<UpdateStage>
     public UpdateStageValidator()
     {
         RuleFor(x => x.Name!).NotEmpty().MaximumLength(100).When(x => x.Name is not null);
-        RuleFor(x => x.Probability!.Value).InclusiveBetween(0, 100).When(x => x.Probability.HasValue);
+        RuleFor(x => x.Probability).InclusiveBetween(0, 100);
     }
 }
 

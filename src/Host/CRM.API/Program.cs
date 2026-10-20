@@ -2,6 +2,7 @@ using CRM.API.ErrorHandling;
 using CRM.API.Extensions;
 using CRM.API.Observability;
 using CRM.BuildingBlocks.Modules;
+using CRM.Modules.Activities;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
 using CRM.Modules.Sales;
@@ -20,7 +21,8 @@ builder.Services.AddExceptionHandler<AppExceptionHandler>();
 builder.AddModules(
     new IdentityModule(),
     new CrmModule(),
-    new SalesModule());
+    new SalesModule(),
+    new ActivitiesModule());
 
 builder.Services.AddCors(options =>
 {

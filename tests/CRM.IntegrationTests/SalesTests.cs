@@ -34,6 +34,10 @@ public class SalesTests(CrmApiFactory factory) : ApiTestBase(factory)
         await AssertProblemAsync(await admin.PostAsJsonAsync("/api/pipeline-stages", new { name = Unique("Bad"), probability = 101 }),
             HttpStatusCode.BadRequest, "validation_failed");
 
+        var badPatch = await AssertProblemAsync(await admin.PatchAsJsonAsync($"/api/pipeline-stages/{id}", new { probability = 150 }),
+            HttpStatusCode.BadRequest, "validation_failed");
+        Assert.True(badPatch.GetProperty("errors").TryGetProperty("probability", out _));
+
         var renamed = await ReadJsonAsync(await admin.PatchAsJsonAsync($"/api/pipeline-stages/{id}", new { name = name + "!", probability = 80 }));
         Assert.Equal(80, renamed.GetProperty("probability").GetInt32());
 

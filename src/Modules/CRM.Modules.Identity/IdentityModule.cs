@@ -7,6 +7,7 @@ using CRM.BuildingBlocks.Security;
 using CRM.Modules.Identity.Contracts;
 using CRM.Modules.Identity.Endpoints;
 using CRM.Modules.Identity.Features.Auth;
+using CRM.Modules.Identity.Infrastructure;
 using CRM.Modules.Identity.Infrastructure.Persistence;
 using CRM.Modules.Identity.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,6 +45,7 @@ public sealed class IdentityModule : IModule
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddScoped<AuthSessionFactory>();
         services.AddScoped<PermissionResolver>();
+        services.AddScoped<IUserDirectory, UserDirectory>();
 
         // This module issues the tokens, so it also configures how they are validated.
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
