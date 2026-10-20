@@ -54,7 +54,8 @@
     "pipeline": "Satış hunisi",
     "deals": "Fırsatlar",
     "activities": "Aktiviteler",
-    "tasks": "Görevlerim"
+    "tasks": "Görevlerim",
+    "notifications": "Bildirimler"
   },
   "languages": {
     "tr": "Türkçe",
@@ -290,6 +291,9 @@
       "assignee_required": "Görevin kime ait olduğunu seçin.",
       "contact_not_in_company": "İlgili kişi, seçilen şirkette çalışıyor olmalı.",
       "deal_not_in_company": "Fırsat, seçilen şirkete ait olmalı."
+    },
+    "notification": {
+      "not_found": "Bildirim bulunamadı."
     }
   },
   "paginator": {
@@ -398,5 +402,19 @@
     "reopened": "Görev yeniden açıldı",
     "empty": "Burada görev yok",
     "searchPlaceholder": "Görevlerde ara"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "subtitle": "Görevleriniz ve fırsatlarınızla ilgili gelişmeler",
+    "markAllRead": "Tümünü okundu yap",
+    "unread": "Okunmamış",
+    "empty": "Yeni bildirim yok",
+    "system": "Sistem",
+    "types": {
+      "task.assigned": "{{actor}} size bir görev atadı: {{subject}}",
+      "task.completed": "{{actor}} görevinizi tamamladı: {{subject}}",
+      "deal.won": "{{actor}} fırsatınızı kazanıldı olarak işaretledi: {{subject}}",
+      "deal.lost": "{{actor}} fırsatınızı kaybedildi olarak işaretledi: {{subject}}"
+    }
   }
 }

@@ -54,7 +54,8 @@
     "pipeline": "Pipeline",
     "deals": "Deals",
     "activities": "Activities",
-    "tasks": "My tasks"
+    "tasks": "My tasks",
+    "notifications": "Notifications"
   },
   "languages": {
     "tr": "Türkçe",
@@ -290,6 +291,9 @@
       "assignee_required": "Choose who the task is for.",
       "contact_not_in_company": "The contact must work at the selected company.",
       "deal_not_in_company": "The deal must belong to the selected company."
+    },
+    "notification": {
+      "not_found": "Notification not found."
     }
   },
   "paginator": {
@@ -398,5 +402,19 @@
     "reopened": "Task reopened",
     "empty": "No tasks here",
     "searchPlaceholder": "Search tasks"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "What happened to your tasks and deals",
+    "markAllRead": "Mark all as read",
+    "unread": "Unread",
+    "empty": "You're all caught up",
+    "system": "The system",
+    "types": {
+      "task.assigned": "{{actor}} assigned you a task: {{subject}}",
+      "task.completed": "{{actor}} completed your task: {{subject}}",
+      "deal.won": "{{actor}} marked your deal as won: {{subject}}",
+      "deal.lost": "{{actor}} marked your deal as lost: {{subject}}"
+    }
   }
 }

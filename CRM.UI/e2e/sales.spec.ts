@@ -64,10 +64,13 @@ test('a deal is added to a stage on the board and dragged to the next one', asyn
   await expect(page.locator('.deal-card')).toHaveCount(1);
 
   // A drag that starts while the board is still settling can be missed by the CDK, so retry it;
-  // once the card is in the target column, another attempt is a no-op.
+  // once the card is in the target column, another attempt is a no-op. The card moves at once, so wait
+  // for the save too: the reload below would otherwise cancel it.
   await expect(page.locator('app-deal-board mat-progress-bar')).toHaveCount(0);
   await expect(async () => {
+    const saved = page.waitForResponse((r) => r.url().includes('/move') && r.ok(), { timeout: 3_000 });
     await dragCard(page, title, 2);
+    await saved;
     await expect(column(page, 2).locator('.deal-card', { hasText: title })).toBeVisible({ timeout: 3_000 });
   }).toPass({ timeout: 20_000 });
 

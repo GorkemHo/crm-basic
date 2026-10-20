@@ -14,6 +14,7 @@ import { AuthService } from '../core/auth/auth.service';
 import { AuthStore } from '../core/auth/auth.store';
 import { Permissions } from '../core/auth/permissions';
 import { ThemeService } from '../core/ui/theme.service';
+import { NotificationBell } from '../features/notifications/notification-bell';
 import { LanguageSwitcher } from './language-switcher';
 
 interface NavItem {
@@ -67,7 +68,7 @@ const NAVIGATION: NavSection[] = [
   selector: 'app-shell',
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe,
-    MatSidenavModule, MatButtonModule, MatMenuModule, MatDividerModule, MatTooltipModule, LanguageSwitcher,
+    MatSidenavModule, MatButtonModule, MatMenuModule, MatDividerModule, MatTooltipModule, LanguageSwitcher, NotificationBell,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',

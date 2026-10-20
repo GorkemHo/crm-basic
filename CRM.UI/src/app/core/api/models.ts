@@ -189,6 +189,22 @@ export interface MyTaskSummary {
   dueToday: number;
 }
 
+export type NotificationType = 'task.assigned' | 'task.completed' | 'deal.won' | 'deal.lost';
+
+export interface NotificationDto {
+  id: number;
+  type: NotificationType;
+  /** Who caused it; null for the system. */
+  actorId: number | null;
+  actorName: string | null;
+  /** Title of the task / deal it is about. */
+  subject: string;
+  /** App route to open. */
+  link: string | null;
+  createdAt: string;
+  readAt: string | null;
+}
+
 export interface AuditLogDto {
   id: number;
   action: 'Updated' | 'Deleted';
