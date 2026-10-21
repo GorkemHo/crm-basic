@@ -7,6 +7,7 @@ using CRM.Modules.Attachments;
 using CRM.Modules.Crm;
 using CRM.Modules.Identity;
 using CRM.Modules.Notifications;
+using CRM.Modules.Reporting;
 using CRM.Modules.Sales;
 using CRM.Modules.Tasks;
 using Scalar.AspNetCore;
@@ -28,7 +29,8 @@ builder.AddModules(
     new ActivitiesModule(),
     new TasksModule(),
     new NotificationsModule(),
-    new AttachmentsModule());
+    new AttachmentsModule(),
+    new ReportingModule());
 
 builder.Services.AddCors(options =>
 {

@@ -183,6 +183,24 @@ public class DemoDataTests(DemoDataApiFactory factory)
     }
 
     [Fact]
+    public async Task SalesReport_ShowsTheDemoHistory_OverTheLastSixMonths()
+    {
+        var report = await (await AsAdminAsync()).GetFromJsonAsync<JsonElement>("/api/reports/sales", Json);
+
+        var closedInPeriod = SalesDemoData.Deals.Where(d => d.Status != "open" && (d.ClosedMonthsAgo ?? 0) <= 5).ToList();
+        Assert.Equal(closedInPeriod.Count(d => d.Status == "won"), report.GetProperty("wonCount").GetInt32());
+        Assert.Equal(closedInPeriod.Count(d => d.Status == "lost"), report.GetProperty("lostCount").GetInt32());
+
+        // Wins are spread over several months, in every currency.
+        Assert.True(report.GetProperty("months").EnumerateArray().Count(m => m.GetProperty("won").GetArrayLength() > 0) >= 4);
+        Assert.Equal(["EUR", "TRY", "USD"], report.GetProperty("won").EnumerateArray().Select(c => c.GetProperty("currency").GetString()));
+        Assert.True(report.GetProperty("averageCycleDays").GetDouble() > 0);
+        var price = report.GetProperty("lostReasons").EnumerateArray().Single(r => r.GetProperty("reason").GetString() == "Fiyat yüksek bulundu.");
+        Assert.Equal(2, price.GetProperty("count").GetInt32());
+        Assert.Equal(2, report.GetProperty("lostReasons")[0].GetProperty("count").GetInt32()); // most frequent first
+    }
+
+    [Fact]
     public async Task Seeding_IsIdempotent()
     {
         var admin = await AsAdminAsync();

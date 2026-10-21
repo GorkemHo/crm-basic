@@ -29,6 +29,7 @@ public sealed class TasksModule : IModule
         services.AddScoped<TaskNames>();
         services.AddScoped<TaskRules>();
         services.AddScoped<IReferenceCheck, TasksReferenceCheck>();
+        services.AddScoped<ITaskReports, TaskReports>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder api)

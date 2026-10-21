@@ -31,6 +31,7 @@ public sealed class SalesModule : IModule
         services.AddScoped<DealNames>();
         services.AddScoped<IReferenceCheck, SalesReferenceCheck>();
         services.AddScoped<ISalesDirectory, SalesDirectory>();
+        services.AddScoped<ISalesReports, SalesReports>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder api)

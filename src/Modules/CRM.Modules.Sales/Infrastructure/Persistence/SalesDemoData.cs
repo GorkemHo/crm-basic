@@ -21,9 +21,11 @@ internal static class SalesDemoData
     /// <param name="Stage">Index into the pipeline (clamped to the last stage).</param>
     /// <param name="Contact">Index into the company's customers, if any.</param>
     /// <param name="CloseInDays">Expected close date relative to today.</param>
+    /// <param name="ClosedMonthsAgo">For history: the deal was closed this many months ago, <paramref name="CycleDays"/> after it was added.</param>
     internal sealed record DemoDeal(
         string TaxNumber, string Title, decimal Amount, string Currency, int Stage,
-        string Status = DealStatus.Open, int? CloseInDays = null, int? Contact = null, string? LostReason = null);
+        string Status = DealStatus.Open, int? CloseInDays = null, int? Contact = null, string? LostReason = null,
+        int? ClosedMonthsAgo = null, int CycleDays = 30);
 
     public static readonly IReadOnlyList<DemoDeal> Deals =
     [
@@ -39,6 +41,19 @@ internal static class SalesDemoData
         new("4610000009", "Bayi portalı", 180_000m, Currencies.Try, 3, DealStatus.Won, Contact: 0),
         new("4610000010", "Stok tahminleme modülü", 30_000m, Currencies.Eur, 0),
         new("4610000012", "Sezonluk kampanya CRM kurulumu", 22_000m, Currencies.Eur, 3, CloseInDays: 5, Contact: 1),
+
+        // History for the reports: deals closed over the last months.
+        new("4610000002", "Mobil uygulama bakım sözleşmesi", 48_000m, Currencies.Usd, 3, DealStatus.Won, ClosedMonthsAgo: 5, CycleDays: 40),
+        new("4610000003", "Kumaş stok entegrasyonu", 22_000m, Currencies.Eur, 2, DealStatus.Lost, LostReason: "Fiyat yüksek bulundu.", ClosedMonthsAgo: 5),
+        new("4610000004", "Bayi sipariş portalı", 310_000m, Currencies.Try, 3, DealStatus.Won, ClosedMonthsAgo: 4, CycleDays: 55),
+        new("4610000006", "Otel kanal yöneticisi", 35_000m, Currencies.Eur, 3, DealStatus.Won, ClosedMonthsAgo: 4, CycleDays: 25),
+        new("4610000008", "Enerji izleme panosu", 60_000m, Currencies.Usd, 2, DealStatus.Lost, LostReason: "Rakip firma tercih edildi.", ClosedMonthsAgo: 3),
+        new("4610000009", "Tarla sensör pilotu", 140_000m, Currencies.Try, 3, DealStatus.Won, ClosedMonthsAgo: 3, CycleDays: 70),
+        new("4610000010", "Yedek parça e-ticaret sitesi", 520_000m, Currencies.Try, 3, DealStatus.Won, ClosedMonthsAgo: 2, CycleDays: 45),
+        new("4610000012", "Kayak okulu rezervasyonu", 18_000m, Currencies.Eur, 1, DealStatus.Lost, LostReason: "Bütçe bir sonraki yıla ertelendi.", ClosedMonthsAgo: 2),
+        new("4610000005", "İş güvenliği eğitim modülü", 95_000m, Currencies.Try, 3, DealStatus.Won, ClosedMonthsAgo: 1, CycleDays: 20),
+        new("4610000001", "Rota optimizasyonu danışmanlığı", 40_000m, Currencies.Usd, 3, DealStatus.Won, ClosedMonthsAgo: 1, CycleDays: 35),
+        new("4610000002", "Veri ambarı ön çalışması", 15_000m, Currencies.Usd, 1, DealStatus.Lost, LostReason: "Fiyat yüksek bulundu.", ClosedMonthsAgo: 1),
     ];
 
     public static async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken)
@@ -75,6 +90,19 @@ internal static class SalesDemoData
 
             if(demo.Status == DealStatus.Won) await sender.Send(new WinDeal(deal.Id), cancellationToken);
             if(demo.Status == DealStatus.Lost) await sender.Send(new LoseDeal(deal.Id, demo.LostReason), cancellationToken);
+
+            if(demo.ClosedMonthsAgo is { } monthsAgo)
+            {
+                // Commands always use "now"; history is moved back afterwards (demo data only).
+                // Day 2–11 of the target month, so a deal never slips into the month before.
+                var month = clock.GetUtcNow().UtcDateTime.AddMonths(-monthsAgo);
+                var closedAt = new DateTime(month.Year, month.Month, 2 + created % 10, 10, 0, 0, DateTimeKind.Utc);
+                var createdAt = closedAt.AddDays(-demo.CycleDays);
+                await db.Deals.Where(x => x.Id == deal.Id).ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.ClosedAt, closedAt)
+                    .SetProperty(x => x.CreatedAt, createdAt)
+                    .SetProperty(x => x.UpdatedAt, closedAt), cancellationToken);
+            }
 
             created++;
         }

@@ -86,6 +86,7 @@ public class AuthorizationTests(CrmApiFactory factory) : ApiTestBase(factory)
         Assert.Contains("activities", modules);
         Assert.Contains("tasks", modules);
         Assert.Contains("attachments", modules);
+        Assert.Contains("reporting", modules);
     }
 
     private static async Task<int> GetRoleIdAsync(HttpClient admin, string name)

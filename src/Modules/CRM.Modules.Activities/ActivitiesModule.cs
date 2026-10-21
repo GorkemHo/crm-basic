@@ -29,6 +29,7 @@ public sealed class ActivitiesModule : IModule
         services.AddScoped<ActivityNames>();
         services.AddScoped<ActivityRules>();
         services.AddScoped<IReferenceCheck, ActivitiesReferenceCheck>();
+        services.AddScoped<IActivityReports, ActivityReports>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder api)
