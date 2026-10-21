@@ -74,7 +74,7 @@ With `Seed:DemoData=true` (on in Development and in the CI e2e job) every module
 | elif.demir@demo.local | User | en |
 | can.ozturk@demo.local | User (inactive, cannot sign in) | tr |
 
-A few small demo files are attached to demo deals and companies. Demo tasks are assigned to the demo users, who get a notification for each (from the system) (overdue, due today, upcoming, done). Demo activities (notes, calls, meetings, emails, one planned) are logged on the demo companies and deals. Sales demo deals are spread over the pipeline in TRY, USD and EUR, with some won and lost in the current month. Seeding is idempotent and skipped when the demo records already exist. Keep it off for real deployments.
+A few small demo files are attached to demo deals and companies. Demo tasks are assigned to the demo users, who get a notification for each (from the system) (overdue, due today, upcoming, done). Demo activities (notes, calls, meetings, emails, one planned) are logged on the demo companies and deals. Sales demo deals are spread over the pipeline, with deals won and lost over the last five months for the reports, in TRY, USD and EUR, with some won and lost in the current month. Seeding is idempotent and skipped when the demo records already exist. Keep it off for real deployments.
 
 - API reference: `https://localhost:7156/scalar`; sample requests: `src/Host/CRM.API/CRM.API.http`
 - Health: `/health/live`, `/health/ready`
@@ -132,6 +132,7 @@ CI (`.github/workflows/ci.yml`) builds, runs all .NET tests, builds the API imag
 | Pipeline stages | `GET/POST /api/pipeline-stages`, `PATCH/DELETE /api/pipeline-stages/{id}`, `PUT /api/pipeline-stages/order` | `sales.deals.read` / `sales.stages.manage` |
 | Activities | `GET/POST /api/activities`, `GET/PUT/DELETE /api/activities/{id}` (filters: `companyId`, `customerId`, `dealId`, `type`, `createdBy`, `search`) | `activities.activities.read` / `.write` (own) / `.manage` (anyone's) |
 | Attachments | `GET /api/attachments?recordType=&recordId=`, `POST /api/attachments` (multipart: `recordType` company / customer / deal, `recordId`, `file`), `GET /api/attachments/{id}/download`, `DELETE /api/attachments/{id}` | `attachments.files.read` / `.write` (own) / `.manage` |
+| Reports | `GET /api/reports/sales?from=&to=`, `/pipeline`, `/activities?from=&to=`, `/tasks?from=&to=&today=` (days, both ends included; default the last six months) | `reporting.reports.read` |
 | Notifications | `GET /api/notifications` (`unreadOnly`), `GET /api/notifications/unread-count`, `POST /api/notifications/{id}/read`, `POST /api/notifications/read-all` | signed in (own notifications only) |
 | Tasks | `GET/POST /api/tasks`, `GET/PUT/DELETE /api/tasks/{id}`, `POST /api/tasks/{id}/complete`, `reopen`; `GET /api/tasks/assignees`, `my-summary?today=` (filters: `mine`, `assigneeId`, `status`, `dueFrom`, `dueTo`, `companyId`, `customerId`, `dealId`, `search`) | `tasks.tasks.read` / `.write` (own or assigned) / `.manage` |
 | Deals | `GET/POST /api/deals`, `GET/PUT/DELETE /api/deals/{id}`, `POST /api/deals/{id}/move`, `win`, `lose`, `reopen`; `GET /api/deals/board`, `summary`, `/{id}/history` | `sales.deals.read` / `.write` / `.delete` |

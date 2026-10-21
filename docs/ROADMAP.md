@@ -87,7 +87,9 @@ Each one is a new `src/Modules/CRM.Modules.<Name>` project registered in the hos
 | 3 | **Tasks** (`tasks` schema) | To-dos with due date, priority and an assignee (any active user; defaults to the creator), optionally about a company / contact / deal; complete / reopen; the assignee, the creator or `tasks.tasks.manage` may change a task; "my tasks" page with Mine / Everyone, tabs on company, customer and deal pages, "my tasks" card on the dashboard (overdue / due today); `TaskAssigned` event for future notifications | ✅ |
 | 4 | **Notifications** (`notifications` schema) | In-app notifications from other modules' events: task assigned (assignee), task completed (creator), deal won / lost (creator); never for your own action, idempotent per event; text built by the UI in the reader's language; bell with unread count (polled every 30 s and on tab focus) and a notifications page | ✅ |
 | 5 | **Attachments** (`attachments` schema) | Files on companies, customers and deals: upload (button or drag and drop, with progress), download, delete by the uploader or `attachments.files.manage`; bytes in a file store (local disk, `Attachments:StoragePath`), allow-listed types, size limit, always downloaded as attachments | ✅ |
-| 6 | Reporting | | later |
+| 6 | **Reporting** (no tables) | Sales performance (won per month and currency, won / lost counts, win rate, average sales cycle, lost reasons), open pipeline per stage with weighted value, activities per month and person, tasks per person; period presets and custom dates; CSV downloads; behind `reporting.reports.read` (not granted to users by default). Each module answers through a report interface in its Contracts | ✅ |
+
+Charts are small hand-written SVG components (`shared/charts`), so there is no chart library to license; series colors are validated for color-blind separation in light and dark mode, and every chart has its numbers in a table. Report months are UTC months.
 
 Notification follow-ups (not built yet): real-time push (SignalR) instead of polling, email delivery, per-user preferences, clean-up of old read notifications, due-date reminders.
 

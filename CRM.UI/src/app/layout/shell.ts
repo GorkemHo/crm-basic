@@ -38,6 +38,7 @@ const NAVIGATION: NavSection[] = [
     items: [
       { label: 'nav.dashboard', icon: 'space_dashboard', route: '/', exact: true },
       { label: 'nav.tasks', icon: 'task_alt', route: '/tasks', permission: Permissions.tasksRead },
+      { label: 'nav.reports', icon: 'bar_chart', route: '/reports', permission: Permissions.reportsRead },
     ],
   },
   {

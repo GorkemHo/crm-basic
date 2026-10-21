@@ -21,6 +21,11 @@ const FEATURE_ROUTES: Routes = [
     loadChildren: () => import('./features/customers/customers.routes').then((m) => m.CUSTOMER_ROUTES),
   },
   {
+    path: 'reports',
+    data: { permission: Permissions.reportsRead },
+    loadComponent: () => import('./features/reports/report-page').then((m) => m.ReportPage),
+  },
+  {
     path: 'tasks',
     data: { permission: Permissions.tasksRead },
     loadComponent: () => import('./features/tasks/task-page').then((m) => m.TaskPage),

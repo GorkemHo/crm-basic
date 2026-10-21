@@ -55,7 +55,8 @@
     "deals": "Fırsatlar",
     "activities": "Aktiviteler",
     "tasks": "Görevlerim",
-    "notifications": "Bildirimler"
+    "notifications": "Bildirimler",
+    "reports": "Raporlar"
   },
   "languages": {
     "tr": "Türkçe",
@@ -176,7 +177,8 @@
       "sales": "Satış",
       "activities": "Aktiviteler",
       "tasks": "Görevler",
-      "attachments": "Dosyalar"
+      "attachments": "Dosyalar",
+      "reporting": "Raporlar"
     },
     "groups": {
       "Companies": "Şirketler",
@@ -187,7 +189,8 @@
       "Pipeline stages": "Huni aşamaları",
       "Activities": "Aktiviteler",
       "Tasks": "Görevler",
-      "Files": "Dosyalar"
+      "Files": "Dosyalar",
+      "Reports": "Raporlar"
     }
   },
   "profile": {
@@ -438,5 +441,46 @@
     "download": "İndir",
     "empty": "Henüz dosya yok",
     "uploaded": "{{name}} yüklendi"
+  },
+  "reports": {
+    "title": "Raporlar",
+    "subtitle": "Satışlar ve ekip nasıl gidiyor",
+    "presets": {
+      "3m": "3 ay",
+      "6m": "6 ay",
+      "12m": "12 ay",
+      "year": "Bu yıl",
+      "custom": "Özel"
+    },
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "wonDeals": "Kazanılan fırsat",
+    "lostDeals": "Kaybedilen fırsat",
+    "winRate": "Kazanma oranı",
+    "averageCycle": "Ortalama satış süresi",
+    "days": "{{n}} gün",
+    "wonAmount": "Kazanılan ({{currency}})",
+    "wonPerMonth": "Aylık kazanılan",
+    "wonAndLost": "Kazanılan ve kaybedilen fırsatlar",
+    "won": "Kazanılan",
+    "lost": "Kaybedilen",
+    "noWins": "Bu dönemde kazanılan fırsat yok.",
+    "pipeline": "Aşamalara göre açık huni",
+    "openAmount": "Açık",
+    "weighted": "Ağırlıklı",
+    "dealCount": "Fırsat",
+    "lostReasons": "Fırsatlar neden kaybedildi",
+    "noReason": "Neden belirtilmemiş",
+    "noLosses": "Bu dönemde kaybedilen fırsat yok.",
+    "activities": "Aktiviteler",
+    "byPerson": "Kişiye göre",
+    "person": "Kişi",
+    "total": "Toplam",
+    "tasks": "Kişiye göre görevler",
+    "openNow": "Şu an açık",
+    "overdueNow": "Şu an gecikmiş",
+    "completedInPeriod": "Dönemde tamamlanan",
+    "month": "Ay",
+    "showTable": "Rakamları göster"
   }
 }

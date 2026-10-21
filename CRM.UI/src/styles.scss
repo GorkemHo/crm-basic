@@ -34,6 +34,12 @@ html {
   --app-success: light-dark(#1b7f3b, #7fd99a);
   --app-success-container: light-dark(#d7f5df, #1f4d2c);
   --app-danger: var(--mat-sys-error);
+
+  /* Chart series (categorical, fixed order; validated against the light and dark surfaces). */
+  --viz-1: light-dark(#2a78d6, #3987e5);
+  --viz-2: light-dark(#eb6834, #d95926);
+  --viz-3: light-dark(#1baf7a, #199e70);
+  --viz-4: light-dark(#eda100, #c98500);
 }
 
 *,
